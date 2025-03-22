@@ -1,0 +1,432 @@
+Quy trình phát triển phần mềm trong dự án của bạn đã khá đầy đủ, nhưng có thể bổ sung thêm một số phần quan trọng để đảm bảo toàn diện hơn. Dưới đây là các giai đoạn chuẩn theo SDLC (Software Development Life Cycle) mà bạn có thể cân nhắc:
+
+1. Lập kế hoạch & Phân tích yêu cầu
+🔲 Xác định phạm vi dự án (Scope)
+🔲 Xác định đối tượng người dùng & nhu cầu sử dụng
+🔲 Phân tích chức năng & yêu cầu kỹ thuật
+🔲 Xây dựng sơ đồ kiến trúc hệ thống
+🔲 Lập kế hoạch phát triển theo Agile/Scrum
+
+2. Thiết kế hệ thống (System Design)
+🔲 Thiết kế kiến trúc hệ thống (Microservices hoặc Monolithic)
+🔲 Thiết kế cơ sở dữ liệu (Google Sheets structure)
+🔲 Thiết kế API (RESTful hoặc GraphQL)
+🔲 Thiết kế UI/UX (Wireframe, Prototype)
+🔲 Xác định công nghệ & thư viện sử dụng
+
+3. Phát triển (Development)
+🔲 Thiết lập môi trường phát triển
+🔲 Xây dựng API (Backend)
+🔲 Xây dựng giao diện (Frontend)
+🔲 Đồng bộ hóa dữ liệu với Google Sheets
+🔲 Viết unit test cho từng thành phần
+
+4. Kiểm thử phần mềm (Testing & QA)
+🔲 Kiểm thử chức năng (Functional Testing)
+🔲 Kiểm thử giao diện người dùng (UI/UX Testing)
+🔲 Kiểm thử hiệu suất (Performance Testing)
+🔲 Kiểm thử bảo mật (Security Testing)
+🔲 Kiểm thử tính tương thích trên thiết bị khác nhau
+
+5. Triển khai & Vận hành (Deployment & Maintenance)
+🔲 Triển khai ứng dụng lên Vercel
+🔲 Cấu hình CI/CD để tự động hóa triển khai
+🔲 Theo dõi lỗi & hiệu suất hệ thống sau khi triển khai
+🔲 Thu thập phản hồi từ người dùng để cải thiện hệ thống
+🔲 Bảo trì & cập nhật hệ thống định kỳ
+
+Next.js có nhiều cách triển khai và sử dụng khác nhau, tùy vào nhu cầu dự án của bạn. Dưới đây là một số loại phổ biến của Next.js:  
+
+### 1. **Next.js App Router (Next.js 13+)**  
+   - Sử dụng **App Router** (`app/`) thay vì **Pages Router** (`pages/`).
+   - Hỗ trợ **React Server Components (RSC)**, giúp tăng tốc hiệu suất.
+   - Dùng **Server Actions** để xử lý form và API trực tiếp mà không cần API routes.  
+   - Hỗ trợ **Streaming & Suspense**, giúp tải trang mượt mà hơn.  
+
+👉 **Phù hợp cho**: Dự án hiện đại, cần hiệu suất cao và tận dụng tối đa tính năng server-side rendering (SSR).  
+
+---
+
+### 2. **Next.js Pages Router (Next.js <13 hoặc `pages/` trong Next.js 13+)**  
+   - Sử dụng thư mục `pages/` để định nghĩa các route.  
+   - Hỗ trợ **getStaticProps**, **getServerSideProps**, **getInitialProps** để fetch dữ liệu.  
+   - Không có React Server Components (RSC).  
+
+👉 **Phù hợp cho**: Dự án cũ hoặc cần code đơn giản, dễ bảo trì.  
+
+---
+
+### 3. **Next.js Static Site Generation (SSG)**  
+   - Trang web được build sẵn dưới dạng tĩnh (`getStaticProps`).  
+   - Load nhanh vì không cần fetch dữ liệu mỗi lần request.  
+
+👉 **Phù hợp cho**: Blog, landing page, website ít thay đổi dữ liệu.  
+
+---
+
+### 4. **Next.js Server-Side Rendering (SSR)**  
+   - Render trang trên server mỗi khi có request (`getServerSideProps`).  
+   - Luôn lấy dữ liệu mới từ backend.  
+
+👉 **Phù hợp cho**: Trang web có dữ liệu động (dashboard, e-commerce).  
+
+---
+
+### 5. **Next.js Hybrid (Kết hợp SSG + SSR)**  
+   - Một số trang dùng SSG (tải nhanh), một số trang dùng SSR (dữ liệu động).  
+
+👉 **Phù hợp cho**: Dự án lớn, cần cả tốc độ và dữ liệu động.  
+
+---
+
+### 6. **Next.js API Routes**  
+   - Viết API ngay trong Next.js (`/pages/api/` hoặc `/app/api/`).  
+   - Có thể thay thế một số backend nhỏ.  
+
+👉 **Phù hợp cho**: Ứng dụng nhỏ hoặc cần API nội bộ.  
+
+---
+
+### 7. **Next.js Edge Functions & Middleware**  
+   - Middleware xử lý request trước khi đến server.  
+   - Edge Functions giúp xử lý API nhanh hơn bằng cách chạy gần với người dùng.  
+
+👉 **Phù hợp cho**: Ứng dụng cần xử lý request nhanh, bảo mật hoặc tùy chỉnh redirect.  
+
+---
+
+
+Dưới đây là bảng so sánh chi tiết từng loại Next.js theo các tiêu chí: **hiệu suất**, **tốc độ tải trang**, **dễ bảo trì**, **tính linh hoạt** và **trường hợp sử dụng phù hợp**.  
+
+| **Loại Next.js**       | **Ưu điểm** | **Nhược điểm** | **Phù hợp với** |  
+|------------------------|------------|---------------|----------------|  
+| **App Router (Next.js 13+)** | - Hiệu suất cao nhờ React Server Components (RSC).  - Hỗ trợ Streaming, Suspense.  - API mạnh mẽ với Server Actions.  - Giảm tải client-side JavaScript. | - Học cách sử dụng mới (khác biệt với Pages Router).  - Chưa hỗ trợ đầy đủ một số thư viện cũ. | Dự án lớn, e-commerce, SaaS, dashboard cần tối ưu tốc độ. |  
+| **Pages Router (Next.js cũ hoặc Next.js 13+ với `/pages/` )** | - Dễ hiểu, quen thuộc với người dùng Next.js cũ.  - Hỗ trợ `getStaticProps`, `getServerSideProps` dễ kiểm soát dữ liệu. | - Không hỗ trợ React Server Components.  - Hiệu suất kém hơn App Router. | Dự án cũ, blog, website đơn giản không cần hiệu suất cao. |  
+| **Static Site Generation (SSG)** | - Tốc độ tải nhanh vì trang được tạo sẵn.  - Không tốn tài nguyên server.  - SEO tốt. | - Không phù hợp cho dữ liệu động.  - Cần rebuild lại khi dữ liệu thay đổi. | Blog, landing page, tài liệu, danh sách sản phẩm không đổi. |  
+| **Server-Side Rendering (SSR)** | - Luôn có dữ liệu mới nhất mỗi lần request.  - Không cần rebuild mỗi khi dữ liệu thay đổi. | - Tốc độ tải trang chậm hơn SSG.  - Tốn tài nguyên server. | Dashboard, trang admin, ứng dụng web có nội dung động. |  
+| **Hybrid (SSG + SSR)** | - Kết hợp ưu điểm của SSG và SSR.  - Tăng hiệu suất nhưng vẫn đảm bảo dữ liệu động khi cần. | - Phức tạp hơn khi triển khai. | Dự án lớn cần cả tốc độ và dữ liệu động (e-commerce, SaaS). |  
+| **API Routes** | - Viết API ngay trong Next.js, không cần backend riêng.  - Tốt cho ứng dụng nhỏ hoặc serverless. | - Không phù hợp cho hệ thống API lớn.  - Hiệu suất kém nếu có nhiều request phức tạp. | Ứng dụng nhỏ, API nội bộ, webhook. |  
+| **Edge Functions & Middleware** | - Xử lý request nhanh hơn bằng cách chạy ở edge server.  - Hỗ trợ tùy chỉnh request (auth, redirect, caching). | - Cần có nền tảng edge computing (VD: Vercel, Cloudflare).  - Không phù hợp với ứng dụng nặng. | Ứng dụng cần tốc độ cao, bảo mật, tùy chỉnh route. |  
+
+## **Kết luận: Chọn loại nào phù hợp?**  
+- **Dự án mới, cần hiệu suất cao** → **App Router (Next.js 13+ với RSC)**.  
+- **Dự án cũ, quen dùng Pages Router** → **Pages Router**.  
+- **Tối ưu tốc độ, ít thay đổi dữ liệu** → **SSG**.  
+- **Dữ liệu động, cần cập nhật real-time** → **SSR**.  
+- **Dự án lớn, cần sự linh hoạt** → **Hybrid (SSG + SSR)**.  
+- **Ứng dụng nhỏ hoặc có API riêng** → **API Routes**.  
+- **Cần xử lý nhanh request, redirect, auth** → **Edge Functions & Middleware**.  
+
+Bạn đang làm e-commerce, nên **Hybrid (SSG + SSR) + App Router** có thể là lựa chọn tốt nhất. 🚀
+
+
+
+Dưới đây là kế hoạch chi tiết hơn cho dự án **Quản lý thu chi - đơn hàng** với **Next.js, TypeScript, Tailwind CSS, và Google Sheets**.  
+
+---
+
+## **1. Công Nghệ Sử Dụng**  
+- **Next.js (App Router)**: Hỗ trợ SSR, ISR, và Server Actions để tối ưu tốc độ.  
+- **TypeScript**: Giúp code an toàn, dễ bảo trì.  
+- **Tailwind CSS**: Thiết kế UI nhanh và linh hoạt.  
+- **Google Sheets API**: Dùng Google Sheets làm database.  
+- **Recharts / Chart.js**: Hiển thị biểu đồ thống kê thu chi, đơn hàng.  
+- **Zustand / React Context**: Quản lý state ứng dụng.  
+- **NextAuth.js hoặc Firebase Auth**: Nếu cần đăng nhập, phân quyền.  
+
+---
+
+## **2. Chức Năng Chi Tiết**  
+
+### **📌 Quản Lý Thu Chi**  
+✅ **Ghi chép giao dịch**  
+- Thêm, sửa, xóa giao dịch thu/chi.  
+- Chọn danh mục (lương, ăn uống, mua sắm, hóa đơn, v.v.).  
+- Đính kèm ghi chú, hình ảnh (nếu cần).  
+
+✅ **Quản lý danh mục thu chi**  
+- Tạo, chỉnh sửa, xóa danh mục chi tiêu.  
+- Mỗi giao dịch được gán vào một danh mục.  
+
+✅ **Thống kê thu chi**  
+- Biểu đồ thu chi theo ngày/tháng/năm.  
+- Tổng hợp số dư hiện tại.  
+- Báo cáo theo danh mục (Ví dụ: ăn uống chiếm 30%, hóa đơn chiếm 20%).  
+
+✅ **Lọc và tìm kiếm giao dịch**  
+- Lọc theo ngày, danh mục, số tiền.  
+- Tìm kiếm nhanh theo từ khóa.  
+
+---
+
+### **📌 Quản Lý Đơn Hàng**  
+✅ **Tạo & quản lý đơn hàng**  
+- Nhập thông tin đơn hàng (mã đơn, sản phẩm, số lượng, giá).  
+- Cập nhật trạng thái đơn (đang xử lý, đã giao, hủy đơn).  
+- Ghi chú chi tiết đơn hàng.  
+
+✅ **Xuất & đồng bộ đơn hàng với Google Sheets**  
+- Khi có đơn hàng mới, tự động ghi vào Google Sheets.  
+- Cập nhật trạng thái đơn trực tiếp từ Google Sheets.  
+
+✅ **Thống kê doanh thu**  
+- Biểu đồ doanh thu theo ngày/tháng.  
+- Tính tổng doanh thu, lợi nhuận.  
+- Báo cáo chi tiết theo sản phẩm, khách hàng.  
+
+✅ **Lọc & tìm kiếm đơn hàng**  
+- Lọc theo ngày, trạng thái đơn hàng, khách hàng.  
+- Tìm kiếm đơn hàng theo mã, tên khách.  
+
+---
+
+## **3. Triển Khai Kết Nối Google Sheets API**  
+📌 **Bước 1**: Tạo Google Cloud Project & bật **Google Sheets API**.  
+📌 **Bước 2**: Tạo **Service Account**, lấy API Key.  
+📌 **Bước 3**: Dùng thư viện `googleapis` trong Next.js để đọc/ghi dữ liệu:  
+- `GET` lấy dữ liệu thu chi, đơn hàng.  
+- `POST` thêm giao dịch hoặc đơn hàng.  
+- `PUT` cập nhật thông tin.  
+- `DELETE` xóa giao dịch, đơn hàng.  
+
+---
+
+## **4. Giao Diện Người Dùng (UI/UX)**  
+✅ **Trang Dashboard**: Tổng quan thu chi, đơn hàng, số dư.  
+✅ **Trang Quản Lý Thu Chi**: Danh sách giao dịch, biểu đồ, bộ lọc.  
+✅ **Trang Quản Lý Đơn Hàng**: Danh sách đơn, trạng thái, tìm kiếm.  
+✅ **Trang Cài Đặt**: Quản lý danh mục, xuất dữ liệu, cấu hình Google Sheets.  
+
+---
+
+## **5. Mở Rộng (Tương Lai)**  
+📌 **Tích hợp Google Auth** để bảo mật.  
+📌 **Gửi email thông báo khi có đơn hàng mới**.  
+📌 **Hỗ trợ đa người dùng** (nếu cần).  
+
+---
+
+
+Dưới đây là danh sách chi tiết các chức năng của dự án **Quản lý thu chi - đơn hàng** với **Next.js, TypeScript, Tailwind CSS và Google Sheets**.  
+
+---
+
+# **1. Quản Lý Thu Chi**  
+### **1.1. Ghi Chép Giao Dịch**  
+✅ **Thêm giao dịch mới**  
+- Nhập số tiền, loại giao dịch (thu/chi).  
+- Chọn danh mục (lương, ăn uống, mua sắm, hóa đơn, v.v.).  
+- Nhập ngày giao dịch.  
+- Ghi chú mô tả chi tiết.  
+- Upload hình ảnh hóa đơn (nếu cần).  
+
+✅ **Chỉnh sửa giao dịch**  
+- Sửa lại số tiền, danh mục, ngày giao dịch.  
+
+✅ **Xóa giao dịch**  
+- Xóa giao dịch khỏi danh sách và Google Sheets.  
+
+---
+
+### **1.2. Quản Lý Danh Mục Thu Chi**  
+✅ **Thêm danh mục mới**  
+- Nhập tên danh mục (Ví dụ: Lương, Ăn uống, Đi lại).  
+- Chọn loại danh mục (thu nhập hoặc chi tiêu).  
+
+✅ **Chỉnh sửa danh mục**  
+- Đổi tên danh mục, thay đổi màu sắc đại diện.  
+
+✅ **Xóa danh mục**  
+- Xóa danh mục nếu không còn giao dịch nào sử dụng.  
+
+---
+
+### **1.3. Thống Kê & Báo Cáo Thu Chi**  
+✅ **Tổng quan thu chi**  
+- Hiển thị tổng thu nhập, tổng chi tiêu, số dư hiện tại.  
+
+✅ **Biểu đồ thống kê**  
+- Biểu đồ cột: So sánh thu/chi theo từng tháng.  
+- Biểu đồ tròn: Phân bổ chi tiêu theo danh mục.  
+
+✅ **Lọc theo thời gian**  
+- Chọn xem dữ liệu theo ngày, tháng, năm.  
+
+✅ **Xuất dữ liệu thu chi**  
+- Xuất file CSV hoặc đồng bộ với Google Sheets.  
+
+---
+
+# **2. Quản Lý Đơn Hàng**  
+### **2.1. Tạo & Quản Lý Đơn Hàng**  
+✅ **Thêm đơn hàng mới**  
+- Nhập mã đơn hàng.  
+- Nhập thông tin khách hàng (tên, số điện thoại, email).  
+- Chọn sản phẩm (tên, số lượng, đơn giá).  
+- Nhập ghi chú đơn hàng.  
+
+✅ **Chỉnh sửa đơn hàng**  
+- Cập nhật thông tin đơn hàng nếu có thay đổi.  
+
+✅ **Hủy đơn hàng**  
+- Đánh dấu đơn hàng là "Đã hủy" thay vì xóa hẳn.  
+
+---
+
+### **2.2. Quản Lý Trạng Thái Đơn Hàng**  
+✅ **Cập nhật trạng thái đơn hàng**  
+- Các trạng thái: Chờ xác nhận → Đang giao → Đã giao → Hoàn thành.  
+- Tự động gửi email thông báo khi đơn hàng chuyển trạng thái (tùy chọn).  
+
+✅ **Lọc & tìm kiếm đơn hàng**  
+- Lọc theo trạng thái (Chờ xác nhận, Đang giao, Hoàn thành).  
+- Tìm kiếm theo mã đơn hàng, tên khách hàng.  
+
+✅ **Xuất dữ liệu đơn hàng**  
+- Xuất file CSV hoặc đồng bộ với Google Sheets.  
+
+---
+
+# **3. Kết Nối Google Sheets API**  
+✅ **Đồng bộ dữ liệu với Google Sheets**  
+- Khi có giao dịch hoặc đơn hàng mới, tự động ghi vào Google Sheets.  
+- Khi cập nhật hoặc xóa, thay đổi sẽ phản ánh vào Google Sheets.  
+
+✅ **Lấy dữ liệu từ Google Sheets**  
+- Fetch dữ liệu thu chi & đơn hàng khi tải trang.  
+- Tối ưu bằng ISR hoặc Server Actions trong Next.js.  
+
+---
+
+# **4. Giao Diện Người Dùng (UI/UX)**  
+✅ **Trang Dashboard**  
+- Tổng quan thu chi & đơn hàng.  
+- Biểu đồ thống kê, số dư tài khoản.  
+
+✅ **Trang Quản Lý Thu Chi**  
+- Danh sách giao dịch, bộ lọc, thêm giao dịch mới.  
+
+✅ **Trang Quản Lý Đơn Hàng**  
+- Danh sách đơn hàng, tìm kiếm, cập nhật trạng thái.  
+
+✅ **Trang Cài Đặt**  
+- Quản lý danh mục thu chi.  
+- Cấu hình Google Sheets API.  
+
+---
+
+# **5. Chức Năng Mở Rộng (Tương Lai)**  
+📌 **Đăng nhập & phân quyền** (Google Auth, Firebase Auth).  
+📌 **Gửi email thông báo đơn hàng mới**.  
+📌 **Hỗ trợ đa người dùng**.  
+📌 **Tích hợp chatbot AI hỗ trợ khách hàng**.  
+
+---
+
+
+Dưới đây là **WBS (Work Breakdown Structure) chi tiết** cho dự án **Quản lý thu chi - đơn hàng** với **Next.js, TypeScript, Tailwind CSS và Google Sheets**.  
+
+---
+
+# **1. KHỞI ĐỘNG DỰ ÁN**  
+## **1.1. Phân Tích Yêu Cầu**  
+🔲 Xác định chức năng hệ thống (thu chi, đơn hàng, thống kê, v.v.).  
+🔲 Xác định đối tượng sử dụng (admin, người dùng).  
+🔲 Xác định yêu cầu UI/UX.  
+🔲 Xây dựng sơ đồ kiến trúc hệ thống.  
+
+## **1.2. Thiết Lập Môi Trường Phát Triển**  
+🔲 Khởi tạo dự án Next.js với TypeScript.  
+🔲 Cấu hình Tailwind CSS.  
+🔲 Cấu hình ESLint & Prettier.  
+🔲 Thiết lập GitHub Repository & Git Flow.  
+
+---
+
+# **2. PHÁT TRIỂN BACKEND (API ROUTES)**  
+## **2.1. Kết Nối Google Sheets API**  
+🔲 Tạo Google Cloud Project & bật Google Sheets API.  
+🔲 Tạo Service Account và cấp quyền truy cập.  
+🔲 Cấu hình `googleapis` trong Next.js.  
+🔲 Xây dựng hàm đọc dữ liệu từ Google Sheets.  
+🔲 Xây dựng hàm ghi dữ liệu vào Google Sheets.  
+🔲 Xây dựng hàm cập nhật dữ liệu trong Google Sheets.  
+🔲 Xây dựng hàm xóa dữ liệu trong Google Sheets.  
+
+## **2.2. API CRUD Quản Lý Thu Chi**  
+🔲 API lấy danh sách giao dịch thu chi.  
+🔲 API thêm giao dịch thu chi.  
+🔲 API cập nhật giao dịch thu chi.  
+🔲 API xóa giao dịch thu chi.  
+
+## **2.3. API CRUD Quản Lý Đơn Hàng**  
+🔲 API lấy danh sách đơn hàng.  
+🔲 API thêm đơn hàng mới.  
+🔲 API cập nhật đơn hàng.  
+🔲 API xóa đơn hàng.  
+
+## **2.4. Đồng Bộ Dữ Liệu Google Sheets**  
+🔲 Tự động ghi đơn hàng vào Google Sheets khi có đơn mới.  
+🔲 Tự động cập nhật trạng thái đơn hàng khi có thay đổi.  
+🔲 Xử lý lỗi kết nối với Google Sheets API.  
+
+---
+
+# **3. PHÁT TRIỂN FRONTEND (GIAO DIỆN NGƯỜI DÙNG)**  
+## **3.1. Trang Dashboard**  
+🔲 Hiển thị tổng thu nhập, tổng chi tiêu.  
+🔲 Hiển thị số dư hiện tại.  
+🔲 Hiển thị biểu đồ thống kê thu chi & đơn hàng.  
+🔲 Hiển thị danh sách giao dịch gần nhất.  
+
+## **3.2. Trang Quản Lý Thu Chi**  
+🔲 Hiển thị danh sách giao dịch.  
+🔲 Bộ lọc giao dịch theo ngày, danh mục.  
+🔲 Form thêm giao dịch mới.  
+🔲 Chỉnh sửa giao dịch.  
+🔲 Xóa giao dịch.  
+
+## **3.3. Trang Quản Lý Đơn Hàng**  
+🔲 Hiển thị danh sách đơn hàng.  
+🔲 Bộ lọc đơn hàng theo trạng thái.  
+🔲 Tìm kiếm đơn hàng theo mã, khách hàng.  
+🔲 Form thêm đơn hàng mới.  
+🔲 Chỉnh sửa thông tin đơn hàng.  
+🔲 Cập nhật trạng thái đơn hàng.  
+
+## **3.4. Trang Cài Đặt**  
+🔲 Quản lý danh mục thu chi.  
+🔲 Xuất dữ liệu ra file CSV.  
+🔲 Cấu hình Google Sheets API.  
+
+---
+
+# **4. KIỂM THỬ & TỐI ƯU HỆ THỐNG**  
+## **4.1. Kiểm Thử API**  
+🔲 Kiểm thử API CRUD thu chi.  
+🔲 Kiểm thử API CRUD đơn hàng.  
+🔲 Kiểm thử đồng bộ Google Sheets.  
+
+## **4.2. Kiểm Thử UI/UX**  
+🔲 Kiểm tra hiển thị trên desktop, tablet, mobile.  
+🔲 Kiểm tra tốc độ load trang.  
+🔲 Kiểm tra lỗi giao diện (UI bugs).  
+
+## **4.3. Tối Ưu Hiệu Suất**  
+🔲 Áp dụng caching cho dữ liệu.  
+🔲 Cải thiện tốc độ tải trang bằng ISR.  
+🔲 Tối ưu hình ảnh & tải dữ liệu.  
+
+---
+
+# **5. TRIỂN KHAI & VẬN HÀNH**  
+## **5.1. Triển Khai Lên Vercel**  
+🔲 Build & deploy lên Vercel.  
+🔲 Kiểm tra lỗi sau khi deploy.  
+
+## **5.2. Hướng Dẫn Sử Dụng**  
+🔲 Viết tài liệu hướng dẫn sử dụng.  
+🔲 Đào tạo người dùng (nếu cần).  
+
+---
+
