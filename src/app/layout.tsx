@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import Link from "next/link";
+import { AuthButtons } from './components/AuthButtons';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -68,38 +69,5 @@ export default function RootLayout({
         </AuthProvider>
       </body>
     </html>
-  );
-}
-
-function AuthButtons() {
-  "use client";
-  const { isAuthenticated, logout } = useAuth();
-
-  if (isAuthenticated) {
-    return (
-      <button
-        onClick={logout}
-        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-      >
-        Đăng xuất
-      </button>
-    );
-  }
-
-  return (
-    <div className="flex items-center gap-4">
-      <Link
-        href="/login"
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-      >
-        Đăng nhập
-      </Link>
-      <Link
-        href="/register"
-        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-      >
-        Đăng ký
-      </Link>
-    </div>
   );
 }

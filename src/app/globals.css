@@ -124,3 +124,7 @@ body {
   background-size: 200% 200%;
   animation: gradient 8s ease infinite;
 }
+
+input {
+  @apply text-gray-700;
+}
