@@ -10,7 +10,9 @@ export function AuthButtons() {
     return (
       <button
         onClick={logout}
-        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-gray-700"
+        className="px-4 py-2 bg-[#2C3639] text-white rounded-lg 
+          hover:bg-[#3F4E4F] transition-all duration-200 
+          shadow-sm hover:shadow-md"
       >
         Đăng xuất
       </button>
@@ -21,13 +23,17 @@ export function AuthButtons() {
     <div className="flex items-center gap-4">
       <Link
         href="/login"
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-gray-700"
+        className="px-4 py-2 bg-[#3E503C] text-white rounded-lg 
+          hover:bg-[#7F886A] transition-all duration-200 
+          shadow-sm hover:shadow-md"
       >
         Đăng nhập
       </Link>
       <Link
         href="/register"
-        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-gray-700"
+        className="px-4 py-2 bg-[#FF6F3D] text-white rounded-lg 
+          hover:brightness-110 transition-all duration-200 
+          shadow-sm hover:shadow-md"
       >
         Đăng ký
       </Link>

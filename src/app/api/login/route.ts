@@ -64,33 +64,27 @@ export async function POST(req: Request) {
     const passwordMatch = await bcrypt.compare(password, storedPassword);
     console.log('Password match result:', passwordMatch);
 
-    if (!passwordMatch) {
-      console.log('Password mismatch for user:', email);
-      return NextResponse.json(
-        { error: 'Email hoặc mật khẩu không đúng' },
-        { status: 401 }
-      );
-    }
-
-    // Chỉ tạo token nếu mật khẩu đúng
     if (passwordMatch) {
+      // Lấy thông tin user từ sheet
+      const userData = {
+        email: user.get('Email'),
+        fullName: user.get('Họ và tên')
+      };
+
       const token = jwt.sign(
         { 
-          userId: user.rowIndex,
-          email: user.get('Email'),
-          fullName: user.get('Họ và tên')
+          email: userData.email,
+          fullName: userData.fullName
         },
         process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: '1d' }
       );
 
       return NextResponse.json({
+        success: true,
         message: 'Đăng nhập thành công',
         token,
-        user: {
-          email: user.get('Email'),
-          fullName: user.get('Họ và tên')
-        }
+        user: userData
       });
     }
 
