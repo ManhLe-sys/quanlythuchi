@@ -8,6 +8,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { fullName, email, password } = body;
 
+    console.log('Received registration request:', { fullName, email });
+
     // Validate input
     if (!fullName || !email || !password) {
       return NextResponse.json(
@@ -25,86 +27,83 @@ export async function POST(req: Request) {
       );
     }
 
+    // Check for required environment variables
+    if (!process.env.GOOGLE_SHEETS_CLIENT_EMAIL || 
+        !process.env.GOOGLE_SHEETS_PRIVATE_KEY || 
+        !process.env.GOOGLE_SHEETS_SHEET_ID) {
+      console.error('Missing environment variables');
+      throw new Error('Missing required Google Sheets credentials');
+    }
+
+    console.log('Initializing Google Sheets connection...');
+
     // Use environment variables
     const serviceAccountAuth = new JWT({
       email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
-      key: process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      key: process.env.GOOGLE_SHEETS_PRIVATE_KEY.replace(/\\n/g, '\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
-
-    if (!process.env.GOOGLE_SHEETS_SHEET_ID) {
-      throw new Error('Missing GOOGLE_SHEETS_SHEET_ID');
-    }
 
     // Initialize document
     const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_SHEET_ID, serviceAccountAuth);
     await doc.loadInfo();
 
+    console.log('Connected to Google Sheet:', doc.title);
+
     // Lấy sheet đầu tiên
     const sheet = doc.sheetsByIndex[0];
+    console.log('Using sheet:', sheet.title);
+
+    // Load headers first
+    await sheet.loadHeaderRow();
+    const headers = sheet.headerValues;
+    console.log('Sheet headers:', headers);
 
     // Kiểm tra email đã tồn tại chưa
     const rows = await sheet.getRows();
-    const existingUser = rows.find(row => row.get('email') === email);
+    console.log('Current row count:', rows.length);
+    
+    const existingUser = rows.find(row => row.get('Email') === email);
     if (existingUser) {
       return NextResponse.json(
-        { error: 'Email đã được đăng ký' },
+        { error: 'Email đã được sử dụng' },
         { status: 400 }
       );
     }
 
-    // Mã hóa mật khẩu
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    console.log('Generated hash:', hashedPassword);
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Log để debug
-    console.log('Attempting to save:', {
-      fullName,
-      email,
-      hashedPassword,
-      timestamp: new Date().toISOString()
-    });
-
-    // Kiểm tra sheet và cấu trúc
-    console.log('Sheet title:', sheet.title);
-    console.log('Sheet headers:', await sheet.headerValues);
-
-    // Tạo timestamp cho thời gian đăng ký
-    const registrationTime = new Date().toLocaleString('vi-VN', { 
-      timeZone: 'Asia/Ho_Chi_Minh'
-    });
-
-    // Thêm user mới với đầy đủ thông tin
-    const newRow = {
+    // Prepare row data matching sheet headers
+    const rowData = {
       'Họ và tên': fullName,
       'Email': email,
       'Mật khẩu': hashedPassword,
       'Ngày tạo': new Date().toISOString(),
-      'Thời gian đăng ký': registrationTime
+      'Thời gian đăng ký': new Date().toLocaleString('vi-VN', { 
+        timeZone: 'Asia/Ho_Chi_Minh'
+      })
     };
 
-    console.log('New row data:', newRow);
+    console.log('Attempting to add row with data:', rowData);
 
+    // Add new user to sheet
     try {
-      const addedRow = await sheet.addRow(newRow);
-      console.log('Row added successfully:', addedRow);
+      await sheet.addRow(rowData);
+      console.log('Successfully added new user to sheet');
     } catch (error) {
-      console.error('Error adding row:', error);
+      console.error('Error adding row to sheet:', error);
       throw error;
     }
 
     return NextResponse.json(
-      { 
-        message: 'Đăng ký thành công',
-        savedData: newRow // Trả về data đã lưu để kiểm tra
-      },
+      { message: 'Đăng ký thành công' },
       { status: 201 }
     );
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json(
-      { error: 'Đã có lỗi xảy ra' },
+      { error: 'Có lỗi xảy ra khi đăng ký', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
