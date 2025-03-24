@@ -1,8 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Bảng màu chính */
+  --color-primary: #3E503C;    /* Xanh rêu đậm */
+  --color-secondary: #7F886A;  /* Xanh rêu nhạt */
+  --color-background: #F3ECDB; /* Kem */
+  --color-accent: #FF6F3D;     /* Cam */
+  --color-text: #3E503C;       /* Màu chữ chính */
+  
+  /* Các biến màu hệ thống */
+  --background: var(--color-background);
+  --foreground: var(--color-text);
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  
+  --shadow-sm: 0 2px 4px rgba(62, 80, 60, 0.1);
+  --shadow-md: 0 4px 6px rgba(62, 80, 60, 0.12);
+  --shadow-lg: 0 10px 15px rgba(62, 80, 60, 0.15);
 }
 
 @theme inline {
@@ -20,9 +34,13 @@
 }
 
 body {
-  background: var(--background);
+  background-color: var(--color-background);
+  background-image: 
+    radial-gradient(at 80% 0%, rgba(127, 136, 106, 0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(255, 111, 61, 0.1) 0px, transparent 50%);
+  min-height: 100vh;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 @tailwind base;
@@ -74,6 +92,11 @@ body {
   }
 }
 
+@keyframes subtle-wave {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
@@ -93,11 +116,27 @@ body {
   animation: gradient 15s ease infinite;
 }
 
+.animate-background {
+  animation: subtle-wave 15s ease infinite;
+  background-size: 200% 200%;
+}
+
 .glass-card {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 4px 6px -1px rgba(62, 80, 60, 0.12),
+    0 2px 4px -1px rgba(62, 80, 60, 0.07);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 10px 15px -3px rgba(62, 80, 60, 0.15),
+    0 4px 6px -2px rgba(62, 80, 60, 0.1);
+  transform: translateY(-2px);
 }
 
 .glass-button {
@@ -108,19 +147,52 @@ body {
 }
 
 .hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .hover-lift:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .gradient-text {
-  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+  background: linear-gradient(135deg, 
+    #3E503C 0%,
+    #7F886A 50%,
+    #FF6F3D 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  background-size: 200% 200%;
-  animation: gradient 8s ease infinite;
+}
+
+input {
+  @apply bg-white/80 border-gray-200 text-gray-800
+    focus:border-[#FF6F3D] focus:ring-[#FF6F3D]/20
+    rounded-lg transition-all duration-200;
+}
+
+input:focus {
+  @apply bg-white shadow-sm;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply bg-gradient-to-r from-[#3E503C] to-[#7F886A]
+    hover:from-[#7F886A] hover:to-[#3E503C]
+    text-white font-medium
+    shadow-sm hover:shadow-md
+    transition-all duration-300
+    rounded-lg;
+}
+
+.btn-secondary {
+  @apply bg-[#FF6F3D] 
+    hover:bg-[#ff835c]
+    text-white font-medium
+    shadow-sm hover:shadow-md
+    transition-all duration-300
+    rounded-lg;
 }
