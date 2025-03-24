@@ -1,4 +1,13 @@
+"use client";
+
+import { useState } from 'react';
+import AddIncomeModal from './components/AddIncomeModal';
+import AddExpenseModal from './components/AddExpenseModal';
+
 export default function Home() {
+  const [isAddIncomeModalOpen, setIsAddIncomeModalOpen] = useState(false);
+  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -94,7 +103,10 @@ export default function Home() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
-          <button className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-green-600 text-white p-8 rounded-3xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+          <button 
+            onClick={() => setIsAddIncomeModalOpen(true)}
+            className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-green-600 text-white p-8 rounded-3xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="absolute inset-0 animate-shine"></div>
             <div className="relative flex items-center justify-center gap-4">
@@ -106,7 +118,10 @@ export default function Home() {
               <span className="text-2xl font-semibold">Thêm Khoản Thu</span>
             </div>
           </button>
-          <button className="group relative overflow-hidden bg-gradient-to-r from-red-500 to-red-600 text-white p-8 rounded-3xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+          <button 
+            onClick={() => setIsAddExpenseModalOpen(true)}
+            className="group relative overflow-hidden bg-gradient-to-r from-red-500 to-red-600 text-white p-8 rounded-3xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="absolute inset-0 animate-shine"></div>
             <div className="relative flex items-center justify-center gap-4">
@@ -149,6 +164,23 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      <AddIncomeModal
+        isOpen={isAddIncomeModalOpen}
+        onClose={() => setIsAddIncomeModalOpen(false)}
+        onSuccess={() => {
+          // Refresh your data here if needed
+          console.log('Income added successfully');
+        }}
+      />
+
+      <AddExpenseModal
+        isOpen={isAddExpenseModalOpen}
+        onClose={() => setIsAddExpenseModalOpen(false)}
+        onSuccess={() => {
+          console.log('Expense added successfully');
+        }}
+      />
     </div>
   );
 }
