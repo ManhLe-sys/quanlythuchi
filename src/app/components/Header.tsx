@@ -49,6 +49,9 @@ export function Header() {
                   <span className="text-xs text-[#3E503C]/70">
                     {user.email}
                   </span>
+                  <span className="text-xs text-[#3E503C]/70">
+                    {user.role}
+                  </span>
                 </div>
                 <div className="w-8 h-8 rounded-full bg-[#3E503C] text-white flex items-center justify-center ml-3">
                   {user.fullName?.[0]?.toUpperCase() || '?'}

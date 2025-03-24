@@ -79,13 +79,14 @@ export async function POST(req: Request) {
       'Họ và tên': fullName,
       'Email': email,
       'Mật khẩu': hashedPassword,
+      'Vai trò': 'STAFF',
       'Ngày tạo': new Date().toISOString(),
       'Thời gian đăng ký': new Date().toLocaleString('vi-VN', { 
         timeZone: 'Asia/Ho_Chi_Minh'
       })
     };
 
-    console.log('Attempting to add row with data:', rowData);
+    console.log('Attempting to add row with data:', { ...rowData, 'Mật khẩu': '***' });
 
     // Add new user to sheet
     try {

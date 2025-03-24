@@ -3,10 +3,22 @@
 import { useState } from 'react';
 import AddIncomeModal from './components/AddIncomeModal';
 import AddExpenseModal from './components/AddExpenseModal';
+import { RecentTransactions } from './components/RecentTransactions';
 
 export default function Home() {
-  const [isAddIncomeModalOpen, setIsAddIncomeModalOpen] = useState(false);
-  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+  const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleIncomeSuccess = () => {
+    setIsIncomeModalOpen(false);
+    setRefreshTrigger(prev => prev + 1); // Trigger refresh
+  };
+
+  const handleExpenseSuccess = () => {
+    setIsExpenseModalOpen(false);
+    setRefreshTrigger(prev => prev + 1); // Trigger refresh
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
@@ -104,7 +116,7 @@ export default function Home() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
           <button 
-            onClick={() => setIsAddIncomeModalOpen(true)}
+            onClick={() => setIsIncomeModalOpen(true)}
             className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-green-600 text-white p-8 rounded-3xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -119,7 +131,7 @@ export default function Home() {
             </div>
           </button>
           <button 
-            onClick={() => setIsAddExpenseModalOpen(true)}
+            onClick={() => setIsExpenseModalOpen(true)}
             className="group relative overflow-hidden bg-gradient-to-r from-red-500 to-red-600 text-white p-8 rounded-3xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -146,40 +158,20 @@ export default function Home() {
               </svg>
             </button>
           </div>
-          <div className="glass-card rounded-3xl p-8 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative flex flex-col items-center justify-center py-16">
-              <div className="p-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-8 animate-pulse-slow">
-                <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <p className="text-2xl text-gray-500 mb-8">Chưa có giao dịch nào</p>
-              <button className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 text-white px-10 py-4 rounded-full hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="absolute inset-0 animate-shine"></div>
-                <span className="relative text-lg font-semibold">Tạo giao dịch đầu tiên</span>
-              </button>
-            </div>
-          </div>
+          <RecentTransactions refreshTrigger={refreshTrigger} />
         </div>
       </main>
 
       <AddIncomeModal
-        isOpen={isAddIncomeModalOpen}
-        onClose={() => setIsAddIncomeModalOpen(false)}
-        onSuccess={() => {
-          // Refresh your data here if needed
-          console.log('Income added successfully');
-        }}
+        isOpen={isIncomeModalOpen}
+        onClose={() => setIsIncomeModalOpen(false)}
+        onSuccess={handleIncomeSuccess}
       />
 
       <AddExpenseModal
-        isOpen={isAddExpenseModalOpen}
-        onClose={() => setIsAddExpenseModalOpen(false)}
-        onSuccess={() => {
-          console.log('Expense added successfully');
-        }}
+        isOpen={isExpenseModalOpen}
+        onClose={() => setIsExpenseModalOpen(false)}
+        onSuccess={handleExpenseSuccess}
       />
     </div>
   );
