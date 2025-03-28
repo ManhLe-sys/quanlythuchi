@@ -30,14 +30,7 @@ export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsPro
         throw new Error(data.error || 'Có lỗi xảy ra khi tải dữ liệu');
       }
 
-      // Sắp xếp giao dịch từ mới đến cũ
-      const sortedTransactions = [...data.transactions].sort((a, b) => {
-        const timeA = new Date(a.createdAt).getTime();
-        const timeB = new Date(b.createdAt).getTime();
-        return timeB - timeA; // Sắp xếp giảm dần (mới nhất lên đầu)
-      });
-
-      setTransactions(sortedTransactions);
+      setTransactions(data.transactions);
       setError(null);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Có lỗi xảy ra');

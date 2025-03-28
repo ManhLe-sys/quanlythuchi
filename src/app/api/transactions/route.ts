@@ -35,37 +35,49 @@ export async function GET(req: Request) {
     const thuRows = await thuSheet.getRows();
     const chiRows = await chiSheet.getRows();
 
-    // Transform Thu rows
-    const thuTransactions = thuRows.map(row => ({
-      id: row.get('Mã giao dịch'),
-      date: row.get('Ngày'),
-      type: 'Thu',
-      category: row.get('Loại thu'),
-      description: row.get('Mô tả'),
-      amount: row.get('Số tiền'),
-      recordedBy: row.get('Người ghi'),
-      notes: row.get('Ghi chú'),
-      createdAt: row.get('Thời gian tạo')
-    }));
+    // Get raw transactions with original creation time
+    const rawTransactions = [
+      ...thuRows.map(row => ({
+        raw: row.get('Thời gian tạo'),
+        data: {
+          id: row.get('Mã giao dịch'),
+          date: row.get('Ngày'),
+          type: 'Thu',
+          category: row.get('Loại thu'),
+          description: row.get('Mô tả'),
+          amount: row.get('Số tiền'),
+          recordedBy: row.get('Người ghi'),
+          notes: row.get('Ghi chú'),
+          createdAt: row.get('Thời gian tạo')
+        }
+      })),
+      ...chiRows.map(row => ({
+        raw: row.get('Thời gian tạo'),
+        data: {
+          id: row.get('Mã giao dịch'),
+          date: row.get('Ngày'),
+          type: 'Chi',
+          category: row.get('Loại chi'),
+          description: row.get('Mô tả'),
+          amount: row.get('Số tiền'),
+          recordedBy: row.get('Người ghi'),
+          notes: row.get('Ghi chú'),
+          createdAt: row.get('Thời gian tạo')
+        }
+      }))
+    ];
 
-    // Transform Chi rows
-    const chiTransactions = chiRows.map(row => ({
-      id: row.get('Mã giao dịch'),
-      date: row.get('Ngày'),
-      type: 'Chi',
-      category: row.get('Loại chi'),
-      description: row.get('Mô tả'),
-      amount: row.get('Số tiền'),
-      recordedBy: row.get('Người ghi'),
-      notes: row.get('Ghi chú'),
-      createdAt: row.get('Thời gian tạo')
-    }));
-
-    // Combine all transactions
-    const allTransactions = [...thuTransactions, ...chiTransactions];
+    // Sort by raw creation time string
+    const sortedTransactions = rawTransactions
+      .sort((a, b) => {
+        if (a.raw > b.raw) return -1;
+        if (a.raw < b.raw) return 1;
+        return 0;
+      })
+      .map(item => item.data);
 
     return NextResponse.json({
-      transactions: allTransactions
+      transactions: sortedTransactions
     });
 
   } catch (error) {
