@@ -9,6 +9,7 @@ export default function Home() {
   const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [selectedPeriod, setSelectedPeriod] = useState('day'); // 'day', 'week', 'month'
 
   const handleIncomeSuccess = () => {
     setIsIncomeModalOpen(false);
@@ -48,6 +49,20 @@ export default function Home() {
         </div>
 
         {/* Quick Stats */}
+        <div className="flex justify-end mb-6">
+          <div className="flex items-center gap-3">
+            <span className="text-gray-700 font-medium">Khoảng thời gian:</span>
+            <select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="glass-card px-6 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/80 backdrop-blur-sm text-gray-700 font-medium shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+            >
+              <option value="day">Hôm nay</option>
+              <option value="week">Tuần này</option>
+              <option value="month">Tháng này</option>
+            </select>
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           <div className="glass-card p-8 rounded-3xl hover-lift group relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-green-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
