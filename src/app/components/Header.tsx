@@ -35,6 +35,12 @@ export function Header() {
             >
               Báo Cáo
             </Link>
+            <Link
+              href="/admin"
+              className="text-[#3E503C] hover:text-[#7F886A] transition-colors"
+            >
+              Quản lý
+            </Link>
           </div>
 
           {/* User Info & Auth Buttons */}

@@ -230,9 +230,9 @@ export default function ReportsPage() {
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
+            </svg>
+        </div>
+      </div>
               <div className="flex-1 md:flex-none">
                 <DateRangePicker
                   startDate={dateRange.startDate}
@@ -241,7 +241,7 @@ export default function ReportsPage() {
                   onEndDateChange={(date) => setDateRange(prev => ({ ...prev, endDate: date }))}
                 />
               </div>
-            </div>
+          </div>
           </div>
         </div>
       </div>
@@ -274,11 +274,11 @@ export default function ReportsPage() {
                 }).format(summary.totalIncome)}
               </p>
               <div className="flex items-center text-sm text-green-500">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
                 <span>Cập nhật mới nhất</span>
-              </div>
+          </div>
             </>
           )}
         </div>
@@ -309,11 +309,11 @@ export default function ReportsPage() {
                 }).format(summary.totalExpense)}
               </p>
               <div className="flex items-center text-sm text-red-500">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" />
-                </svg>
+            </svg>
                 <span>Cập nhật mới nhất</span>
-              </div>
+          </div>
             </>
           )}
         </div>
@@ -344,14 +344,14 @@ export default function ReportsPage() {
                 }).format(summary.balance)}
               </p>
               <div className={`flex items-center text-sm ${summary.balance >= 0 ? 'text-blue-500' : 'text-red-500'}`}>
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
                     d={summary.balance >= 0 
                       ? "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
                       : "M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"} />
-                </svg>
+            </svg>
                 <span>Cập nhật mới nhất</span>
-              </div>
+          </div>
             </>
           )}
         </div>
@@ -454,7 +454,7 @@ export default function ReportsPage() {
                   <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
                     Không có dữ liệu cho khoảng thời gian này
                   </td>
-                </tr>
+              </tr>
               ) : (
                 <>
                   {/* Group and calculate by category */}
@@ -499,7 +499,7 @@ export default function ReportsPage() {
                         <td className="px-6 py-4 text-sm text-right text-gray-900">
                           {percentage}%
                         </td>
-                      </tr>
+              </tr>
                     );
                   })}
                   {/* Total row */}
@@ -524,7 +524,7 @@ export default function ReportsPage() {
                       }).format(summary.balance)}
                     </td>
                     <td className="px-6 py-4 text-sm text-right text-gray-900">100%</td>
-                  </tr>
+              </tr>
                 </>
               )}
             </tbody>
