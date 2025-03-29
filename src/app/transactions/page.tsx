@@ -1,12 +1,103 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import AddIncomeModal from "@/app/components/AddIncomeModal";
+import AddExpenseModal from "@/app/components/AddExpenseModal";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
+
+interface Transaction {
+  id: string;
+  date: string;
+  type: 'Thu' | 'Chi';
+  category: string;
+  description: string;
+  amount: number;
+  recordedBy: string;
+  notes?: string;
+  createdAt: string;
+}
 
 export default function TransactionsPage() {
+  const { user } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
   const [transactionType, setTransactionType] = useState<"income" | "expense">("income");
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    startDate: '',
+    endDate: '',
+    type: '',
+    category: '',
+    recordedBy: user?.fullName || ''
+  });
+
+  const fetchTransactions = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/transactions');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Có lỗi xảy ra khi tải dữ liệu');
+      }
+
+      // Filter transactions based on current filters
+      let filteredTransactions = data.transactions;
+
+      if (filters.recordedBy) {
+        filteredTransactions = filteredTransactions.filter(
+          (t: Transaction) => t.recordedBy === filters.recordedBy
+        );
+      }
+
+      if (filters.type) {
+        filteredTransactions = filteredTransactions.filter(
+          (t: Transaction) => t.type === (filters.type === 'income' ? 'Thu' : 'Chi')
+        );
+      }
+
+      if (filters.category) {
+        filteredTransactions = filteredTransactions.filter(
+          (t: Transaction) => t.category === filters.category
+        );
+      }
+
+      if (filters.startDate) {
+        filteredTransactions = filteredTransactions.filter(
+          (t: Transaction) => new Date(t.date) >= new Date(filters.startDate)
+        );
+      }
+
+      if (filters.endDate) {
+        filteredTransactions = filteredTransactions.filter(
+          (t: Transaction) => new Date(t.date) <= new Date(filters.endDate)
+        );
+      }
+
+      setTransactions(filteredTransactions);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [filters]);
+
+  const handleFilterChange = (field: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   return (
+    <ProtectedRoute>
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -41,11 +132,13 @@ export default function TransactionsPage() {
 
       {/* Filters */}
       <div className="glass-card p-6 rounded-3xl mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Từ ngày</label>
             <input
               type="date"
+                value={filters.startDate}
+                onChange={(e) => handleFilterChange('startDate', e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -53,12 +146,18 @@ export default function TransactionsPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Đến ngày</label>
             <input
               type="date"
+                value={filters.endDate}
+                onChange={(e) => handleFilterChange('endDate', e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Loại</label>
-            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select 
+                value={filters.type}
+                onChange={(e) => handleFilterChange('type', e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
               <option value="">Tất cả</option>
               <option value="income">Thu nhập</option>
               <option value="expense">Chi tiêu</option>
@@ -66,12 +165,27 @@ export default function TransactionsPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Danh mục</label>
-            <select className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select 
+                value={filters.category}
+                onChange={(e) => handleFilterChange('category', e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
               <option value="">Tất cả</option>
               <option value="salary">Lương</option>
               <option value="business">Kinh doanh</option>
               <option value="shopping">Mua sắm</option>
               <option value="bills">Hóa đơn</option>
+            </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Người ghi</label>
+              <select 
+                value={filters.recordedBy}
+                onChange={(e) => handleFilterChange('recordedBy', e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Tất cả</option>
+                <option value={user?.fullName}>{user?.fullName}</option>
             </select>
           </div>
         </div>
@@ -88,20 +202,55 @@ export default function TransactionsPage() {
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Danh mục</th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Mô tả</th>
                 <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Số tiền</th>
+                  <th className="px-6 py-4 text-center text-sm font-medium text-gray-500">Người ghi</th>
                 <th className="px-6 py-4 text-center text-sm font-medium text-gray-500">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              <tr className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm text-gray-900">22/03/2024</td>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 text-center">
+                      <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : error ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 text-center text-red-600">
+                      {error}
+                </td>
+                  </tr>
+                ) : transactions.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                      Không có giao dịch nào
+                </td>
+              </tr>
+                ) : (
+                  transactions.map((transaction) => (
+                    <tr key={transaction.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm text-gray-900">{transaction.date}</td>
                 <td className="px-6 py-4">
-                  <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
-                    Thu nhập
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          transaction.type === 'Thu' 
+                            ? 'text-green-800 bg-green-100'
+                            : 'text-red-800 bg-red-100'
+                        }`}>
+                          {transaction.type}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900">Lương</td>
-                <td className="px-6 py-4 text-sm text-gray-900">Lương tháng 3</td>
-                <td className="px-6 py-4 text-sm text-right text-green-600">15,000,000đ</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{transaction.category}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{transaction.description}</td>
+                      <td className={`px-6 py-4 text-sm text-right ${
+                        transaction.type === 'Thu' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {new Intl.NumberFormat('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND'
+                        }).format(transaction.amount)}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-center text-gray-900">{transaction.recordedBy}</td>
                 <td className="px-6 py-4 text-center">
                   <button className="text-blue-600 hover:text-blue-800">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,114 +259,29 @@ export default function TransactionsPage() {
                   </button>
                 </td>
               </tr>
-              <tr className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm text-gray-900">22/03/2024</td>
-                <td className="px-6 py-4">
-                  <span className="px-2 py-1 text-xs font-medium text-red-800 bg-red-100 rounded-full">
-                    Chi tiêu
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-900">Hóa đơn</td>
-                <td className="px-6 py-4 text-sm text-gray-900">Tiền điện tháng 3</td>
-                <td className="px-6 py-4 text-sm text-right text-red-600">500,000đ</td>
-                <td className="px-6 py-4 text-center">
-                  <button className="text-blue-600 hover:text-blue-800">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
+                  ))
+                )}
             </tbody>
           </table>
         </div>
       </div>
 
       {/* Add Transaction Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-8 max-w-2xl w-full mx-4">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {transactionType === "income" ? "Thêm Khoản Thu" : "Thêm Khoản Chi"}
-              </h2>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <form className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ngày</label>
-                <input
-                  type="date"
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Danh mục</label>
-                <select className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  {transactionType === "income" ? (
-                    <>
-                      <option value="salary">Lương</option>
-                      <option value="business">Kinh doanh</option>
-                      <option value="other">Khác</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="shopping">Mua sắm</option>
-                      <option value="bills">Hóa đơn</option>
-                      <option value="food">Ăn uống</option>
-                      <option value="other">Khác</option>
-                    </>
-                  )}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Số tiền</label>
-                <input
-                  type="number"
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
-                <textarea
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={3}
-                ></textarea>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Hình ảnh hóa đơn</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div className="flex justify-end gap-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-6 py-2 text-gray-700 hover:text-gray-900"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
-                >
-                  Lưu
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        {showAddModal && transactionType === "income" && (
+          <AddIncomeModal
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            onSuccess={fetchTransactions}
+          />
+        )}
+        {showAddModal && transactionType === "expense" && (
+          <AddExpenseModal
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            onSuccess={fetchTransactions}
+          />
       )}
     </div>
+    </ProtectedRoute>
   );
 } 

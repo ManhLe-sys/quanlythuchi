@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 interface Transaction {
   id: string;
@@ -17,6 +18,7 @@ interface RecentTransactionsProps {
 }
 
 export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsProps) {
+  const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,14 +32,16 @@ export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsPro
         throw new Error(data.error || 'Có lỗi xảy ra khi tải dữ liệu');
       }
 
-      // Sắp xếp giao dịch từ mới đến cũ
-      const sortedTransactions = [...data.transactions].sort((a, b) => {
-        const timeA = new Date(a.createdAt).getTime();
-        const timeB = new Date(b.createdAt).getTime();
-        return timeB - timeA; // Sắp xếp giảm dần (mới nhất lên đầu)
-      });
+      // Filter transactions by current user and sort by date
+      const filteredAndSortedTransactions = [...data.transactions]
+        .filter(transaction => transaction.recordedBy === user?.fullName)
+        .sort((a, b) => {
+          const timeA = new Date(a.createdAt).getTime();
+          const timeB = new Date(b.createdAt).getTime();
+          return timeB - timeA; // Sắp xếp giảm dần (mới nhất lên đầu)
+        });
 
-      setTransactions(sortedTransactions);
+      setTransactions(filteredAndSortedTransactions);
       setError(null);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Có lỗi xảy ra');
@@ -48,15 +52,17 @@ export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsPro
 
   // Initial load
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    if (user?.fullName) {
+      fetchTransactions();
+    }
+  }, [user?.fullName]);
 
   // Refresh when trigger changes
   useEffect(() => {
-    if (refreshTrigger > 0) {
+    if (refreshTrigger > 0 && user?.fullName) {
       fetchTransactions();
     }
-  }, [refreshTrigger]);
+  }, [refreshTrigger, user?.fullName]);
 
   const TransactionItem = ({ transaction }: { transaction: Transaction }) => (
     <div
