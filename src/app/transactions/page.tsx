@@ -5,6 +5,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import AddIncomeModal from "@/app/components/AddIncomeModal";
 import AddExpenseModal from "@/app/components/AddExpenseModal";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import DateRangePicker from '../components/DateRangePicker';
 
 interface Transaction {
   id: string;
@@ -132,60 +133,36 @@ export default function TransactionsPage() {
 
       {/* Filters */}
       <div className="glass-card p-6 rounded-3xl mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Từ ngày</label>
-            <input
-              type="date"
-                value={filters.startDate}
-                onChange={(e) => handleFilterChange('startDate', e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Đến ngày</label>
-            <input
-              type="date"
-                value={filters.endDate}
-                onChange={(e) => handleFilterChange('endDate', e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="md:col-span-2">
+            <DateRangePicker
+              startDate={filters.startDate}
+              endDate={filters.endDate}
+              onStartDateChange={(date) => handleFilterChange('startDate', date)}
+              onEndDateChange={(date) => handleFilterChange('endDate', date)}
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Loại</label>
-              <select 
-                value={filters.type}
-                onChange={(e) => handleFilterChange('type', e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
+            <select 
+              value={filters.type}
+              onChange={(e) => handleFilterChange('type', e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
+            >
               <option value="">Tất cả</option>
               <option value="income">Thu nhập</option>
               <option value="expense">Chi tiêu</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Danh mục</label>
-              <select 
-                value={filters.category}
-                onChange={(e) => handleFilterChange('category', e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
+            <label className="block text-sm font-medium text-gray-700 mb-2">Người ghi</label>
+            <select 
+              value={filters.recordedBy}
+              onChange={(e) => handleFilterChange('recordedBy', e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-700"
+            >
               <option value="">Tất cả</option>
-              <option value="salary">Lương</option>
-              <option value="business">Kinh doanh</option>
-              <option value="shopping">Mua sắm</option>
-              <option value="bills">Hóa đơn</option>
-            </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Người ghi</label>
-              <select 
-                value={filters.recordedBy}
-                onChange={(e) => handleFilterChange('recordedBy', e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Tất cả</option>
-                <option value={user?.fullName}>{user?.fullName}</option>
+              <option value={user?.fullName}>{user?.fullName}</option>
             </select>
           </div>
         </div>
