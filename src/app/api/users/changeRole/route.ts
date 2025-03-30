@@ -1,43 +1,21 @@
 import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-// Khởi tạo Google Sheets API
-const sheets = google.sheets('v4');
+const auth = new google.auth.GoogleAuth({
+  credentials: {
+    client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  },
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+});
 
-// Thông tin về Google Sheet
-const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID;
-const SHEET_NAME = 'Users';
+const sheets = google.sheets({ version: 'v4', auth });
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    // Kiểm tra xác thực
-    const session = await getServerSession(authOptions);
-    console.log('Current session:', session); // Debug log
+    const { email, newRole } = await request.json();
 
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    // Kiểm tra quyền admin
-    const userRole = (session.user as any).role;
-    console.log('User role:', userRole); // Debug log
-
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
-        { status: 403 }
-      );
-    }
-
-    // Lấy dữ liệu từ request
-    const { email, newRole } = await req.json();
-    console.log('Request data:', { email, newRole }); // Debug log
-
+    // Validate input
     if (!email || !newRole) {
       return NextResponse.json(
         { error: 'Email and new role are required' },
@@ -45,64 +23,59 @@ export async function POST(req: Request) {
       );
     }
 
-    // Validate role
-    if (!['admin', 'staff', 'customer'].includes(newRole)) {
+    // Validate role value
+    const validRoles = ['admin', 'STAFF', 'customer'];
+    if (!validRoles.includes(newRole)) {
       return NextResponse.json(
-        { error: 'Invalid role' },
+        { error: 'Invalid role. Must be one of: admin, STAFF, customer' },
         { status: 400 }
       );
     }
 
-    // Xác thực với Google Sheets API
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-
-    // Lấy dữ liệu từ sheet
+    // Tìm user trong sheet
     const response = await sheets.spreadsheets.values.get({
-      auth,
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A:E`,
+      spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
+      range: 'A2:E', // Get all columns from row 2 onwards
     });
 
-    const rows = response.data.values || [];
-    console.log('Total rows:', rows.length); // Debug log
-
-    // Tìm user theo email
-    const userRowIndex = rows.findIndex((row) => row[2] === email);
-    console.log('User row index:', userRowIndex); // Debug log
-
-    if (userRowIndex === -1) {
+    const rows = response.data.values;
+    if (!rows) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
     }
 
-    // Cập nhật role trong sheet
-    // Cột E (index 4) chứa role
-    const range = `${SHEET_NAME}!E${userRowIndex + 1}`;
-    console.log('Update range:', range); // Debug log
+    // Tìm index của user cần cập nhật vai trò
+    const rowIndex = rows.findIndex(row => row[1] === email);
+    if (rowIndex === -1) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
 
+    // Update vai trò trong sheet (cột E - index 4)
     await sheets.spreadsheets.values.update({
-      auth,
-      spreadsheetId: SPREADSHEET_ID,
-      range,
+      spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
+      range: `E${rowIndex + 2}`, // +2 vì index bắt đầu từ 0 và header ở hàng 1
       valueInputOption: 'RAW',
       requestBody: {
         values: [[newRole]],
       },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      message: 'Role updated successfully',
+      user: {
+        email,
+        newRole
+      }
+    });
   } catch (error) {
-    console.error('Error in changeRole:', error);
+    console.error('Error updating role:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to update role' },
       { status: 500 }
     );
   }
