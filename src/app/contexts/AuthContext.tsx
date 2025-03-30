@@ -5,6 +5,7 @@ import { createContext, useContext, useState, ReactNode } from "react";
 interface User {
   fullName: string;
   email: string;
+  role: string;
 }
 
 interface AuthContextType {

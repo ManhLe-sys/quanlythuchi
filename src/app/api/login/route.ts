@@ -68,13 +68,15 @@ export async function POST(req: Request) {
       // Lấy thông tin user từ sheet
       const userData = {
         email: user.get('Email'),
-        fullName: user.get('Họ và tên')
+        fullName: user.get('Họ và tên'),
+        role: user.get('Vai trò') || 'STAFF'
       };
 
       const token = jwt.sign(
         { 
           email: userData.email,
-          fullName: userData.fullName
+          fullName: userData.fullName,
+          role: userData.role
         },
         process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: '1d' }

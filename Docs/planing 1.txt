@@ -429,4 +429,103 @@ Dưới đây là **WBS (Work Breakdown Structure) chi tiết** cho dự án **Q
 🔲 Đào tạo người dùng (nếu cần).  
 
 ---
-
+Tôi sẽ chuyển đổi tất cả tên bảng và cột sang tiếng Việt:
+Đơn hàng
+id: ID đơn hàng
+ma_don: Mã đơn hàng
+ten_khach: Tên khách hàng
+so_dien_thoai: Số điện thoại
+dia_chi: Địa chỉ
+ngay_dat: Ngày đặt hàng
+ngay_giao: Ngày giao hàng
+tong_tien: Tổng tiền
+trang_thai: Trạng thái
+trang_thai_thanh_toan: Trạng thái thanh toán
+phuong_thuc_thanh_toan: Phương thức thanh toán
+ghi_chu: Ghi chú
+nguoi_tao: ID người tạo
+ngay_tao: Thời gian tạo
+ngay_cap_nhat: Thời gian cập nhật
+Nguyên liệu
+id: ID nguyên liệu
+ten_nguyen_lieu: Tên nguyên liệu
+ma_nguyen_lieu: Mã nguyên liệu
+ma_danh_muc: ID danh mục
+don_vi: Đơn vị tính
+gia_mua: Giá mua
+ton_kho_toi_thieu: Tồn kho tối thiểu
+ton_kho_hien_tai: Tồn kho hiện tại
+ma_nha_cung_cap: ID nhà cung cấp
+mo_ta: Mô tả
+trang_thai: Trạng thái
+ngay_tao: Thời gian tạo
+ngay_cap_nhat: Thời gian cập nhật
+Nhập kho
+id: ID phiếu nhập
+ma_phieu_nhap: Mã phiếu nhập
+ma_nguyen_lieu: ID nguyên liệu
+so_luong: Số lượng nhập
+don_gia: Đơn giá nhập
+thanh_tien: Thành tiền
+ma_nha_cung_cap: ID nhà cung cấp
+ngay_nhap: Ngày nhập
+ghi_chu: Ghi chú
+nguoi_tao: ID người tạo
+ngay_tao: Thời gian tạo
+ngay_cap_nhat: Thời gian cập nhật
+Báo cáo
+id: ID báo cáo
+loai_bao_cao: Loại báo cáo
+tu_ngay: Ngày bắt đầu
+den_ngay: Ngày kết thúc
+du_lieu: Dữ liệu báo cáo
+nguoi_tao: ID người tạo
+ngay_tao: Thời gian tạo
+Menu
+id: ID món
+ten_mon: Tên món
+ma_mon: Mã món
+ma_danh_muc: ID danh mục
+gia_ban: Giá bán
+mo_ta: Mô tả
+hinh_anh: URL hình ảnh
+danh_sach_nguyen_lieu: Danh sách nguyên liệu
+trang_thai: Trạng thái
+ngay_tao: Thời gian tạo
+ngay_cap_nhat: Thời gian cập nhật
+Danh mục
+id: ID danh mục
+ten_danh_muc: Tên danh mục
+ma_danh_muc: Mã danh mục
+ma_danh_muc_cha: ID danh mục cha
+mo_ta: Mô tả
+trang_thai: Trạng thái
+ngay_tao: Thời gian tạo
+ngay_cap_nhat: Thời gian cập nhật
+Lịch sử giá
+id: ID lịch sử
+loai_san_pham: Loại sản phẩm
+ma_san_pham: ID của sản phẩm
+gia_cu: Giá cũ
+gia_moi: Giá mới
+ngay_thay_doi: Ngày thay đổi
+nguoi_thay_doi: ID người thay đổi
+ghi_chu: Ghi chú
+ngay_tao: Thời gian tạo
+Thay đổi menu
+id: ID thay đổi
+ma_mon: ID món
+loai_thay_doi: Loại thay đổi
+du_lieu_cu: Dữ liệu cũ
+du_lieu_moi: Dữ liệu mới
+nguoi_thay_doi: ID người thay đổi
+ngay_tao: Thời gian tạo
+Cài đặt
+id: ID cài đặt
+ma_cai_dat: Khóa cài đặt
+gia_tri: Giá trị cài đặt
+mo_ta: Mô tả
+nhom: Nhóm cài đặt
+nguoi_cap_nhat: ID người cập nhật
+ngay_tao: Thời gian tạo
+ngay_cap_nhat: Thời gian cập nhật

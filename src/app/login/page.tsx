@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Toast } from "../components/Toast";
 
@@ -42,19 +42,32 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Có lỗi xảy ra khi đăng nhập');
+        const errorMessage = data.error === 'Email hoặc mật khẩu không đúng' 
+          ? 'Thông tin đăng nhập không chính xác. Vui lòng kiểm tra lại email và mật khẩu.'
+          : (data.error || 'Có lỗi xảy ra khi đăng nhập');
+        throw new Error(errorMessage);
       }
 
-      setSuccess('Đăng nhập thành công!');
-      
       if (data.user) {
+        // Log user data for debugging
+        console.log('User data from login:', data.user);
+        
+        // Set user data in AuthContext
         login({
           fullName: data.user.fullName,
-          email: data.user.email
+          email: data.user.email,
+          role: data.user.role || 'STAFF'
         });
+
+        setSuccess('Đăng nhập thành công!');
+        
+        // Wait a bit before redirecting to ensure the user data is saved
+        setTimeout(() => {
+          router.push("/");
+        }, 500);
+      } else {
+        throw new Error('Không nhận được thông tin người dùng');
       }
-      
-      router.push("/");
     } catch (error) {
       console.error('Login error:', error);
       setError(error instanceof Error ? error.message : 'Đăng nhập thất bại');
@@ -76,6 +89,18 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold gradient-text mb-3">Đăng Nhập</h1>
             <p className="text-[#3E503C]/70">Chào mừng bạn quay trở lại!</p>
           </div>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-600 text-sm">{success}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
