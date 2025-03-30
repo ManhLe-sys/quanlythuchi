@@ -14,6 +14,12 @@
   --input-bg: rgba(255, 255, 255, 0.9);
   --card-bg: rgba(255, 255, 255, 0.85);
   
+  /* Toast colors */
+  --toast-default-bg: var(--color-primary);
+  --toast-default-text: white;
+  --toast-destructive-bg: #dc2626;
+  --toast-destructive-text: white;
+  
   --shadow-sm: 0 2px 4px rgba(62, 80, 60, 0.1);
   --shadow-md: 0 4px 6px rgba(62, 80, 60, 0.12);
   --shadow-lg: 0 10px 15px rgba(62, 80, 60, 0.15);
