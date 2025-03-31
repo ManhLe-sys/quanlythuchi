@@ -640,16 +640,16 @@ export default function AdminPage() {
                 </div>
 
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
+                    <Table>
+                      <TableHeader>
                 <TableRow className="bg-gray-50/50 border-b border-gray-100">
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Họ tên</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Email</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Vai trò</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6 text-right">Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
                 {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-8">
@@ -692,45 +692,45 @@ export default function AdminPage() {
                       </TableCell>
                       <TableCell className="py-4 px-6">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                          user.role === 'admin' 
+                                user.role === 'admin' 
                             ? 'bg-purple-50 text-purple-700 ring-1 ring-purple-700/10'
-                            : user.role === 'STAFF'
+                                  : user.role === 'STAFF'
                               ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-700/10'
                               : 'bg-gray-50 text-gray-700 ring-1 ring-gray-700/10'
-                        }`}>
-                          {getRoleDisplay(user.role)}
-                        </span>
-                      </TableCell>
+                              }`}>
+                                {getRoleDisplay(user.role)}
+                              </span>
+                            </TableCell>
                       <TableCell className="py-4 px-6">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setCurrentRole(user.role);
-                              setIsChangeRoleDialogOpen(true);
-                            }}
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  onClick={() => {
+                                    setSelectedUser(user);
+                                    setCurrentRole(user.role);
+                                    setIsChangeRoleDialogOpen(true);
+                                  }}
                             variant="outline"
                             className="rounded-xl bg-white hover:bg-yellow-50 text-yellow-600 border-yellow-200 hover:border-yellow-300 transition-all flex items-center gap-2"
-                          >
+                                >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                            Đổi vai trò
-                          </Button>
-                          <Button
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setIsChangePasswordDialogOpen(true);
-                            }}
+                                  </svg>
+                                  Đổi vai trò
+                                </Button>
+                                <Button
+                                  onClick={() => {
+                                    setSelectedUser(user);
+                                    setIsChangePasswordDialogOpen(true);
+                                  }}
                             variant="outline"
                             className="rounded-xl bg-white hover:bg-purple-50 text-purple-600 border-purple-200 hover:border-purple-300 transition-all flex items-center gap-2"
-                          >
+                                >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                            </svg>
-                            Đổi mật khẩu
-                          </Button>
-                          <Button 
+                                  </svg>
+                                  Đổi mật khẩu
+                                </Button>
+                                <Button 
                             onClick={() => {
                               setUserToDelete(user);
                               setIsDeleteDialogOpen(true);
@@ -739,16 +739,16 @@ export default function AdminPage() {
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Xóa
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                                  </svg>
+                                  Xóa
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
                   ))
                 )}
-              </TableBody>
-            </Table>
+                      </TableBody>
+                    </Table>
           </div>
 
                     {/* Pagination */}
@@ -884,25 +884,25 @@ export default function AdminPage() {
                   </div>
 
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
+                    <Table>
+                      <TableHeader>
                 <TableRow className="bg-gray-50/50 border-b border-gray-100">
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Tên món</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Giá</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Danh mục</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Trạng thái</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6 text-right">Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
                 {isMenuLoading ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8">
                       <div className="flex flex-col items-center gap-4">
                         <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         <p className="text-gray-600">Đang tải dữ liệu...</p>
-                      </div>
-                    </TableCell>
+                              </div>
+                            </TableCell>
                   </TableRow>
                 ) : menuError ? (
                   <TableRow>
@@ -945,46 +945,46 @@ export default function AdminPage() {
                       </TableCell>
                       <TableCell className="py-4 px-6">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                          item.status === 'active' 
+                                item.status === 'active' 
                             ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10'
                             : 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/10'
-                        }`}>
+                              }`}>
                           {item.status === 'active' ? 'Đang bán' : 'Ngừng bán'}
-                        </span>
-                      </TableCell>
+                              </span>
+                            </TableCell>
                       <TableCell className="py-4 px-6">
                         <div className="flex justify-end gap-2">
-                          <Button 
-                            onClick={() => {
-                              setSelectedMenuItem(item);
+                                <Button 
+                                  onClick={() => {
+                                    setSelectedMenuItem(item);
                               setEditItem(item);
-                              setIsEditDialogOpen(true);
-                            }}
+                                    setIsEditDialogOpen(true);
+                                  }}
                             variant="outline"
                             className="rounded-xl bg-white hover:bg-orange-50 text-orange-600 border-orange-200 hover:border-orange-300 transition-all flex items-center gap-2"
-                          >
+                                >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                            Sửa
-                          </Button>
-                          <Button 
-                            onClick={() => handleDeleteMenuItem(item)}
+                                  </svg>
+                                  Sửa
+                                </Button>
+                                <Button 
+                                  onClick={() => handleDeleteMenuItem(item)}
                             className="rounded-xl bg-red-400 hover:bg-red-500 text-white transition-all shadow flex items-center gap-2"
-                          >
+                                >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Xóa
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                                  </svg>
+                                  Xóa
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
                   ))
                 )}
-              </TableBody>
-            </Table>
-          </div>
+                      </TableBody>
+                    </Table>
+                  </div>
 
           {/* Pagination */}
           <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
@@ -1016,8 +1016,8 @@ export default function AdminPage() {
               </Button>
             </div>
           </div>
-        </div>
-      )}
+              </div>
+            )}
 
       {/* Change Password Dialog */}
       <Dialog open={isChangePasswordDialogOpen} onOpenChange={setIsChangePasswordDialogOpen}>
@@ -1035,7 +1035,7 @@ export default function AdminPage() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="rounded-xl bg-white hover:bg-gray-50 border-gray-200 text-gray-700"
               />
-            </div>
+          </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">Xác nhận mật khẩu</Label>
               <Input
@@ -1045,11 +1045,11 @@ export default function AdminPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="rounded-xl bg-white hover:bg-gray-50 border-gray-200 text-gray-700"
               />
-            </div>
+        </div>
             {passwordError && (
               <p className="text-sm text-red-600">{passwordError}</p>
             )}
-          </div>
+      </div>
           <DialogFooter>
             <Button
               variant="outline"
@@ -1098,7 +1098,7 @@ export default function AdminPage() {
             >
               Hủy
             </Button>
-            <Button
+            <Button 
               onClick={handleChangeRole}
               disabled={isChangeRoleLoading}
               className="rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white transition-all shadow-lg"
@@ -1200,7 +1200,7 @@ export default function AdminPage() {
                   <SelectItem value="inactive" className="text-gray-700">Ngừng bán</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+              </div>
           </div>
           <DialogFooter>
             <Button
@@ -1210,7 +1210,7 @@ export default function AdminPage() {
             >
               Hủy
             </Button>
-            <Button
+            <Button 
               onClick={handleEditMenuItem}
               className="rounded-xl bg-orange-500 hover:bg-orange-600 text-white transition-all shadow-lg"
             >

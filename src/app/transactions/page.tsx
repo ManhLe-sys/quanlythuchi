@@ -101,9 +101,9 @@ export default function TransactionsPage() {
     <ProtectedRoute>
     <div className="container mx-auto px-4 py-8 text-gray-700">
       {/* Header with gradient background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl p-8 mb-8 shadow-lg">
+      <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
-        <div className="relative flex items-center justify-between">
+         <div className="relative flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">Lịch Sử Giao Dịch</h1>
             <p className="text-white/80">
