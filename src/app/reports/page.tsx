@@ -195,342 +195,211 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header Section with Background */}
-      <div className="relative mb-12">
-        <div className="absolute inset-0 bg-gradient-to-r from-green-50 via-blue-50 to-purple-50 rounded-3xl"></div>
-        <div className="relative z-10 p-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">
-                <span className="text-green-600">Báo Cáo</span>{" "}
-                <span className="text-gray-800">Thu Chi</span>
-              </h1>
-              <p className="text-gray-600">
-                Thống kê chi tiết thu chi theo thời gian và danh mục
-              </p>
-            </div>
-            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
-              <div className="relative">
-                <select
-                  value={timeRange}
-                  onChange={(e) => setTimeRange(e.target.value as "day" | "week" | "month" | "year")}
-                  className="w-full md:w-auto pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 cursor-pointer appearance-none text-gray-700 font-medium shadow-sm hover:shadow-md"
-                >
-                  <option value="day">Hôm nay</option>
-                  <option value="week">Tuần này</option>
-                  <option value="month">Tháng này</option>
-                  <option value="year">Năm nay</option>
-                </select>
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-            </svg>
-        </div>
-      </div>
-              <div className="flex-1 md:flex-none">
-                <DateRangePicker
-                  startDate={dateRange.startDate}
-                  endDate={dateRange.endDate}
-                  onStartDateChange={(date) => setDateRange(prev => ({ ...prev, startDate: date }))}
-                  onEndDateChange={(date) => setDateRange(prev => ({ ...prev, endDate: date }))}
-                />
-              </div>
+    <div className="container mx-auto px-4 py-8 text-gray-700">
+      {/* Header with gradient background */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl p-8 mb-8 shadow-lg">
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">Báo Cáo Thu Chi</h1>
+            <p className="text-white/80">
+              Thống kê chi tiết thu chi theo thời gian và danh mục
+            </p>
           </div>
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
+            <div className="relative">
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value as "day" | "week" | "month" | "year")}
+                className="w-full md:w-auto pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 cursor-pointer appearance-none text-gray-700 font-medium shadow-sm hover:shadow-md"
+              >
+                <option value="day">Hôm nay</option>
+                <option value="week">Tuần này</option>
+                <option value="month">Tháng này</option>
+                <option value="year">Năm nay</option>
+              </select>
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            <div className="flex-1 md:flex-none">
+              <DateRangePicker
+                startDate={dateRange.startDate}
+                endDate={dateRange.endDate}
+                onStartDateChange={(date) => setDateRange(prev => ({ ...prev, startDate: date }))}
+                onEndDateChange={(date) => setDateRange(prev => ({ ...prev, endDate: date }))}
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Summary Cards with Enhanced Design */}
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="glass-card p-6 rounded-3xl hover:shadow-lg transition-shadow duration-300 border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
+        {/* Thu Nhập Card */}
+        <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-1">Tổng Thu</h3>
-              <p className="text-sm text-gray-500">Tổng thu nhập trong kỳ</p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-2xl">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-          {isLoading ? (
-            <div className="animate-pulse space-y-2">
-              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          ) : (
-            <>
-              <p className="text-3xl font-bold text-green-600 mb-2">
+              <p className="text-sm font-medium text-gray-600">Tổng Thu Nhập</p>
+              <p className="text-2xl font-bold text-green-600 mt-1">
                 {new Intl.NumberFormat('vi-VN', {
                   style: 'currency',
                   currency: 'VND'
                 }).format(summary.totalIncome)}
               </p>
-              <div className="flex items-center text-sm text-green-500">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-                <span>Cập nhật mới nhất</span>
-          </div>
-            </>
-          )}
-        </div>
-
-        <div className="glass-card p-6 rounded-3xl hover:shadow-lg transition-shadow duration-300 border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-1">Tổng Chi</h3>
-              <p className="text-sm text-gray-500">Tổng chi tiêu trong kỳ</p>
             </div>
-            <div className="p-3 bg-red-100 rounded-2xl">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+            <div className="h-12 w-12 bg-green-100 rounded-2xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
               </svg>
             </div>
           </div>
-          {isLoading ? (
-            <div className="animate-pulse space-y-2">
-              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          ) : (
-            <>
-              <p className="text-3xl font-bold text-red-600 mb-2">
+        </div>
+
+        {/* Chi Tiêu Card */}
+        <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Tổng Chi Tiêu</p>
+              <p className="text-2xl font-bold text-red-600 mt-1">
                 {new Intl.NumberFormat('vi-VN', {
                   style: 'currency',
                   currency: 'VND'
                 }).format(summary.totalExpense)}
               </p>
-              <div className="flex items-center text-sm text-red-500">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6" />
-            </svg>
-                <span>Cập nhật mới nhất</span>
-          </div>
-            </>
-          )}
-        </div>
-
-        <div className="glass-card p-6 rounded-3xl hover:shadow-lg transition-shadow duration-300 border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-1">Số Dư</h3>
-              <p className="text-sm text-gray-500">Chênh lệch thu chi</p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-2xl">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            <div className="h-12 w-12 bg-red-100 rounded-2xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
               </svg>
             </div>
           </div>
-          {isLoading ? (
-            <div className="animate-pulse space-y-2">
-              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          ) : (
-            <>
-              <p className={`text-3xl font-bold mb-2 ${summary.balance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+        </div>
+
+        {/* Số Dư Card */}
+        <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Số Dư</p>
+              <p className={`text-2xl font-bold mt-1 ${summary.balance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                 {new Intl.NumberFormat('vi-VN', {
                   style: 'currency',
                   currency: 'VND'
                 }).format(summary.balance)}
               </p>
-              <div className={`flex items-center text-sm ${summary.balance >= 0 ? 'text-blue-500' : 'text-red-500'}`}>
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                    d={summary.balance >= 0 
-                      ? "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                      : "M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"} />
-            </svg>
-                <span>Cập nhật mới nhất</span>
-          </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <div className="glass-card p-6 rounded-3xl">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Thu Chi Theo Thời Gian</h3>
-          <div className="h-80">
-            {isLoading ? (
-              <div className="animate-pulse h-full bg-gray-200 rounded"></div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={timeChartData()}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value: number) => new Intl.NumberFormat('vi-VN', {
-                      style: 'currency',
-                      currency: 'VND'
-                    }).format(value)}
-                  />
-                  <Legend />
-                  <Line type="monotone" dataKey="Thu" stroke="#22c55e" strokeWidth={2} />
-                  <Line type="monotone" dataKey="Chi" stroke="#ef4444" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </div>
-
-        <div className="glass-card p-6 rounded-3xl">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Chi Tiêu Theo Danh Mục</h3>
-          <div className="h-80">
-            {isLoading ? (
-              <div className="animate-pulse h-full bg-gray-200 rounded"></div>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={categoryChartData()}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {categoryChartData().map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value: number) => new Intl.NumberFormat('vi-VN', {
-                      style: 'currency',
-                      currency: 'VND'
-                    }).format(value)}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
+            </div>
+            <div className="h-12 w-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Detailed Reports */}
-      <div className="glass-card p-6 rounded-3xl">
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">Báo Cáo Chi Tiết</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Danh mục</th>
-                <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Thu nhập</th>
-                <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Chi tiêu</th>
-                <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Số dư</th>
-                <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">%</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-4">
-                    <div className="animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                    </div>
-                  </td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-red-600">{error}</td>
-                </tr>
-              ) : summary.transactions.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                    Không có dữ liệu cho khoảng thời gian này
-                  </td>
-              </tr>
-              ) : (
-                <>
-                  {/* Group and calculate by category */}
-                  {Object.entries(
-                    summary.transactions.reduce((acc, t) => {
-                      const category = t.category;
-                      if (!acc[category]) {
-                        acc[category] = { income: 0, expense: 0 };
-                      }
-                      if (t.type === 'Thu') {
-                        acc[category].income += Number(t.amount);
-                      } else {
-                        acc[category].expense += Number(t.amount);
-                      }
-                      return acc;
-                    }, {} as Record<string, { income: number; expense: number }>)
-                  ).map(([category, data]) => {
-                    const balance = data.income - data.expense;
-                    const percentage = ((data.expense / summary.totalExpense) * 100).toFixed(1);
-                    
-                    return (
-                      <tr key={category} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm text-gray-900">{category}</td>
-                        <td className="px-6 py-4 text-sm text-right text-green-600">
-                          {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                          }).format(data.income)}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-right text-red-600">
-                          {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                          }).format(data.expense)}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-right text-blue-600">
-                          {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                          }).format(balance)}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-right text-gray-900">
-                          {percentage}%
-                        </td>
-              </tr>
-                    );
-                  })}
-                  {/* Total row */}
-                  <tr className="bg-gray-50 font-medium">
-                    <td className="px-6 py-4 text-sm text-gray-900">Tổng cộng</td>
-                    <td className="px-6 py-4 text-sm text-right text-green-600">
-                      {new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND'
-                      }).format(summary.totalIncome)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-right text-red-600">
-                      {new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND'
-                      }).format(summary.totalExpense)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-right text-blue-600">
-                      {new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND'
-                      }).format(summary.balance)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-right text-gray-900">100%</td>
-              </tr>
-                </>
-              )}
-            </tbody>
-          </table>
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Time-based Chart */}
+        <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-6">Biểu Đồ Thu Chi Theo Thời Gian</h3>
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={timeChartData()}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="date" stroke="#6B7280" />
+                <YAxis stroke="#6B7280" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: '12px',
+                    border: '1px solid #E5E7EB',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Legend />
+                <Line type="monotone" dataKey="Thu" stroke="#10B981" strokeWidth={2} dot={{ fill: '#10B981' }} />
+                <Line type="monotone" dataKey="Chi" stroke="#EF4444" strokeWidth={2} dot={{ fill: '#EF4444' }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Category-based Chart */}
+        <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
+          <h3 className="text-lg font-semibold mb-6">Biểu Đồ Chi Tiêu Theo Danh Mục</h3>
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={categoryChartData()}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={150}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                >
+                  {categoryChartData().map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: '12px',
+                    border: '1px solid #E5E7EB',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                  formatter={(value: any) => new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                  }).format(Number(value))}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
+
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-gray-600">Đang tải dữ liệu...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl">
+            <div className="flex flex-col items-center gap-4 text-red-600">
+              <div className="h-24 w-24 bg-red-50 rounded-full flex items-center justify-center">
+                <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="font-medium">{error}</p>
+              <button
+                onClick={() => setError(null)}
+                className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

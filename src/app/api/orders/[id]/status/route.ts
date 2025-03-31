@@ -6,18 +6,18 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { trang_thai } = await request.json();
+    const { trang_thai, trang_thai_thanh_toan } = await request.json();
     const orderId = params.id;
 
     // Kiểm tra biến môi trường
-    const spreadsheetId = process.env.SPREADSHEET_ID;
-    const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY;
+    const spreadsheetId = process.env.GOOGLE_SHEETS_SHEET_ID;
+    const clientEmail = process.env.GOOGLE_SHEETS_CLIENT_EMAIL;
+    const privateKey = process.env.GOOGLE_SHEETS_PRIVATE_KEY;
 
     if (!spreadsheetId) {
-      console.error('SPREADSHEET_ID is not defined in environment variables');
+      console.error('GOOGLE_SHEETS_SHEET_ID is not defined in environment variables');
       return NextResponse.json(
-        { success: false, message: 'Cấu hình server chưa hoàn chỉnh: Thiếu SPREADSHEET_ID' },
+        { success: false, message: 'Cấu hình server chưa hoàn chỉnh: Thiếu GOOGLE_SHEETS_SHEET_ID' },
         { status: 500 }
       );
     }
@@ -64,13 +64,37 @@ export async function PUT(
       );
     }
 
-    // Cập nhật trạng thái đơn hàng
+    // Cập nhật trạng thái đơn hàng nếu có
+    if (trang_thai) {
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: spreadsheetId,
+        range: `Đơn hàng!I${orderRowIndex + 1}`,
+        valueInputOption: 'RAW',
+        requestBody: {
+          values: [[trang_thai]],
+        },
+      });
+    }
+
+    // Cập nhật trạng thái thanh toán nếu có
+    if (trang_thai_thanh_toan) {
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: spreadsheetId,
+        range: `Đơn hàng!J${orderRowIndex + 1}`,
+        valueInputOption: 'RAW',
+        requestBody: {
+          values: [[trang_thai_thanh_toan]],
+        },
+      });
+    }
+
+    // Cập nhật thời gian cập nhật
     await sheets.spreadsheets.values.update({
       spreadsheetId: spreadsheetId,
-      range: `Đơn hàng!J${orderRowIndex + 1}`,
+      range: `Đơn hàng!O${orderRowIndex + 1}`,
       valueInputOption: 'RAW',
       requestBody: {
-        values: [[trang_thai]],
+        values: [[new Date().toISOString()]],
       },
     });
 
