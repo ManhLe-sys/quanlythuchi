@@ -116,7 +116,7 @@ export default function TransactionsPage() {
                 setTransactionType("income");
                 setShowAddModal(true);
               }}
-              className="px-6 py-3 bg-white text-blue-600 rounded-xl hover:bg-blue-50 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
+              className="px-6 py-3 bg-white text-[#3E503C] rounded-xl hover:bg-[#3E503C]/10 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -128,7 +128,7 @@ export default function TransactionsPage() {
                 setTransactionType("expense");
                 setShowAddModal(true);
               }}
-              className="px-6 py-3 bg-white text-red-600 rounded-xl hover:bg-red-50 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
+              className="px-6 py-3 bg-white text-[#FF6F3D] rounded-xl hover:bg-[#FF6F3D]/10 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -155,7 +155,7 @@ export default function TransactionsPage() {
             <select 
               value={filters.type}
               onChange={(e) => handleFilterChange('type', e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
             >
               <option value="">Tất cả</option>
               <option value="income">Thu nhập</option>
@@ -167,7 +167,7 @@ export default function TransactionsPage() {
             <select 
               value={filters.recordedBy}
               onChange={(e) => handleFilterChange('recordedBy', e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
             >
               <option value="">Tất cả</option>
               <option value={user?.fullName}>{user?.fullName}</option>
@@ -196,7 +196,7 @@ export default function TransactionsPage() {
                 <tr>
                   <td colSpan={7} className="px-6 py-8 text-center">
                     <div className="flex flex-col items-center gap-4">
-                      <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-12 h-12 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin"></div>
                       <p className="text-gray-600">Đang tải dữ liệu giao dịch...</p>
                     </div>
                   </td>
@@ -230,7 +230,7 @@ export default function TransactionsPage() {
                             setTransactionType("income");
                             setShowAddModal(true);
                           }}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                          className="px-4 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors"
                         >
                           Thêm Thu Nhập
                         </button>
@@ -239,7 +239,7 @@ export default function TransactionsPage() {
                             setTransactionType("expense");
                             setShowAddModal(true);
                           }}
-                          className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
+                          className="px-4 py-2 bg-[#FF6F3D] text-white rounded-xl hover:bg-[#FF6F3D]/90 transition-colors"
                         >
                           Thêm Chi Tiêu
                         </button>
@@ -272,7 +272,7 @@ export default function TransactionsPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-center">{transaction.recordedBy}</td>
                     <td className="px-6 py-4 text-center">
-                      <button className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                      <button className="p-2 text-[#3E503C] hover:text-[#7F886A] hover:bg-[#3E503C]/10 rounded-lg transition-colors duration-200">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>

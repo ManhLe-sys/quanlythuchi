@@ -197,7 +197,7 @@ export default function ReportsPage() {
   return (
     <div className="container mx-auto px-4 py-8 text-gray-700">
       {/* Header with gradient background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl p-8 mb-8 shadow-lg">
+      <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -211,7 +211,7 @@ export default function ReportsPage() {
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value as "day" | "week" | "month" | "year")}
-                className="w-full md:w-auto pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 cursor-pointer appearance-none text-gray-700 font-medium shadow-sm hover:shadow-md"
+                className="w-full md:w-auto pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200 cursor-pointer appearance-none text-gray-700 font-medium shadow-sm hover:shadow-md"
               >
                 <option value="day">Hôm nay</option>
                 <option value="week">Tuần này</option>
@@ -287,16 +287,16 @@ export default function ReportsPage() {
         <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Số Dư</p>
-              <p className={`text-2xl font-bold mt-1 ${summary.balance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+              <p className="text-sm font-medium text-[#3E503C]">Số Dư</p>
+              <p className={`text-2xl font-bold mt-1 ${summary.balance >= 0 ? 'text-[#3E503C]' : 'text-[#FF6F3D]'}`}>
                 {new Intl.NumberFormat('vi-VN', {
                   style: 'currency',
                   currency: 'VND'
                 }).format(summary.balance)}
               </p>
             </div>
-            <div className="h-12 w-12 bg-blue-100 rounded-2xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="h-12 w-12 bg-[#3E503C]/10 rounded-2xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#3E503C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
               </svg>
             </div>
@@ -373,7 +373,7 @@ export default function ReportsPage() {
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-12 h-12 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin"></div>
               <p className="text-gray-600">Đang tải dữ liệu...</p>
             </div>
           </div>
@@ -392,7 +392,7 @@ export default function ReportsPage() {
               <p className="font-medium">{error}</p>
               <button
                 onClick={() => setError(null)}
-                className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
+                className="px-4 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors"
               >
                 Đóng
               </button>

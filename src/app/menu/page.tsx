@@ -64,13 +64,13 @@ export default function MenuPage() {
   return (
     <div className="container mx-auto px-4 py-8 text-gray-700">
       {/* Header with gradient background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl p-8 mb-8 shadow-lg">
+      <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex items-center justify-between">
           <h1 className="text-4xl font-bold text-white">Quản Lý Menu</h1>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <button className="px-6 py-3 bg-white text-blue-600 rounded-xl hover:bg-blue-50 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium">
+              <button className="px-6 py-3 bg-white text-[#3E503C] rounded-xl hover:bg-[#3E503C]/10 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -79,53 +79,53 @@ export default function MenuPage() {
             </DialogTrigger>
             <DialogContent className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border-0">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Thêm Món Mới</DialogTitle>
+                <DialogTitle className="text-2xl font-bold gradient-text">Thêm Món Mới</DialogTitle>
               </DialogHeader>
               <div className="grid gap-6 py-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="name" className="text-gray-600">Tên món</Label>
+                  <Label htmlFor="name" className="text-[#3E503C]">Tên món</Label>
                   <Input
                     id="name"
                     value={newItem.name}
                     onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="price" className="text-gray-600">Giá</Label>
+                  <Label htmlFor="price" className="text-[#3E503C]">Giá</Label>
                   <Input
                     id="price"
                     type="number"
                     value={newItem.price}
                     onChange={(e) => setNewItem({ ...newItem, price: Number(e.target.value) })}
-                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="category" className="text-gray-600">Danh mục</Label>
+                  <Label htmlFor="category" className="text-[#3E503C]">Danh mục</Label>
                   <Input
                     id="category"
                     value={newItem.category}
                     onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="description" className="text-gray-600">Mô tả</Label>
+                  <Label htmlFor="description" className="text-[#3E503C]">Mô tả</Label>
                   <Input
                     id="description"
                     value={newItem.description}
                     onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="imageUrl" className="text-gray-600">URL hình ảnh</Label>
+                  <Label htmlFor="imageUrl" className="text-[#3E503C]">URL hình ảnh</Label>
                   <Input
                     id="imageUrl"
                     value={newItem.imageUrl}
                     onChange={(e) => setNewItem({ ...newItem, imageUrl: e.target.value })}
-                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
                   />
                 </div>
                 <div className="flex justify-end gap-4 pt-6">

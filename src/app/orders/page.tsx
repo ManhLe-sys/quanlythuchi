@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface MenuItem {
   ma_mon: string;
@@ -45,6 +50,7 @@ export default function OrdersPage() {
     ngay_giao: "",
     phuong_thuc_thanh_toan: "",
     ghi_chu: "",
+    trang_thai: "pending" as 'pending' | 'processing' | 'completed' | 'cancelled'
   });
   const [orders, setOrders] = useState<any[]>([]);
 
@@ -226,6 +232,7 @@ export default function OrdersPage() {
           ngay_giao: "",
           phuong_thuc_thanh_toan: "",
           ghi_chu: "",
+          trang_thai: "pending"
         });
         setSelectedItems([]);
         // Refresh danh sách đơn hàng
@@ -369,7 +376,7 @@ export default function OrdersPage() {
   return (
     <div className="container mx-auto px-4 py-8 text-gray-700">
       {/* Header with gradient background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl p-8 mb-8 shadow-lg">
+      <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -381,7 +388,7 @@ export default function OrdersPage() {
           <div className="flex gap-4">
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-6 py-2 rounded-xl font-medium bg-white text-blue-600 hover:bg-white/90 shadow-lg transition-all duration-200 flex items-center gap-2"
+              className="px-6 py-2 rounded-xl font-medium bg-white text-[#3E503C] hover:bg-[#3E503C]/10 shadow-lg transition-all duration-200 flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -401,7 +408,7 @@ export default function OrdersPage() {
                 <input
                   type="text"
                   placeholder="Tìm kiếm đơn hàng..."
-                  className="pl-10 pr-4 py-2 w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="pl-10 pr-4 py-2 w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent"
                 />
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,14 +419,14 @@ export default function OrdersPage() {
               <div className="flex gap-4">
                 <input
                   type="date"
-                  className="rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent"
                 />
-                <select className="rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="">Tất cả trạng thái</option>
-                  <option value="pending">Chờ xử lý</option>
-                  <option value="processing">Đang xử lý</option>
-                  <option value="completed">Hoàn thành</option>
-                  <option value="cancelled">Đã hủy</option>
+                <select className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C]">
+                  <option value="" className="text-[#3E503C]">Tất cả trạng thái</option>
+                  <option value="pending" className="text-[#3E503C]">Chờ xử lý</option>
+                  <option value="processing" className="text-[#3E503C]">Đang xử lý</option>
+                  <option value="completed" className="text-[#3E503C]">Hoàn thành</option>
+                  <option value="cancelled" className="text-[#3E503C]">Đã hủy</option>
                 </select>
               </div>
             </div>
@@ -432,14 +439,14 @@ export default function OrdersPage() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50/50 border-b border-gray-100">
-                <th className="font-medium text-gray-700 py-4 px-6 text-left">Mã đơn</th>
-                <th className="font-medium text-gray-700 py-4 px-6 text-left">Khách hàng</th>
-                <th className="font-medium text-gray-700 py-4 px-6 text-left">Ngày đặt</th>
-                <th className="font-medium text-gray-700 py-4 px-6 text-right">Tổng tiền</th>
-                <th className="font-medium text-gray-700 py-4 px-6 text-center">Trạng thái</th>
-                <th className="font-medium text-gray-700 py-4 px-6 text-center">Thanh toán</th>
-                <th className="font-medium text-gray-700 py-4 px-6 text-right">Thao tác</th>
+              <tr className="bg-[#3E503C]/5 border-b border-[#3E503C]/10">
+                <th className="font-medium text-[#3E503C] py-4 px-6 text-left">Mã đơn</th>
+                <th className="font-medium text-[#3E503C] py-4 px-6 text-left">Khách hàng</th>
+                <th className="font-medium text-[#3E503C] py-4 px-6 text-left">Ngày đặt</th>
+                <th className="font-medium text-[#3E503C] py-4 px-6 text-right">Tổng tiền</th>
+                <th className="font-medium text-[#3E503C] py-4 px-6 text-center">Trạng thái</th>
+                <th className="font-medium text-[#3E503C] py-4 px-6 text-center">Thanh toán</th>
+                <th className="font-medium text-[#3E503C] py-4 px-6 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -447,7 +454,7 @@ export default function OrdersPage() {
                 <tr>
                   <td colSpan={7} className="text-center py-8">
                     <div className="flex flex-col items-center gap-4">
-                      <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-10 h-10 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin"></div>
                       <p className="text-gray-600">Đang tải dữ liệu...</p>
                     </div>
                   </td>
@@ -514,7 +521,7 @@ export default function OrdersPage() {
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => handleOpenDetail(order)}
-                          className="rounded-xl bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 hover:border-blue-300 px-4 py-2 transition-all flex items-center gap-2"
+                          className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -533,338 +540,342 @@ export default function OrdersPage() {
       </div>
 
       {/* Order Detail Modal */}
-      {showDetailModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-gray-100 shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4">
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Chi tiết đơn hàng #{selectedOrder.ma_don}</h2>
-                <button
-                  onClick={() => setShowDetailModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+      <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
+        <DialogContent className="bg-white/90 backdrop-blur-xl rounded-3xl border-gray-100 shadow-xl max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-[#3E503C]">Chi tiết đơn hàng #{selectedOrder?.ma_don}</DialogTitle>
+          </DialogHeader>
+
+          <div className="grid gap-6 py-6">
+            {/* Customer and Order Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
+                  Thông tin khách hàng
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-[#3E503C]">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span className="font-medium">{selectedOrder?.ten_khach}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[#3E503C]">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <span>{selectedOrder?.so_dien_thoai}</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-[#3E503C]">
+                    <svg className="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>{selectedOrder?.dia_chi}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
+                  Thông tin đơn hàng
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-[#3E503C]">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Ngày đặt: {new Date(selectedOrder?.ngay_dat).toLocaleDateString('vi-VN')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[#3E503C]">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Ngày giao: {selectedOrder?.ngay_giao ? new Date(selectedOrder.ngay_giao).toLocaleDateString('vi-VN') : 'Chưa xác định'}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[#3E503C]">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    <span>Phương thức thanh toán: {selectedOrder?.phuong_thuc_thanh_toan}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <h3 className="font-medium text-gray-700 mb-2">Thông tin khách hàng</h3>
-                  <div className="space-y-1">
-                    <p><span className="text-gray-600">Tên khách hàng:</span> {selectedOrder.ten_khach}</p>
-                    <p><span className="text-gray-600">Số điện thoại:</span> {selectedOrder.so_dien_thoai}</p>
-                    <p><span className="text-gray-600">Địa chỉ:</span> {selectedOrder.dia_chi}</p>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-700 mb-2">Thông tin đơn hàng</h3>
-                  <div className="space-y-1">
-                    <p><span className="text-gray-600">Ngày đặt:</span> {new Date(selectedOrder.ngay_dat).toLocaleDateString('vi-VN')}</p>
-                    <p><span className="text-gray-600">Ngày giao:</span> {selectedOrder.ngay_giao ? new Date(selectedOrder.ngay_giao).toLocaleDateString('vi-VN') : 'Chưa xác định'}</p>
-                    <p><span className="text-gray-600">Phương thức thanh toán:</span> {selectedOrder.phuong_thuc_thanh_toan}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="font-medium text-gray-700 mb-4">Danh sách món</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-gray-50/50 border-b border-gray-100">
-                        <th className="font-medium text-gray-700 py-2 px-4 text-left">STT</th>
-                        <th className="font-medium text-gray-700 py-2 px-4 text-left">Tên món</th>
-                        <th className="font-medium text-gray-700 py-2 px-4 text-center">Số lượng</th>
-                        <th className="font-medium text-gray-700 py-2 px-4 text-right">Đơn giá</th>
-                        <th className="font-medium text-gray-700 py-2 px-4 text-right">Thành tiền</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedOrder.chi_tiet.map((item: any, index: number) => (
-                        <tr key={index} className="border-b border-gray-50">
-                          <td className="py-2 px-4">{item.stt}</td>
-                          <td className="py-2 px-4">{item.ten_mon}</td>
-                          <td className="py-2 px-4 text-center">{item.so_luong}</td>
-                          <td className="py-2 px-4 text-right">
-                            {new Intl.NumberFormat('vi-VN', {
-                              style: 'currency',
-                              currency: 'VND'
-                            }).format(item.don_gia)}
-                          </td>
-                          <td className="py-2 px-4 text-right">
-                            {new Intl.NumberFormat('vi-VN', {
-                              style: 'currency',
-                              currency: 'VND'
-                            }).format(item.thanh_tien)}
-                          </td>
-                        </tr>
-                      ))}
-                      <tr className="bg-gray-50/50">
-                        <td colSpan={4} className="py-2 px-4 text-right font-medium">Tổng cộng:</td>
-                        <td className="py-2 px-4 text-right font-medium">
+            {/* Order Items */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
+                Danh sách món
+              </h3>
+              <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-gray-100 overflow-hidden">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-[#3E503C]/5 border-b border-[#3E503C]/10">
+                      <th className="font-medium text-[#3E503C] py-4 px-6 text-left">STT</th>
+                      <th className="font-medium text-[#3E503C] py-4 px-6 text-left">Tên món</th>
+                      <th className="font-medium text-[#3E503C] py-4 px-6 text-center">Số lượng</th>
+                      <th className="font-medium text-[#3E503C] py-4 px-6 text-right">Đơn giá</th>
+                      <th className="font-medium text-[#3E503C] py-4 px-6 text-right">Thành tiền</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedOrder?.chi_tiet.map((item: any, index: number) => (
+                      <tr key={index} className="border-b border-gray-50 hover:bg-[#3E503C]/5 transition-colors">
+                        <td className="py-4 px-6 text-[#3E503C]">{item.stt}</td>
+                        <td className="py-4 px-6 text-[#3E503C] font-medium">{item.ten_mon}</td>
+                        <td className="py-4 px-6 text-center text-[#3E503C]">{item.so_luong}</td>
+                        <td className="py-4 px-6 text-right text-[#3E503C]">
                           {new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
                             currency: 'VND'
-                          }).format(selectedOrder.tong_tien)}
+                          }).format(item.don_gia)}
+                        </td>
+                        <td className="py-4 px-6 text-right font-medium text-[#3E503C]">
+                          {new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                          }).format(item.thanh_tien)}
                         </td>
                       </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-700 mb-2">Trạng thái đơn hàng</h3>
-                  <div className="flex items-center gap-4">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedOrder.trang_thai === 'Hoàn thành'
-                        ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10'
-                        : selectedOrder.trang_thai === 'Đang xử lý'
-                        ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/10'
-                        : selectedOrder.trang_thai === 'Chờ xử lý'
-                        ? 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/10'
-                        : 'bg-red-50 text-red-700 ring-1 ring-red-600/10'
-                    }`}>
-                      {selectedOrder.trang_thai}
-                    </span>
-                    <button
-                      onClick={() => handleStatusChange(getNextStatus(selectedOrder.trang_thai))}
-                      className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition-all shadow-lg"
-                    >
-                      Cập nhật trạng thái
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-700 mb-2">Trạng thái thanh toán</h3>
-                  <div className="flex items-center gap-4">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedOrder.trang_thai_thanh_toan === 'Đã thanh toán'
-                        ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10'
-                        : 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/10'
-                    }`}>
-                      {selectedOrder.trang_thai_thanh_toan}
-                    </span>
-                    <button
-                      onClick={() => handleStatusChange(getNextPaymentStatus(selectedOrder.trang_thai_thanh_toan), true)}
-                      className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white transition-all shadow-lg"
-                    >
-                      Cập nhật thanh toán
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {selectedOrder.ghi_chu && (
-                <div className="mt-6">
-                  <h3 className="font-medium text-gray-700 mb-2">Ghi chú</h3>
-                  <p className="text-gray-600">{selectedOrder.ghi_chu}</p>
-                </div>
-              )}
-
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => setShowDetailModal(false)}
-                  className="px-6 py-2 rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 hover:border-gray-300 transition-all"
-                >
-                  Đóng
-                </button>
+                    ))}
+                    <tr className="bg-[#3E503C]/5">
+                      <td colSpan={4} className="py-4 px-6 text-right font-medium text-[#3E503C]">Tổng cộng:</td>
+                      <td className="py-4 px-6 text-right font-bold text-[#3E503C]">
+                        {new Intl.NumberFormat('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND'
+                        }).format(selectedOrder?.tong_tien)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
+
+            {/* Order Status */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
+                  Trạng thái đơn hàng
+                </h3>
+                <div className="flex items-center gap-4">
+                  <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
+                    selectedOrder?.trang_thai === 'Hoàn thành'
+                      ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
+                      : selectedOrder?.trang_thai === 'Đang xử lý'
+                      ? 'bg-[#7F886A]/10 text-[#7F886A] ring-1 ring-[#7F886A]/20'
+                      : selectedOrder?.trang_thai === 'Chờ xử lý'
+                      ? 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20'
+                      : 'bg-red-50 text-red-700 ring-1 ring-red-600/10'
+                  }`}>
+                    {selectedOrder?.trang_thai}
+                  </span>
+                  <Button
+                    onClick={() => handleStatusChange(getNextStatus(selectedOrder?.trang_thai))}
+                    className="px-4 py-2 rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg"
+                  >
+                    Cập nhật trạng thái
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
+                  Trạng thái thanh toán
+                </h3>
+                <div className="flex items-center gap-4">
+                  <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
+                    selectedOrder?.trang_thai_thanh_toan === 'Đã thanh toán'
+                      ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
+                      : 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20'
+                  }`}>
+                    {selectedOrder?.trang_thai_thanh_toan}
+                  </span>
+                  {selectedOrder?.trang_thai_thanh_toan !== 'Đã thanh toán' && (
+                    <Button
+                      onClick={() => handleStatusChange(getNextPaymentStatus(selectedOrder?.trang_thai_thanh_toan), true)}
+                      className="px-4 py-2 rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg"
+                    >
+                      Đã thanh toán
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Notes */}
+            {selectedOrder?.ghi_chu && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
+                  Ghi chú
+                </h3>
+                <p className="text-[#3E503C] bg-[#3E503C]/5 p-4 rounded-xl">{selectedOrder.ghi_chu}</p>
+              </div>
+            )}
           </div>
-        </div>
-      )}
 
-      {/* Add Order Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-gray-100 shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto m-4">
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Tạo đơn hàng mới</h2>
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <DialogFooter>
+            <Button
+              onClick={() => setShowDetailModal(false)}
+              className="px-6 py-2 rounded-xl bg-white hover:bg-gray-50 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 transition-all"
+            >
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Order Dialog */}
+      <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
+        <DialogContent className="bg-white/90 backdrop-blur-xl rounded-3xl border-gray-100 shadow-xl max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-[#3E503C]">Tạo đơn hàng mới</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-6 py-6">
+            {/* Customer Info Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">Thông tin khách hàng</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-gray-700 font-medium">Tên khách hàng</label>
-                  <input
-                    type="text"
+                  <Label htmlFor="customerName" className="text-[#3E503C] font-medium">Họ tên khách hàng</Label>
+                  <Input
+                    id="customerName"
                     value={formData.ten_khach}
                     onChange={(e) => setFormData({ ...formData, ten_khach: e.target.value })}
-                    className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C] placeholder:text-[#3E503C]/50"
+                    placeholder="Nhập họ tên khách hàng"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-gray-700 font-medium">Số điện thoại</label>
-                  <input
-                    type="tel"
+                  <Label htmlFor="customerPhone" className="text-[#3E503C] font-medium">Số điện thoại</Label>
+                  <Input
+                    id="customerPhone"
                     value={formData.so_dien_thoai}
                     onChange={(e) => setFormData({ ...formData, so_dien_thoai: e.target.value })}
-                    className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C] placeholder:text-[#3E503C]/50"
+                    placeholder="Nhập số điện thoại"
                   />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-gray-700 font-medium">Ngày đặt</label>
-                  <input
-                    type="date"
-                    value={formData.ngay_dat}
-                    onChange={(e) => setFormData({ ...formData, ngay_dat: e.target.value })}
-                    className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-gray-700 font-medium">Ngày giao</label>
-                  <input
-                    type="date"
-                    value={formData.ngay_giao}
-                    onChange={(e) => setFormData({ ...formData, ngay_giao: e.target.value })}
-                    className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-gray-700 font-medium">Địa chỉ</label>
-                  <input
-                    type="text"
-                    value={formData.dia_chi}
-                    onChange={(e) => setFormData({ ...formData, dia_chi: e.target.value })}
-                    className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-gray-700 font-medium">Phương thức thanh toán</label>
-                  <select
-                    value={formData.phuong_thuc_thanh_toan}
-                    onChange={(e) => setFormData({ ...formData, phuong_thuc_thanh_toan: e.target.value })}
-                    className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  >
-                    <option value="">Chọn phương thức thanh toán</option>
-                    <option value="Tiền mặt">Tiền mặt</option>
-                    <option value="Chuyển khoản">Chuyển khoản</option>
-                  </select>
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-gray-700 font-medium">Ghi chú</label>
-                  <textarea
-                    value={formData.ghi_chu}
-                    onChange={(e) => setFormData({ ...formData, ghi_chu: e.target.value })}
-                    className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={3}
-                  ></textarea>
                 </div>
               </div>
+            </div>
 
-              <div className="mt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">Danh sách món</h3>
-                  <button
-                    type="button"
-                    onClick={handleAddItem}
-                    className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 text-white transition-all shadow-lg flex items-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Thêm món
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {selectedItems.map((item, index) => (
-                    <div key={index} className="flex gap-4 items-start">
-                      <div className="flex-1">
-                        <select
-                          value={item.ma_mon}
-                          onChange={(e) => handleItemChange(index, "ma_mon", e.target.value)}
-                          className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          required
-                        >
-                          <option value="">Chọn món</option>
+            {/* Order Items Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">Danh sách món</h3>
+                <Button
+                  type="button"
+                  onClick={handleAddItem}
+                  className="px-4 py-2 rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg flex items-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Thêm món
+                </Button>
+              </div>
+              <div className="space-y-4">
+                {selectedItems.map((item, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                    <div className="md:col-span-5 space-y-2">
+                      <Label className="text-[#3E503C] font-medium">Món</Label>
+                      <Select value={item.ma_mon} onValueChange={(value) => handleItemChange(index, 'ma_mon', value)}>
+                        <SelectTrigger className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C] bg-white">
+                          <SelectValue placeholder="Chọn món" className="text-[#3E503C]/50" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border-gray-200 shadow-md">
                           {menuItems.map((menuItem) => (
-                            <option key={menuItem.ma_mon} value={menuItem.ma_mon}>
+                            <SelectItem key={menuItem.ma_mon} value={menuItem.ma_mon} className="text-[#3E503C] hover:bg-[#3E503C]/10">
                               {menuItem.ten_mon}
-                            </option>
+                            </SelectItem>
                           ))}
-                        </select>
-                      </div>
-                      <div className="w-24">
-                        <input
-                          type="number"
-                          value={item.so_luong}
-                          onChange={(e) => handleItemChange(index, "so_luong", parseInt(e.target.value))}
-                          className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          min="1"
-                          required
-                        />
-                      </div>
-                      <div className="w-32">
-                        <input
-                          type="number"
-                          value={item.don_gia}
-                          readOnly
-                          className="w-full rounded-xl bg-gray-50 border-gray-200"
-                        />
-                      </div>
-                      <div className="w-32">
-                        <input
-                          type="number"
-                          value={item.thanh_tien}
-                          readOnly
-                          className="w-full rounded-xl bg-gray-50 border-gray-200"
-                        />
-                      </div>
-                      <button
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="md:col-span-3 space-y-2">
+                      <Label className="text-[#3E503C] font-medium">Số lượng</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={item.so_luong}
+                        onChange={(e) => handleItemChange(index, 'so_luong', parseInt(e.target.value))}
+                        className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C]"
+                      />
+                    </div>
+                    <div className="md:col-span-3 space-y-2">
+                      <Label className="text-[#3E503C] font-medium">Đơn giá</Label>
+                      <Input
+                        type="number"
+                        value={item.don_gia}
+                        onChange={(e) => handleItemChange(index, 'don_gia', parseInt(e.target.value))}
+                        className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C]"
+                      />
+                    </div>
+                    <div className="md:col-span-1 flex items-end">
+                      <Button
                         type="button"
                         onClick={() => handleRemoveItem(index)}
-                        className="p-2 text-red-500 hover:text-red-700"
+                        className="p-2 rounded-xl bg-white hover:bg-[#FF6F3D]/10 text-[#FF6F3D] border border-[#FF6F3D]/20 hover:border-[#FF6F3D]/30 transition-all"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
-                      </button>
+                      </Button>
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Order Summary Section */}
+            <div className="space-y-4 bg-gray-50/50 rounded-xl p-4 border border-gray-100">
+              <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">Tổng kết đơn hàng</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[#3E503C] font-medium">Tổng tiền</Label>
+                  <div className="text-2xl font-bold text-[#3E503C]">
+                    {new Intl.NumberFormat('vi-VN', {
+                      style: 'currency',
+                      currency: 'VND'
+                    }).format(selectedItems.reduce((sum, item) => sum + item.don_gia * item.so_luong, 0))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[#3E503C] font-medium">Trạng thái</Label>
+                  <Select value={formData.trang_thai} onValueChange={(value: 'pending' | 'processing' | 'completed' | 'cancelled') => setFormData({ ...formData, trang_thai: value })}>
+                    <SelectTrigger className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C] bg-white">
+                      <SelectValue placeholder="Chọn trạng thái" className="text-[#3E503C]/50" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-200 shadow-md">
+                      <SelectItem value="pending" className="text-[#3E503C] hover:bg-[#3E503C]/10">Chờ xử lý</SelectItem>
+                      <SelectItem value="processing" className="text-[#3E503C] hover:bg-[#3E503C]/10">Đang xử lý</SelectItem>
+                      <SelectItem value="completed" className="text-[#3E503C] hover:bg-[#3E503C]/10">Hoàn thành</SelectItem>
+                      <SelectItem value="cancelled" className="text-[#3E503C] hover:bg-[#3E503C]/10">Đã hủy</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-
-              <div className="mt-6 flex justify-end gap-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-6 py-2 rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 hover:border-gray-300 transition-all"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition-all shadow-lg"
-                >
-                  Tạo đơn hàng
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
-        </div>
-      )}
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              onClick={() => setShowAddModal(false)}
+              className="px-6 py-2 rounded-xl bg-white hover:bg-gray-50 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 transition-all"
+            >
+              Hủy
+            </Button>
+            <Button
+              type="submit"
+              onClick={handleSubmit}
+              className="px-6 py-2 rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg"
+            >
+              Tạo đơn hàng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

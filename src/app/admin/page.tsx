@@ -501,7 +501,7 @@ export default function AdminPage() {
   return (
     <div className="container mx-auto px-4 py-8 text-gray-700">
       {/* Header with gradient background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl p-8 mb-8 shadow-lg">
+      <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -549,7 +549,7 @@ export default function AdminPage() {
                     placeholder="Tìm kiếm người dùng..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="pl-10 pr-4 py-2 w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent"
                   />
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -571,7 +571,7 @@ export default function AdminPage() {
               </div>
               <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all shadow-lg flex items-center gap-2">
+                  <Button className="bg-[#3E503C] hover:bg-[#7F886A] text-white rounded-xl transition-all shadow-lg flex items-center gap-2">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -654,7 +654,7 @@ export default function AdminPage() {
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-8">
                       <div className="flex flex-col items-center gap-4">
-                        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-10 h-10 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin"></div>
                         <p className="text-gray-600">Đang tải dữ liệu...</p>
                       </div>
                     </TableCell>
@@ -693,9 +693,9 @@ export default function AdminPage() {
                       <TableCell className="py-4 px-6">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                                 user.role === 'admin' 
-                            ? 'bg-purple-50 text-purple-700 ring-1 ring-purple-700/10'
+                            ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
                                   : user.role === 'STAFF'
-                              ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-700/10'
+                              ? 'bg-[#7F886A]/10 text-[#7F886A] ring-1 ring-[#7F886A]/20'
                               : 'bg-gray-50 text-gray-700 ring-1 ring-gray-700/10'
                               }`}>
                                 {getRoleDisplay(user.role)}
@@ -710,7 +710,7 @@ export default function AdminPage() {
                                     setIsChangeRoleDialogOpen(true);
                                   }}
                             variant="outline"
-                            className="rounded-xl bg-white hover:bg-yellow-50 text-yellow-600 border-yellow-200 hover:border-yellow-300 transition-all flex items-center gap-2"
+                            className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
                                 >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -723,7 +723,7 @@ export default function AdminPage() {
                                     setIsChangePasswordDialogOpen(true);
                                   }}
                             variant="outline"
-                            className="rounded-xl bg-white hover:bg-purple-50 text-purple-600 border-purple-200 hover:border-purple-300 transition-all flex items-center gap-2"
+                            className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
                                 >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -735,7 +735,7 @@ export default function AdminPage() {
                               setUserToDelete(user);
                               setIsDeleteDialogOpen(true);
                             }}
-                            className="rounded-xl bg-red-400 hover:bg-red-500 text-white transition-all shadow flex items-center gap-2"
+                            className="rounded-xl bg-white hover:bg-[#FF6F3D]/10 text-[#FF6F3D] border border-[#FF6F3D]/20 hover:border-[#FF6F3D]/30 px-4 py-2 transition-all flex items-center gap-2"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -805,7 +805,7 @@ export default function AdminPage() {
                       </div>
                   <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                     <DialogTrigger asChild>
-                  <Button className="bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all shadow-lg flex items-center gap-2">
+                  <Button className="bg-[#3E503C] hover:bg-[#7F886A] text-white rounded-xl transition-all shadow-lg flex items-center gap-2">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -899,7 +899,7 @@ export default function AdminPage() {
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8">
                       <div className="flex flex-col items-center gap-4">
-                        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-10 h-10 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin"></div>
                         <p className="text-gray-600">Đang tải dữ liệu...</p>
                               </div>
                             </TableCell>
@@ -961,7 +961,7 @@ export default function AdminPage() {
                                     setIsEditDialogOpen(true);
                                   }}
                             variant="outline"
-                            className="rounded-xl bg-white hover:bg-orange-50 text-orange-600 border-orange-200 hover:border-orange-300 transition-all flex items-center gap-2"
+                            className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
                                 >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -970,7 +970,7 @@ export default function AdminPage() {
                                 </Button>
                                 <Button 
                                   onClick={() => handleDeleteMenuItem(item)}
-                            className="rounded-xl bg-red-400 hover:bg-red-500 text-white transition-all shadow flex items-center gap-2"
+                            className="rounded-xl bg-white hover:bg-[#FF6F3D]/10 text-[#FF6F3D] border border-[#FF6F3D]/20 hover:border-[#FF6F3D]/30 px-4 py-2 transition-all flex items-center gap-2"
                                 >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
