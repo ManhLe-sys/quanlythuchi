@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -50,9 +50,12 @@ export default function OrdersPage() {
     ngay_giao: "",
     phuong_thuc_thanh_toan: "",
     ghi_chu: "",
-    trang_thai: "pending" as 'pending' | 'processing' | 'completed' | 'cancelled'
+    trang_thai: "pending" as "pending" | "processing" | "completed" | "cancelled",
   });
   const [orders, setOrders] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all"); // Thay "" bằng "all"
 
   useEffect(() => {
     fetchData();
@@ -61,56 +64,43 @@ export default function OrdersPage() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      // Lấy danh sách đơn hàng, menu items và categories
       const response = await fetch("/api/orders");
       const data = await response.json();
-      console.log('Data từ API:', data); // Debug data từ API
+      console.log("Data từ API:", data);
 
       if (data.success) {
-        // Set menu items và categories
         setMenuItems(data.data.menuItems || []);
         setCategories(data.data.categories || []);
-        
-        // Set danh sách đơn hàng
-        const orders = data.data.orders?.map((order: any) => {
-          console.log('Chi tiết đơn hàng gốc:', order); // Debug đơn hàng gốc
-
-          // Kiểm tra và chuyển đổi dữ liệu chi tiết đơn hàng
+        const processedOrders = (data.data.orders || []).map((order: any) => {
           let danhSachMon = [];
           if (Array.isArray(order.chi_tiet_don_hang)) {
             danhSachMon = order.chi_tiet_don_hang;
           } else if (Array.isArray(order.danh_sach_mon)) {
             danhSachMon = order.danh_sach_mon;
-          } else if (typeof order.chi_tiet_don_hang === 'string') {
+          } else if (typeof order.chi_tiet_don_hang === "string") {
             try {
               danhSachMon = JSON.parse(order.chi_tiet_don_hang);
             } catch (e) {
-              console.error('Lỗi parse chi tiết đơn hàng:', e);
+              console.error("Lỗi parse chi tiết đơn hàng:", e);
             }
           }
 
-          console.log('Danh sách món đã xử lý:', danhSachMon); // Debug danh sách món
-
-          const processedOrder = {
+          return {
             ...order,
             trang_thai_thanh_toan: order.trang_thai_thanh_toan || "Chưa thanh toán",
             danh_sach_mon: danhSachMon.map((item: any, index: number) => ({
               stt: index + 1,
               ma_mon: item.ma_mon,
               ten_mon: item.ten_mon,
-              don_vi_tinh: item.don_vi_tinh || 'Cái',
+              don_vi_tinh: item.don_vi_tinh || "Cái",
               so_luong: item.so_luong,
               don_gia: item.don_gia,
               thanh_tien: item.thanh_tien,
-              ghi_chu: item.ghi_chu || ''
-            }))
+              ghi_chu: item.ghi_chu || "",
+            })),
           };
-
-          console.log('Đơn hàng sau khi xử lý:', processedOrder); // Debug đơn hàng sau xử lý
-          return processedOrder;
-        }) || [];
-        
-        setOrders(orders);
+        });
+        setOrders(processedOrders);
       } else {
         toast({
           variant: "destructive",
@@ -119,7 +109,7 @@ export default function OrdersPage() {
         });
       }
     } catch (error) {
-      console.error('Lỗi khi tải dữ liệu:', error);
+      console.error("Lỗi khi tải dữ liệu:", error);
       toast({
         variant: "destructive",
         title: "Lỗi",
@@ -167,13 +157,11 @@ export default function OrdersPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Tính tổng tiền từ danh sách sản phẩm
       const tongTien = selectedItems.reduce((sum, item) => sum + item.thanh_tien, 0);
       const maDon = `DH${Date.now()}`;
 
-      // Tạo danh sách món theo cấu trúc sheet
       const danhSachMon = selectedItems.map((item, index) => {
-        const menuItem = menuItems.find(menu => menu.ma_mon === item.ma_mon);
+        const menuItem = menuItems.find((menu) => menu.ma_mon === item.ma_mon);
         return {
           stt: index + 1,
           ma_mon: item.ma_mon,
@@ -182,11 +170,10 @@ export default function OrdersPage() {
           so_luong: item.so_luong,
           don_gia: item.don_gia,
           thanh_tien: item.thanh_tien,
-          ghi_chu: ""
+          ghi_chu: "",
         };
       });
 
-      // Tạo dữ liệu đơn hàng với danh_sach_mon
       const orderData = {
         ma_don: maDon,
         ngay_dat: formData.ngay_dat,
@@ -202,12 +189,9 @@ export default function OrdersPage() {
         id_nguoi_tao: "ADMIN",
         thoi_gian_tao: new Date().toISOString(),
         thoi_gian_cap_nhat: new Date().toISOString(),
-        danh_sach_mon: danhSachMon
+        danh_sach_mon: danhSachMon,
       };
 
-      console.log('Dữ liệu gửi lên server:', orderData);
-
-      // Gửi dữ liệu lên server
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
@@ -223,7 +207,6 @@ export default function OrdersPage() {
           description: "Tạo đơn hàng thành công",
         });
         setShowAddModal(false);
-        // Reset form
         setFormData({
           ten_khach: "",
           so_dien_thoai: "",
@@ -232,10 +215,9 @@ export default function OrdersPage() {
           ngay_giao: "",
           phuong_thuc_thanh_toan: "",
           ghi_chu: "",
-          trang_thai: "pending"
+          trang_thai: "pending",
         });
         setSelectedItems([]);
-        // Refresh danh sách đơn hàng
         fetchData();
       } else {
         toast({
@@ -245,7 +227,7 @@ export default function OrdersPage() {
         });
       }
     } catch (error) {
-      console.error('Lỗi khi tạo đơn hàng:', error);
+      console.error("Lỗi khi tạo đơn hàng:", error);
       toast({
         variant: "destructive",
         title: "Lỗi",
@@ -256,16 +238,13 @@ export default function OrdersPage() {
 
   const handleOpenDetail = async (order: any) => {
     try {
-      console.log('Chi tiết đơn hàng được chọn:', order);
-      
-      // Lấy chi tiết đơn hàng
       const response = await fetch(`/api/orders/${order.id}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setSelectedOrder({
           ...order,
-          chi_tiet: data.data.orderDetails
+          chi_tiet: data.data.orderDetails,
         });
         setShowDetailModal(true);
       } else {
@@ -276,7 +255,7 @@ export default function OrdersPage() {
         });
       }
     } catch (error) {
-      console.error('Lỗi khi lấy chi tiết đơn hàng:', error);
+      console.error("Lỗi khi lấy chi tiết đơn hàng:", error);
       toast({
         variant: "destructive",
         title: "Lỗi",
@@ -290,7 +269,7 @@ export default function OrdersPage() {
       "Chờ xử lý": "Đang xử lý",
       "Đang xử lý": "Đang giao hàng",
       "Đang giao hàng": "Hoàn thành",
-      "Hoàn thành": "Hoàn thành"
+      "Hoàn thành": "Hoàn thành",
     };
     return statusFlow[currentStatus as keyof typeof statusFlow] || currentStatus;
   };
@@ -298,7 +277,7 @@ export default function OrdersPage() {
   const getNextPaymentStatus = (currentStatus: string) => {
     const statusFlow = {
       "Chưa thanh toán": "Đã thanh toán",
-      "Đã thanh toán": "Đã thanh toán"
+      "Đã thanh toán": "Đã thanh toán",
     };
     return statusFlow[currentStatus as keyof typeof statusFlow] || currentStatus;
   };
@@ -306,24 +285,17 @@ export default function OrdersPage() {
   const handleStatusChange = async (newStatus: string, isPaymentStatus: boolean = false) => {
     try {
       if (!selectedOrder || !selectedOrder.ma_don) {
-        throw new Error('Không tìm thấy thông tin đơn hàng');
+        throw new Error("Không tìm thấy thông tin đơn hàng");
       }
 
-      const requestBody = isPaymentStatus 
+      const requestBody = isPaymentStatus
         ? { trang_thai_thanh_toan: newStatus }
         : { trang_thai: newStatus };
 
-      console.log('Cập nhật trạng thái:', {
-        orderId: selectedOrder.ma_don,
-        isPaymentStatus,
-        newStatus,
-        requestBody
-      });
-
       const response = await fetch(`/api/orders/${selectedOrder.ma_don}/status`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(requestBody),
       });
@@ -333,57 +305,61 @@ export default function OrdersPage() {
       }
 
       const data = await response.json();
-      console.log('Phản hồi từ server:', data);
-
       if (data.success) {
-        // Cập nhật state local
         const updatedOrder = {
           ...selectedOrder,
-          [isPaymentStatus ? 'trang_thai_thanh_toan' : 'trang_thai']: newStatus
+          [isPaymentStatus ? "trang_thai_thanh_toan" : "trang_thai"]: newStatus,
         };
         setSelectedOrder(updatedOrder);
-        
-        // Cập nhật danh sách đơn hàng
-        setOrders(prevOrders => 
-          prevOrders.map(order => 
-            order.ma_don === selectedOrder.ma_don 
-              ? updatedOrder 
-              : order
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.ma_don === selectedOrder.ma_don ? updatedOrder : order
           )
         );
-
-        // Hiển thị thông báo thành công
         toast({
           title: "Thành công",
-          description: `Đã cập nhật ${isPaymentStatus ? 'trạng thái thanh toán' : 'trạng thái đơn hàng'} thành "${newStatus}"`,
+          description: `Đã cập nhật ${
+            isPaymentStatus ? "trang_thai thanh toán" : "trang_thai đơn hàng"
+          } thành "${newStatus}"`,
         });
-
-        // Tải lại dữ liệu từ server
         await fetchData();
       } else {
-        throw new Error(data.message || 'Không thể cập nhật trạng thái');
+        throw new Error(data.message || "Không thể cập nhật trạng thái");
       }
     } catch (error) {
-      console.error('Lỗi khi cập nhật trạng thái:', error);
+      console.error("Lỗi khi cập nhật trạng thái:", error);
       toast({
         variant: "destructive",
         title: "Lỗi",
-        description: error instanceof Error ? error.message : "Có lỗi xảy ra khi cập nhật trạng thái",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Có lỗi xảy ra khi cập nhật trạng thái",
       });
     }
   };
 
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const matchesSearch =
+        order.ma_don.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.ten_khach.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDate =
+        !dateFilter ||
+        new Date(order.ngay_dat).toISOString().split("T")[0] === dateFilter;
+      const matchesStatus = statusFilter === "all" || !statusFilter || order.trang_thai === statusFilter;
+      return matchesSearch && matchesDate && matchesStatus;
+    });
+  }, [orders, searchQuery, dateFilter, statusFilter]);
+
   return (
     <div className="container mx-auto px-4 py-8 text-gray-700">
-      {/* Header with gradient background */}
       <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">Quản Lý Đơn Hàng</h1>
-            <p className="text-white/80">
-              Quản lý đơn hàng và theo dõi doanh thu
-            </p>
+            <p className="text-white/80">Quản lý đơn hàng và theo dõi doanh thu</p>
           </div>
           <div className="flex gap-4">
             <button
@@ -399,15 +375,16 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Search and Filter Section */}
       <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl border border-gray-100 mb-8">
         <div className="p-6 border-b border-gray-100">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <div className="relative flex-1 md:w-64">
-                <input
+                <Input
                   type="text"
                   placeholder="Tìm kiếm đơn hàng..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2 w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent"
                 />
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
@@ -416,25 +393,32 @@ export default function OrdersPage() {
                   </svg>
                 </div>
               </div>
-              <div className="flex gap-4">
-                <input
-                  type="date"
-                  className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent"
-                />
-                <select className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C]">
-                  <option value="" className="text-[#3E503C]">Tất cả trạng thái</option>
-                  <option value="pending" className="text-[#3E503C]">Chờ xử lý</option>
-                  <option value="processing" className="text-[#3E503C]">Đang xử lý</option>
-                  <option value="completed" className="text-[#3E503C]">Hoàn thành</option>
-                  <option value="cancelled" className="text-[#3E503C]">Đã hủy</option>
-                </select>
+              <div className="flex gap-4 items-center">
+                <div className="w-40">
+                  <Input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="py-2 w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent"
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[180px] rounded-xl bg-white hover:bg-gray-50 border-gray-200 text-[#3E503C]">
+                    <SelectValue placeholder="Tất cả" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-gray-200 shadow-md">
+                    <SelectItem value="all" className="text-[#3E503C]">Tất cả</SelectItem>
+                    <SelectItem value="Chờ xử lý" className="text-[#3E503C]">Chờ xử lý</SelectItem>
+                    <SelectItem value="Đang xử lý" className="text-[#3E503C]">Đang xử lý</SelectItem>
+                    <SelectItem value="Đang giao hàng" className="text-[#3E503C]">Đang giao hàng</SelectItem>
+                    <SelectItem value="Hoàn thành" className="text-[#3E503C]">Hoàn thành</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Orders Table */}
       <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl border border-gray-100">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -459,19 +443,19 @@ export default function OrdersPage() {
                     </div>
                   </td>
                 </tr>
-              ) : orders.length === 0 ? (
+              ) : filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8">
                     <div className="flex flex-col items-center gap-4 text-gray-500">
                       <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
-                      <p>Chưa có đơn hàng nào</p>
+                      <p>Không tìm thấy đơn hàng nào</p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                orders.map((order) => (
+                filteredOrders.map((order) => (
                   <tr key={order.ma_don} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-medium text-gray-900">{order.ma_don}</div>
@@ -481,38 +465,42 @@ export default function OrdersPage() {
                       <div className="text-sm text-gray-600">{order.so_dien_thoai}</div>
                     </td>
                     <td className="py-4 px-6">
-                      <div className="text-gray-600">{new Date(order.ngay_dat).toLocaleDateString('vi-VN')}</div>
+                      <div className="text-gray-600">{new Date(order.ngay_dat).toLocaleDateString("vi-VN")}</div>
                     </td>
                     <td className="py-4 px-6 text-right">
                       <div className="font-medium text-gray-900">
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND'
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
                         }).format(order.tong_tien)}
                       </div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex justify-center">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                          order.trang_thai === 'Hoàn thành'
-                            ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10'
-                            : order.trang_thai === 'Đang xử lý'
-                            ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/10'
-                            : order.trang_thai === 'Chờ xử lý'
-                            ? 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/10'
-                            : 'bg-red-50 text-red-700 ring-1 ring-red-600/10'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                            order.trang_thai === "Hoàn thành"
+                              ? "bg-green-50 text-green-700 ring-1 ring-green-600/10"
+                              : order.trang_thai === "Đang xử lý"
+                              ? "bg-blue-50 text-blue-700 ring-1 ring-blue-600/10"
+                              : order.trang_thai === "Chờ xử lý"
+                              ? "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/10"
+                              : "bg-red-50 text-red-700 ring-1 ring-red-600/10"
+                          }`}
+                        >
                           {order.trang_thai}
                         </span>
                       </div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex justify-center">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                          order.trang_thai_thanh_toan === 'Đã thanh toán'
-                            ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10'
-                            : 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/10'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                            order.trang_thai_thanh_toan === "Đã thanh toán"
+                              ? "bg-green-50 text-green-700 ring-1 ring-green-600/10"
+                              : "bg-gray-50 text-gray-700 ring-1 ring-gray-600/10"
+                          }`}
+                        >
                           {order.trang_thai_thanh_toan}
                         </span>
                       </div>
@@ -539,15 +527,15 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Order Detail Modal */}
       <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
         <DialogContent className="bg-white/90 backdrop-blur-xl rounded-3xl border-gray-100 shadow-xl max-w-4xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-[#3E503C]">Chi tiết đơn hàng #{selectedOrder?.ma_don}</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-[#3E503C]">
+              Chi tiết đơn hàng #{selectedOrder?.ma_don}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="grid gap-6 py-6">
-            {/* Customer and Order Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
@@ -585,13 +573,18 @@ export default function OrdersPage() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span>Ngày đặt: {new Date(selectedOrder?.ngay_dat).toLocaleDateString('vi-VN')}</span>
+                    <span>Ngày đặt: {new Date(selectedOrder?.ngay_dat).toLocaleDateString("vi-VN")}</span>
                   </div>
                   <div className="flex items-center gap-2 text-[#3E503C]">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>Ngày giao: {selectedOrder?.ngay_giao ? new Date(selectedOrder.ngay_giao).toLocaleDateString('vi-VN') : 'Chưa xác định'}</span>
+                    <span>
+                      Ngày giao:{" "}
+                      {selectedOrder?.ngay_giao
+                        ? new Date(selectedOrder.ngay_giao).toLocaleDateString("vi-VN")
+                        : "Chưa xác định"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-[#3E503C]">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -603,7 +596,6 @@ export default function OrdersPage() {
               </div>
             </div>
 
-            {/* Order Items */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
                 Danh sách món
@@ -626,25 +618,27 @@ export default function OrdersPage() {
                         <td className="py-4 px-6 text-[#3E503C] font-medium">{item.ten_mon}</td>
                         <td className="py-4 px-6 text-center text-[#3E503C]">{item.so_luong}</td>
                         <td className="py-4 px-6 text-right text-[#3E503C]">
-                          {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
                           }).format(item.don_gia)}
                         </td>
                         <td className="py-4 px-6 text-right font-medium text-[#3E503C]">
-                          {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
                           }).format(item.thanh_tien)}
                         </td>
                       </tr>
                     ))}
                     <tr className="bg-[#3E503C]/5">
-                      <td colSpan={4} className="py-4 px-6 text-right font-medium text-[#3E503C]">Tổng cộng:</td>
+                      <td colSpan={4} className="py-4 px-6 text-right font-medium text-[#3E503C]">
+                        Tổng cộng:
+                      </td>
                       <td className="py-4 px-6 text-right font-bold text-[#3E503C]">
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND'
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
                         }).format(selectedOrder?.tong_tien)}
                       </td>
                     </tr>
@@ -653,22 +647,23 @@ export default function OrdersPage() {
               </div>
             </div>
 
-            {/* Order Status */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
                   Trạng thái đơn hàng
                 </h3>
                 <div className="flex items-center gap-4">
-                  <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
-                    selectedOrder?.trang_thai === 'Hoàn thành'
-                      ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
-                      : selectedOrder?.trang_thai === 'Đang xử lý'
-                      ? 'bg-[#7F886A]/10 text-[#7F886A] ring-1 ring-[#7F886A]/20'
-                      : selectedOrder?.trang_thai === 'Chờ xử lý'
-                      ? 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20'
-                      : 'bg-red-50 text-red-700 ring-1 ring-red-600/10'
-                  }`}>
+                  <span
+                    className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
+                      selectedOrder?.trang_thai === "Hoàn thành"
+                        ? "bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20"
+                        : selectedOrder?.trang_thai === "Đang xử lý"
+                        ? "bg-[#7F886A]/10 text-[#7F886A] ring-1 ring-[#7F886A]/20"
+                        : selectedOrder?.trang_thai === "Chờ xử lý"
+                        ? "bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20"
+                        : "bg-red-50 text-red-700 ring-1 ring-red-600/10"
+                    }`}
+                  >
                     {selectedOrder?.trang_thai}
                   </span>
                   <Button
@@ -685,16 +680,20 @@ export default function OrdersPage() {
                   Trạng thái thanh toán
                 </h3>
                 <div className="flex items-center gap-4">
-                  <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
-                    selectedOrder?.trang_thai_thanh_toan === 'Đã thanh toán'
-                      ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
-                      : 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20'
-                  }`}>
+                  <span
+                    className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
+                      selectedOrder?.trang_thai_thanh_toan === "Đã thanh toán"
+                        ? "bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20"
+                        : "bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20"
+                    }`}
+                  >
                     {selectedOrder?.trang_thai_thanh_toan}
                   </span>
-                  {selectedOrder?.trang_thai_thanh_toan !== 'Đã thanh toán' && (
+                  {selectedOrder?.trang_thai_thanh_toan !== "Đã thanh toán" && (
                     <Button
-                      onClick={() => handleStatusChange(getNextPaymentStatus(selectedOrder?.trang_thai_thanh_toan), true)}
+                      onClick={() =>
+                        handleStatusChange(getNextPaymentStatus(selectedOrder?.trang_thai_thanh_toan), true)
+                      }
                       className="px-4 py-2 rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg"
                     >
                       Đã thanh toán
@@ -704,7 +703,6 @@ export default function OrdersPage() {
               </div>
             </div>
 
-            {/* Notes */}
             {selectedOrder?.ghi_chu && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
@@ -726,19 +724,21 @@ export default function OrdersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Add Order Dialog */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
         <DialogContent className="bg-white/90 backdrop-blur-xl rounded-3xl border-gray-100 shadow-xl max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-[#3E503C]">Tạo đơn hàng mới</DialogTitle>
           </DialogHeader>
           <div className="grid gap-6 py-6">
-            {/* Customer Info Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">Thông tin khách hàng</h3>
+              <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
+                Thông tin khách hàng
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="customerName" className="text-[#3E503C] font-medium">Họ tên khách hàng</Label>
+                  <Label htmlFor="customerName" className="text-[#3E503C] font-medium">
+                    Họ tên khách hàng
+                  </Label>
                   <Input
                     id="customerName"
                     value={formData.ten_khach}
@@ -748,7 +748,9 @@ export default function OrdersPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="customerPhone" className="text-[#3E503C] font-medium">Số điện thoại</Label>
+                  <Label htmlFor="customerPhone" className="text-[#3E503C] font-medium">
+                    Số điện thoại
+                  </Label>
                   <Input
                     id="customerPhone"
                     value={formData.so_dien_thoai}
@@ -760,10 +762,11 @@ export default function OrdersPage() {
               </div>
             </div>
 
-            {/* Order Items Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">Danh sách món</h3>
+                <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
+                  Danh sách món
+                </h3>
                 <Button
                   type="button"
                   onClick={handleAddItem}
@@ -777,16 +780,23 @@ export default function OrdersPage() {
               </div>
               <div className="space-y-4">
                 {selectedItems.map((item, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+                  <div
+                    key={index}
+                    className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start p-4 bg-gray-50/50 rounded-xl border border-gray-100"
+                  >
                     <div className="md:col-span-5 space-y-2">
                       <Label className="text-[#3E503C] font-medium">Món</Label>
-                      <Select value={item.ma_mon} onValueChange={(value) => handleItemChange(index, 'ma_mon', value)}>
+                      <Select value={item.ma_mon} onValueChange={(value) => handleItemChange(index, "ma_mon", value)}>
                         <SelectTrigger className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C] bg-white">
                           <SelectValue placeholder="Chọn món" className="text-[#3E503C]/50" />
                         </SelectTrigger>
                         <SelectContent className="bg-white border-gray-200 shadow-md">
                           {menuItems.map((menuItem) => (
-                            <SelectItem key={menuItem.ma_mon} value={menuItem.ma_mon} className="text-[#3E503C] hover:bg-[#3E503C]/10">
+                            <SelectItem
+                              key={menuItem.ma_mon}
+                              value={menuItem.ma_mon}
+                              className="text-[#3E503C] hover:bg-[#3E503C]/10"
+                            >
                               {menuItem.ten_mon}
                             </SelectItem>
                           ))}
@@ -799,7 +809,7 @@ export default function OrdersPage() {
                         type="number"
                         min="1"
                         value={item.so_luong}
-                        onChange={(e) => handleItemChange(index, 'so_luong', parseInt(e.target.value))}
+                        onChange={(e) => handleItemChange(index, "so_luong", parseInt(e.target.value))}
                         className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C]"
                       />
                     </div>
@@ -808,7 +818,7 @@ export default function OrdersPage() {
                       <Input
                         type="number"
                         value={item.don_gia}
-                        onChange={(e) => handleItemChange(index, 'don_gia', parseInt(e.target.value))}
+                        onChange={(e) => handleItemChange(index, "don_gia", parseInt(e.target.value))}
                         className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C]"
                       />
                     </div>
@@ -828,30 +838,44 @@ export default function OrdersPage() {
               </div>
             </div>
 
-            {/* Order Summary Section */}
             <div className="space-y-4 bg-gray-50/50 rounded-xl p-4 border border-gray-100">
-              <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">Tổng kết đơn hàng</h3>
+              <h3 className="text-lg font-semibold text-[#3E503C] border-b border-[#3E503C]/10 pb-2">
+                Tổng kết đơn hàng
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-[#3E503C] font-medium">Tổng tiền</Label>
                   <div className="text-2xl font-bold text-[#3E503C]">
-                    {new Intl.NumberFormat('vi-VN', {
-                      style: 'currency',
-                      currency: 'VND'
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
                     }).format(selectedItems.reduce((sum, item) => sum + item.don_gia * item.so_luong, 0))}
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[#3E503C] font-medium">Trạng thái</Label>
-                  <Select value={formData.trang_thai} onValueChange={(value: 'pending' | 'processing' | 'completed' | 'cancelled') => setFormData({ ...formData, trang_thai: value })}>
+                  <Select
+                    value={formData.trang_thai}
+                    onValueChange={(value: "pending" | "processing" | "completed" | "cancelled") =>
+                      setFormData({ ...formData, trang_thai: value })
+                    }
+                  >
                     <SelectTrigger className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C] bg-white">
                       <SelectValue placeholder="Chọn trạng thái" className="text-[#3E503C]/50" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-gray-200 shadow-md">
-                      <SelectItem value="pending" className="text-[#3E503C] hover:bg-[#3E503C]/10">Chờ xử lý</SelectItem>
-                      <SelectItem value="processing" className="text-[#3E503C] hover:bg-[#3E503C]/10">Đang xử lý</SelectItem>
-                      <SelectItem value="completed" className="text-[#3E503C] hover:bg-[#3E503C]/10">Hoàn thành</SelectItem>
-                      <SelectItem value="cancelled" className="text-[#3E503C] hover:bg-[#3E503C]/10">Đã hủy</SelectItem>
+                      <SelectItem value="pending" className="text-[#3E503C] hover:bg-[#3E503C]/10">
+                        Chờ xử lý
+                      </SelectItem>
+                      <SelectItem value="processing" className="text-[#3E503C] hover:bg-[#3E503C]/10">
+                        Đang xử lý
+                      </SelectItem>
+                      <SelectItem value="completed" className="text-[#3E503C] hover:bg-[#3E503C]/10">
+                        Hoàn thành
+                      </SelectItem>
+                      <SelectItem value="cancelled" className="text-[#3E503C] hover:bg-[#3E503C]/10">
+                        Đã hủy
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -878,4 +902,4 @@ export default function OrdersPage() {
       </Dialog>
     </div>
   );
-} 
+}
