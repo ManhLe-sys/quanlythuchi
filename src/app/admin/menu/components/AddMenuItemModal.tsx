@@ -12,6 +12,7 @@ interface MenuItem {
   isAvailable: boolean;
   createdAt: string;
   updatedAt: string;
+  quantity?: number;
 }
 
 interface AddMenuItemModalProps {
@@ -34,7 +35,8 @@ export default function AddMenuItemModal({
     category: categories[0],
     price: '',
     description: '',
-    isAvailable: true
+    isAvailable: true,
+    quantity: ''
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,7 +48,8 @@ export default function AddMenuItemModal({
         category: editingItem.category,
         price: editingItem.price.toString(),
         description: editingItem.description || '',
-        isAvailable: editingItem.isAvailable
+        isAvailable: editingItem.isAvailable,
+        quantity: editingItem.quantity?.toString() || ''
       });
     } else {
       setFormData({
@@ -54,7 +57,8 @@ export default function AddMenuItemModal({
         category: categories[0],
         price: '',
         description: '',
-        isAvailable: true
+        isAvailable: true,
+        quantity: ''
       });
     }
   }, [editingItem, categories]);
@@ -169,6 +173,21 @@ export default function AddMenuItemModal({
             className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             rows={3}
             placeholder="Nhập mô tả..."
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Số lượng *
+          </label>
+          <input
+            type="number"
+            required
+            min="0"
+            value={formData.quantity}
+            onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+            className="w-full px-4 py-2.5 rounded-xl"
+            placeholder="Nhập số lượng..."
           />
         </div>
 

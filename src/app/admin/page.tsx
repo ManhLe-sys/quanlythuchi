@@ -55,6 +55,7 @@ interface MenuItem {
   description: string;
   status: 'active' | 'inactive';
   imageUrl: string;
+  quantity?: number;
 }
 
 interface NewUser {
@@ -111,7 +112,8 @@ export default function AdminPage() {
     category: '',
     description: '',
     status: 'active' as 'active' | 'inactive',
-    imageUrl: ''
+    imageUrl: '',
+    quantity: 0
   });
 
   const fetchUsers = async () => {
@@ -868,6 +870,17 @@ export default function AdminPage() {
                             placeholder="Nhập URL hình ảnh"
                           />
                         </div>
+                        <div className="grid gap-2">
+                      <Label htmlFor="quantity" className="text-gray-700 font-medium">Số lượng</Label>
+                          <Input
+                            id="quantity"
+                            type="number"
+                            value={newItem.quantity}
+                            onChange={handleInputChange}
+                        className="rounded-xl"
+                            placeholder="Nhập số lượng"
+                          />
+                        </div>
                         <Button 
                           onClick={handleAddMenuItem}
                           className="bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
@@ -890,6 +903,7 @@ export default function AdminPage() {
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Tên món</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Giá</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Danh mục</TableHead>
+                  <TableHead className="font-medium text-gray-700 py-4 px-6">Số lượng</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6">Trạng thái</TableHead>
                   <TableHead className="font-medium text-gray-700 py-4 px-6 text-right">Thao tác</TableHead>
                         </TableRow>
@@ -944,6 +958,9 @@ export default function AdminPage() {
                         <div className="text-gray-600">{item.category}</div>
                       </TableCell>
                       <TableCell className="py-4 px-6">
+                        <div className="text-gray-600">{item.quantity || 0}</div>
+                      </TableCell>
+                      <TableCell className="py-4 px-6">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                                 item.status === 'active' 
                             ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10'
@@ -957,11 +974,19 @@ export default function AdminPage() {
                                 <Button 
                                   onClick={() => {
                                     setSelectedMenuItem(item);
-                              setEditItem(item);
+                                    setEditItem({
+                                      name: item.name,
+                                      price: item.price,
+                                      category: item.category,
+                                      description: item.description || '',
+                                      status: item.status || 'active',
+                                      imageUrl: item.imageUrl || '',
+                                      quantity: item.quantity || 0
+                                    });
                                     setIsEditDialogOpen(true);
                                   }}
-                            variant="outline"
-                            className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
+                                  variant="outline"
+                                  className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
                                 >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -1187,6 +1212,17 @@ export default function AdminPage() {
                 onChange={(e) => setEditItem({ ...editItem, imageUrl: e.target.value })}
                 className="rounded-xl bg-white hover:bg-gray-50 border-gray-200 text-gray-700"
                 placeholder="Nhập URL hình ảnh"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="editQuantity" className="text-gray-700 font-medium">Số lượng</Label>
+              <Input
+                id="editQuantity"
+                type="number"
+                value={editItem.quantity}
+                onChange={(e) => setEditItem({ ...editItem, quantity: Number(e.target.value) })}
+                className="rounded-xl bg-white hover:bg-gray-50 border-gray-200 text-gray-700"
+                placeholder="Nhập số lượng"
               />
             </div>
             <div className="grid gap-2">

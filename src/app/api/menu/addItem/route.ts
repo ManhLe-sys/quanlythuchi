@@ -13,7 +13,7 @@ const sheets = google.sheets({ version: 'v4', auth });
 
 export async function POST(request: Request) {
   try {
-    const { name, price, category, description, status, imageUrl } = await request.json();
+    const { name, price, category, description, status, imageUrl, quantity } = await request.json();
 
     // Validate input
     if (!name || !price || !category) {
@@ -35,13 +35,14 @@ export async function POST(request: Request) {
       category,        // Danh mục (E) - duplicate as per sheet structure
       description || '', // Mô tả (F)
       status || 'active', // Trạng thái (G)
-      imageUrl || ''    // URL hình ảnh (H)
+      imageUrl || '',    // URL hình ảnh (H)
+      quantity || '0'    // Số lượng (I)
     ];
 
     // Append the new item to the sheet
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
-      range: 'Menu!A:H', // Updated range to include all columns
+      range: 'Menu!A:I', // Updated range to include all columns including quantity
       valueInputOption: 'RAW',
       requestBody: {
         values: [rowData],
@@ -57,7 +58,8 @@ export async function POST(request: Request) {
         category,
         description,
         status,
-        imageUrl
+        imageUrl,
+        quantity
       }
     });
   } catch (error) {

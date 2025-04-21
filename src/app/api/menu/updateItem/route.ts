@@ -13,7 +13,7 @@ const sheets = google.sheets({ version: 'v4', auth });
 
 export async function POST(request: Request) {
   try {
-    const { id, name, price, category, description, status, imageUrl } = await request.json();
+    const { id, name, price, category, description, status, imageUrl, quantity } = await request.json();
 
     // Validate input
     if (!id || !name || !price || !category) {
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     // Get all menu items
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
-      range: 'Menu!A:H',
+      range: 'Menu!A:I',
     });
 
     const rows = response.data.values;
@@ -55,13 +55,14 @@ export async function POST(request: Request) {
       category,        // Danh mục (E) - duplicate as per sheet structure
       description || '', // Mô tả (F)
       status || 'active', // Trạng thái (G)
-      imageUrl || ''    // URL hình ảnh (H)
+      imageUrl || '',    // URL hình ảnh (H)
+      quantity || '0'    // Số lượng (I)
     ];
 
     // Update the row
     await sheets.spreadsheets.values.update({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
-      range: `Menu!A${rowIndex + 1}:H${rowIndex + 1}`,
+      range: `Menu!A${rowIndex + 1}:I${rowIndex + 1}`,
       valueInputOption: 'RAW',
       requestBody: {
         values: [updatedRowData],
@@ -77,7 +78,8 @@ export async function POST(request: Request) {
         category,
         description,
         status,
-        imageUrl
+        imageUrl,
+        quantity
       }
     });
   } catch (error) {

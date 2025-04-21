@@ -28,6 +28,7 @@ interface MenuItem {
   description: string;
   status: 'active' | 'inactive';
   imageUrl: string;
+  quantity?: number;
 }
 
 export default function MenuPage() {
@@ -40,13 +41,20 @@ export default function MenuPage() {
     description: '',
     status: 'active',
     imageUrl: '',
+    quantity: 0,
   });
 
   const handleAddItem = () => {
     if (newItem.name && newItem.price) {
       const item: MenuItem = {
         id: Date.now().toString(),
-        ...newItem as MenuItem,
+        name: newItem.name,
+        price: newItem.price,
+        category: newItem.category || '',
+        description: newItem.description || '',
+        status: newItem.status || 'active',
+        imageUrl: newItem.imageUrl || '',
+        quantity: newItem.quantity || 0
       };
       setMenuItems([...menuItems, item]);
       setIsAddDialogOpen(false);
@@ -57,6 +65,7 @@ export default function MenuPage() {
         description: '',
         status: 'active',
         imageUrl: '',
+        quantity: 0,
       });
     }
   };
@@ -128,6 +137,16 @@ export default function MenuPage() {
                     className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
                   />
                 </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="quantity" className="text-[#3E503C]">Số lượng</Label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    value={newItem.quantity}
+                    onChange={(e) => setNewItem({ ...newItem, quantity: Number(e.target.value) })}
+                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
+                  />
+                </div>
                 <div className="flex justify-end gap-4 pt-6">
                   <Button
                     type="button"
@@ -159,6 +178,7 @@ export default function MenuPage() {
                 <TableHead className="text-gray-600">Tên món</TableHead>
                 <TableHead className="text-gray-600">Giá</TableHead>
                 <TableHead className="text-gray-600">Danh mục</TableHead>
+                <TableHead className="text-gray-600">Số lượng</TableHead>
                 <TableHead className="text-gray-600">Trạng thái</TableHead>
                 <TableHead className="text-gray-600">Thao tác</TableHead>
               </TableRow>
@@ -189,6 +209,7 @@ export default function MenuPage() {
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell>{item.price.toLocaleString('vi-VN')}đ</TableCell>
                     <TableCell>{item.category}</TableCell>
+                    <TableCell>{item.quantity || 0}</TableCell>
                     <TableCell>
                       <span className={`px-3 py-1.5 rounded-full text-xs font-medium inline-flex items-center justify-center min-w-[100px] ${
                         item.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
