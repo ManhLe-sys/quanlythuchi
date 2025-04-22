@@ -20,6 +20,13 @@ export function Header() {
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-6">
             <Link
+              href="/products"
+              className="text-[#3E503C] hover:text-[#7F886A] transition-colors font-medium text-sm relative group"
+            >
+              Sản Phẩm
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#7F886A] group-hover:w-full transition-all duration-300"></span>
+            </Link>
+            <Link
               href="/transactions"
               className="text-[#3E503C] hover:text-[#7F886A] transition-colors font-medium text-sm relative group"
             >
