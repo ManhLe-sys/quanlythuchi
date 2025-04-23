@@ -15,7 +15,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/products" className="flex items-center gap-2">
             <div className="h-10 w-10 rounded-full bg-gradient-to-r from-[#3E503C] to-[#7F886A] flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -29,9 +29,9 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             <Link 
-              href="/" 
+              href="/home" 
               className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
-                pathname === '/' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                pathname === '/home' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
               }`}
             >
               Trang Chủ
@@ -62,6 +62,15 @@ export default function Header() {
               }`}
             >
               Sản Phẩm
+            </Link>
+            
+            <Link 
+              href="/orders" 
+              className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
+                pathname === '/orders' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+              }`}
+            >
+              Đơn Hàng
             </Link>
             
             {user?.role === 'admin' && (
@@ -134,9 +143,9 @@ export default function Header() {
           <div className="md:hidden mt-4 pb-4 border-t border-gray-100 pt-4">
             <nav className="flex flex-col gap-2">
               <Link 
-                href="/" 
+                href="/home" 
                 className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
-                  pathname === '/' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                  pathname === '/home' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -171,6 +180,16 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Sản Phẩm
+              </Link>
+              
+              <Link 
+                href="/orders" 
+                className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
+                  pathname === '/orders' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Đơn Hàng
               </Link>
               
               {user?.role === 'admin' && (
