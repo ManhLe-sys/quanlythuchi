@@ -513,6 +513,26 @@ export default function ProductsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 text-gray-700">
+      {/* Fixed Cart Button */}
+      <button 
+        onClick={() => setIsCartOpen(true)}
+        className="fixed top-24 right-6 z-30 bg-[#3E503C] text-white p-3 rounded-full shadow-lg hover:bg-[#7F886A] transition-all group"
+      >
+        <div className="relative">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          {cart.length > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              {cart.reduce((sum, item) => sum + item.quantity, 0)}
+            </span>
+          )}
+        </div>
+        <span className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 bg-white text-[#3E503C] px-2 py-1 rounded text-sm font-medium shadow-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">
+          Giỏ hàng của bạn
+        </span>
+      </button>
+
       {/* Header with gradient background */}
       <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
@@ -917,15 +937,31 @@ export default function ProductsPage() {
                       currency: 'VND'
                     }).format(product.price)}
                   </span>
-                  <Button
-                    onClick={() => addToCart(product.id)}
-                    disabled={!product.isAvailable || 
-                              product.quantity === 0 || 
-                              (product.actualAvailable !== undefined && product.actualAvailable <= 0)}
-                    className="px-3 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors text-sm font-medium"
-                  >
-                    Mua ngay
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => addToCart(product.id)}
+                      disabled={!product.isAvailable || 
+                                product.quantity === 0 || 
+                                (product.actualAvailable !== undefined && product.actualAvailable <= 0)}
+                      className="px-3 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors text-sm font-medium"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        addToCart(product.id);
+                        setIsCartOpen(true);
+                      }}
+                      disabled={!product.isAvailable || 
+                                product.quantity === 0 || 
+                                (product.actualAvailable !== undefined && product.actualAvailable <= 0)}
+                      className="px-3 py-2 bg-[#7F886A] text-white rounded-xl hover:bg-[#3E503C] transition-colors text-sm font-medium"
+                    >
+                      Mua ngay
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
