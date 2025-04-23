@@ -34,7 +34,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-gray-500 bg-opacity-50 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
@@ -46,7 +46,7 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
         >
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
-            <h3 className="text-xl font-semibold text-gray-900">
+            <h3 className="text-xl font-semibold text-gray-700">
               {title}
             </h3>
             <button

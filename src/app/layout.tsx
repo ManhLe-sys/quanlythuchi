@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import Link from "next/link";
 import { AuthButtons } from './components/AuthButtons';
-import { Header } from './components/Header';
+import Header from './components/Header';
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });

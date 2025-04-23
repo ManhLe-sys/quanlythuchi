@@ -39,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import nodemailer from 'nodemailer';
+import Link from 'next/link';
 
 interface User {
   id: string;
@@ -501,23 +501,6 @@ export default function AdminPage() {
     }
   };
 
-  // Cập nhật cấu hình transporter
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: 'manhlh1.qn@gmail.com',
-      pass: 'pbbh wecf yirs pimf',
-    },
-    tls: {
-      rejectUnauthorized: false
-    },
-    // Thêm dòng này để debug
-    debug: true,
-    logger: true
-  });
-
   return (
     <div className="container mx-auto px-4 py-8 text-gray-700">
       {/* Header with gradient background */}
@@ -532,10 +515,10 @@ export default function AdminPage() {
           </div>
           <div className="flex gap-4">
             <Button
-                  onClick={() => setActiveTab('users')}
+              onClick={() => setActiveTab('users')}
               variant={activeTab === 'users' ? 'default' : 'outline'}
               className={`px-6 py-2 rounded-xl font-medium transition-all duration-200 ${
-                    activeTab === 'users'
+                activeTab === 'users'
                 ? 'bg-white text-blue-600 shadow-lg'
                 : 'bg-white/10 text-white hover:bg-white/20'
               }`}
@@ -543,10 +526,10 @@ export default function AdminPage() {
               Người Dùng
             </Button>
             <Button
-                  onClick={() => setActiveTab('menu')}
+              onClick={() => setActiveTab('menu')}
               variant={activeTab === 'menu' ? 'default' : 'outline'}
               className={`px-6 py-2 rounded-xl font-medium transition-all duration-200 ${
-                    activeTab === 'menu'
+                activeTab === 'menu'
                 ? 'bg-white text-blue-600 shadow-lg'
                 : 'bg-white/10 text-white hover:bg-white/20'
               }`}
@@ -555,7 +538,41 @@ export default function AdminPage() {
             </Button>
           </div>
         </div>
+      </div>
+
+      {/* Quick Access Buttons */}
+      <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <Link href="/admin/account">
+          <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 h-full">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-xl bg-blue-50 flex items-center justify-center">
+                <svg className="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">Quản Lý Tài Khoản</h2>
+                <p className="text-gray-600">Thêm, sửa và quản lý tài khoản người dùng</p>
+              </div>
             </div>
+          </div>
+        </Link>
+        <Link href="/admin/menu">
+          <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 h-full">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-xl bg-green-50 flex items-center justify-center">
+                <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4.5M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293A1 1 0 005.414 17H15a1 1 0 100-2H7a1 1 0 11-2 0 1 1 0 012 0zm15.5-3.5l-7 7m0 0l-3.5-3.5m3.5 3.5l-7-7" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">Quản Lý Thực Đơn</h2>
+                <p className="text-gray-600">Thêm, sửa và quản lý các món trong thực đơn</p>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </div>
 
       {/* Users Management Section */}
       {activeTab === 'users' && (

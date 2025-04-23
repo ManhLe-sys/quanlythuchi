@@ -83,7 +83,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
 
   return (
     <ProtectedRoute>
-      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999]">
+      <div className="fixed inset-0 bg-gray-500/30 backdrop-blur-sm flex items-center justify-center z-[9999]">
         <div className="bg-white rounded-3xl p-8 max-w-2xl w-full mx-4 shadow-2xl transform transition-all relative">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-3">
@@ -92,7 +92,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Thêm Khoản Chi</h2>
+              <h2 className="text-2xl font-bold text-gray-700">Thêm Khoản Chi</h2>
             </div>
             <button
               onClick={onClose}
