@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { v4 as uuidv4 } from 'uuid';
+import { useAuth } from '../context/AuthContext';
+import { Label } from '@/components/ui/label';
 
 interface Product {
   id: string;
@@ -30,14 +32,35 @@ interface CartItem {
   quantity: number;
 }
 
+interface CheckoutInfo {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  paymentMethod: 'cod' | 'banking';
+  bankingConfirmation: boolean;
+}
+
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>('');
+  const [checkoutInfo, setCheckoutInfo] = useState<CheckoutInfo>({
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    paymentMethod: 'cod',
+    bankingConfirmation: false,
+  });
+  const [orderTotal, setOrderTotal] = useState(0);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Generate a unique user ID for tracking reservations
   useEffect(() => {
@@ -51,7 +74,16 @@ export default function ProductsPage() {
       localStorage.setItem('shopping_user_id', newUserId);
       setUserId(newUserId);
     }
-  }, []);
+
+    // Pre-fill user info if logged in
+    if (user) {
+      setCheckoutInfo(prev => ({
+        ...prev,
+        fullName: user.fullName || '',
+        email: user.email || '',
+      }));
+    }
+  }, [user]);
 
   const fetchProducts = async () => {
     try {
@@ -326,6 +358,61 @@ export default function ProductsPage() {
     }, 0);
   };
 
+  const handleCheckoutOpen = () => {
+    const total = calculateTotal();
+    setOrderTotal(total);
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
+  const handleCheckoutInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setCheckoutInfo(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const validateCheckout = (): boolean => {
+    setCheckoutError(null);
+    
+    // Basic validation
+    if (!checkoutInfo.fullName.trim()) {
+      setCheckoutError("Vui lòng nhập họ tên");
+      return false;
+    }
+    
+    if (!checkoutInfo.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutInfo.email)) {
+      setCheckoutError("Vui lòng nhập email hợp lệ");
+      return false;
+    }
+    
+    if (!checkoutInfo.phone.trim() || !/^\d{10}$/.test(checkoutInfo.phone.replace(/\s+/g, ''))) {
+      setCheckoutError("Vui lòng nhập số điện thoại hợp lệ");
+      return false;
+    }
+    
+    if (!checkoutInfo.address.trim()) {
+      setCheckoutError("Vui lòng nhập địa chỉ");
+      return false;
+    }
+    
+    // For orders over 1 million VND, banking payment is required
+    if (orderTotal >= 1000000) {
+      if (checkoutInfo.paymentMethod !== 'banking') {
+        setCheckoutError("Đơn hàng trên 1 triệu VND phải thanh toán trước qua chuyển khoản");
+        return false;
+      }
+      
+      if (!checkoutInfo.bankingConfirmation) {
+        setCheckoutError("Vui lòng xác nhận đã chuyển khoản");
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
   const placeOrder = async () => {
     // Final check before placing order
     for (const item of cart) {
@@ -345,19 +432,67 @@ export default function ProductsPage() {
       }
     }
     
-    // Here you would implement the order creation logic
-    // This would include committing the reservations to actual order quantities
-    // and updating the inventory in the database
+    // Open checkout dialog
+    handleCheckoutOpen();
+  };
+
+  const submitOrder = async () => {
+    if (!validateCheckout()) {
+      return;
+    }
     
-    toast({
-      title: "Đơn hàng đã được tạo",
-      description: "Cảm ơn bạn đã mua hàng!",
-      variant: "default"
-    });
-    
-    // Clear cart and release any uncommitted reservations
-    setCart([]);
-    setIsCartOpen(false);
+    try {
+      // Here you would implement the order creation logic
+      // including committing the reservations to actual order quantities
+      // and updating the inventory in the database
+      
+      // Send email confirmation
+      await fetch('/api/sendOrderEmail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: checkoutInfo.email,
+          order: {
+            items: cart.map(item => {
+              const product = getProductById(item.productId);
+              return {
+                name: product?.name,
+                price: product?.price,
+                quantity: item.quantity,
+                subtotal: product ? product.price * item.quantity : 0
+              };
+            }),
+            customerInfo: checkoutInfo,
+            total: orderTotal
+          }
+        })
+      });
+      
+      toast({
+        title: "Đơn hàng đã được tạo",
+        description: "Cảm ơn bạn đã mua hàng! Chúng tôi đã gửi hóa đơn vào email của bạn.",
+        variant: "default"
+      });
+      
+      // Clear cart and release any uncommitted reservations
+      setCart([]);
+      setIsCheckoutOpen(false);
+      
+      // Reset checkout info except for user details
+      setCheckoutInfo(prev => ({
+        ...prev,
+        address: '',
+        paymentMethod: 'cod',
+        bankingConfirmation: false,
+      }));
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast({
+        title: "Có lỗi xảy ra",
+        description: "Không thể tạo đơn hàng. Vui lòng thử lại sau.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -421,7 +556,7 @@ export default function ProductsPage() {
                         />
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-lg font-medium text-gray-800">{product.name}</h4>
+                        <h4 className="text-lg font-medium text-gray-700">{product.name}</h4>
                         <p className="text-[#3E503C] font-semibold">
                           {new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
@@ -482,7 +617,7 @@ export default function ProductsPage() {
               
               <div className="border-t border-gray-100 pt-4">
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600">Tổng tiền:</span>
+                  <span className="text-gray-700">Tổng tiền:</span>
                   <span className="text-xl font-bold text-[#3E503C]">
                     {new Intl.NumberFormat('vi-VN', {
                       style: 'currency',
@@ -509,6 +644,165 @@ export default function ProductsPage() {
               </DialogFooter>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Checkout Dialog */}
+      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+        <DialogContent className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-xl border-0 max-w-3xl w-full">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-[#3E503C]">Thông tin đặt hàng</DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4 max-h-[70vh] overflow-y-auto">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="fullName" className="text-gray-700">Họ tên</Label>
+                <Input 
+                  id="fullName"
+                  name="fullName"
+                  value={checkoutInfo.fullName}
+                  onChange={handleCheckoutInputChange}
+                  placeholder="Nhập họ tên của bạn"
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="email" className="text-gray-700">Email</Label>
+                <Input 
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={checkoutInfo.email}
+                  onChange={handleCheckoutInputChange}
+                  placeholder="Nhập email của bạn"
+                />
+                <p className="text-xs text-gray-500">Hóa đơn sẽ được gửi vào email này</p>
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="phone" className="text-gray-700">Số điện thoại</Label>
+                <Input 
+                  id="phone"
+                  name="phone"
+                  value={checkoutInfo.phone}
+                  onChange={handleCheckoutInputChange}
+                  placeholder="Nhập số điện thoại của bạn"
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="address" className="text-gray-700">Địa chỉ</Label>
+                <Input 
+                  id="address"
+                  name="address"
+                  value={checkoutInfo.address}
+                  onChange={handleCheckoutInputChange}
+                  placeholder="Nhập địa chỉ nhận hàng của bạn"
+                />
+              </div>
+              
+              <div className="border-t border-gray-100 pt-4 mt-2">
+                <h3 className="text-lg font-semibold text-gray-700 mb-4">Phương thức thanh toán</h3>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id="paymentCod"
+                      name="paymentMethod"
+                      value="cod"
+                      checked={checkoutInfo.paymentMethod === 'cod'}
+                      onChange={handleCheckoutInputChange}
+                      className="w-4 h-4"
+                      disabled={orderTotal >= 1000000}
+                    />
+                    <Label htmlFor="paymentCod" className="text-gray-700">Thanh toán khi nhận hàng (COD)</Label>
+                  </div>
+                  
+                  {orderTotal >= 1000000 && (
+                    <p className="text-sm text-red-500 ml-6">
+                      Đơn hàng trên 1 triệu VND phải thanh toán trước qua chuyển khoản
+                    </p>
+                  )}
+                  
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id="paymentBanking"
+                      name="paymentMethod"
+                      value="banking"
+                      checked={checkoutInfo.paymentMethod === 'banking'}
+                      onChange={handleCheckoutInputChange}
+                      className="w-4 h-4"
+                    />
+                    <Label htmlFor="paymentBanking" className="text-gray-700">Chuyển khoản ngân hàng</Label>
+                  </div>
+                  
+                  {checkoutInfo.paymentMethod === 'banking' && (
+                    <div className="ml-6 p-4 bg-gray-50 rounded-lg">
+                      <p className="font-semibold mb-1 text-gray-700">Thông tin chuyển khoản:</p>
+                      <p className="text-gray-700">Ngân hàng: <span className="font-medium">BIDV</span></p>
+                      <p className="text-gray-700">Số tài khoản: <span className="font-medium">1234567890</span></p>
+                      <p className="text-gray-700">Chủ tài khoản: <span className="font-medium">Nguyễn Văn A</span></p>
+                      <p className="mt-2 text-gray-700">Nội dung: <span className="font-medium">DH {userId.slice(-6)}</span></p>
+                      
+                      <div className="mt-4 flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="bankingConfirmation"
+                          name="bankingConfirmation"
+                          checked={checkoutInfo.bankingConfirmation}
+                          onChange={handleCheckoutInputChange}
+                          className="w-4 h-4"
+                        />
+                        <Label htmlFor="bankingConfirmation" className="text-gray-700">
+                          Tôi đã chuyển khoản thành công
+                        </Label>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="border-t border-gray-100 pt-4 mt-2">
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-lg font-medium text-gray-700">Tổng thanh toán:</span>
+                  <span className="text-xl font-bold text-[#3E503C]">
+                    {new Intl.NumberFormat('vi-VN', {
+                      style: 'currency',
+                      currency: 'VND'
+                    }).format(orderTotal)}
+                  </span>
+                </div>
+              </div>
+              
+              {checkoutError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-600">
+                  {checkoutError}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter className="flex space-x-4 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsCheckoutOpen(false);
+                setIsCartOpen(true);
+              }}
+              className="rounded-xl flex-1 hover:bg-gray-50"
+            >
+              Quay lại giỏ hàng
+            </Button>
+            <Button
+              onClick={submitOrder}
+              className="rounded-xl flex-1 bg-[#7F886A] hover:bg-[#3E503C] text-white transition-colors"
+            >
+              Xác nhận đặt hàng
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -570,7 +864,7 @@ export default function ProductsPage() {
                 )}
               </div>
               <div className="p-4">
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">{product.name}</h3>
+                <h3 className="text-lg font-semibold mb-2 text-gray-700">{product.name}</h3>
                 <p className="text-sm text-gray-500 mb-1 line-clamp-2">{product.description}</p>
                 <p className="text-sm text-gray-500 mb-3">
                   Còn lại: {product.actualAvailable !== undefined 

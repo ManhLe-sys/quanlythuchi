@@ -39,6 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import nodemailer from 'nodemailer';
 
 interface User {
   id: string;
@@ -499,6 +500,23 @@ export default function AdminPage() {
       setIsActionLoading(false);
     }
   };
+
+  // Cập nhật cấu hình transporter
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'manhlh1.qn@gmail.com',
+      pass: 'pbbh wecf yirs pimf',
+    },
+    tls: {
+      rejectUnauthorized: false
+    },
+    // Thêm dòng này để debug
+    debug: true,
+    logger: true
+  });
 
   return (
     <div className="container mx-auto px-4 py-8 text-gray-700">
