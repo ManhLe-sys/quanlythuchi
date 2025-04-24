@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "../context/AuthContext";
 
 interface MenuItem {
   ma_mon: string;
@@ -35,6 +36,7 @@ interface OrderItem {
 
 export default function OrdersPage() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -188,6 +190,11 @@ export default function OrdersPage() {
           ghi_chu: ""
         };
       });
+      
+      // Xác định trạng thái đơn hàng dựa vào quyền người dùng
+      const orderStatus = (user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'staff') 
+                        ? formData.trang_thai === 'pending' ? "Chờ xử lý" : formData.trang_thai === 'processing' ? "Đang xử lý" : formData.trang_thai === 'completed' ? "Hoàn thành" : formData.trang_thai === 'cancelled' ? "Đã hủy" : "Chờ xử lý"
+                        : "Chờ xử lý"; // Khách hàng luôn tạo đơn với trạng thái "Chờ xử lý"
 
       // Tạo dữ liệu đơn hàng với danh_sach_mon
       const orderData = {
@@ -198,11 +205,11 @@ export default function OrdersPage() {
         so_dien_thoai: formData.so_dien_thoai,
         dia_chi: formData.dia_chi,
         tong_tien: tongTien,
-        trang_thai: "Chờ xử lý",
+        trang_thai: orderStatus,
         trang_thai_thanh_toan: formData.phuong_thuc_thanh_toan,
         phuong_thuc_thanh_toan: formData.phuong_thuc_thanh_toan,
         ghi_chu: formData.ghi_chu,
-        id_nguoi_tao: "ADMIN",
+        id_nguoi_tao: user?.email || "GUEST",
         thoi_gian_tao: new Date().toISOString(),
         thoi_gian_cap_nhat: new Date().toISOString(),
         danh_sach_mon: danhSachMon
@@ -225,19 +232,9 @@ export default function OrdersPage() {
           title: "Thành công",
           description: "Tạo đơn hàng thành công",
         });
+        // Đóng modal và reset form
         setShowAddModal(false);
-        // Reset form
-        setFormData({
-          ten_khach: "",
-          so_dien_thoai: "",
-          dia_chi: "",
-          ngay_dat: new Date().toISOString().split("T")[0],
-          ngay_giao: "",
-          phuong_thuc_thanh_toan: "",
-          ghi_chu: "",
-          trang_thai: "pending"
-        });
-        setSelectedItems([]);
+        resetOrderForm();
         // Refresh danh sách đơn hàng
         fetchData();
       } else {
@@ -376,7 +373,7 @@ export default function OrdersPage() {
     }
   };
 
-  // Filter orders based on search term, date and status
+  // Filter orders based on search term, date, status and user role
   const filteredOrders = orders.filter(order => {
     // Search term filter
     const searchMatches = !searchTerm.trim() || 
@@ -399,8 +396,96 @@ export default function OrdersPage() {
       else if (filterStatus === "cancelled") statusMatches = order.trang_thai === "Đã hủy";
     }
     
-    return searchMatches && dateMatches && statusMatches;
+    // User role filter - customers can only see their own orders
+    let userRoleMatches = true;
+    if (user && user.role?.toLowerCase() === 'customer') {
+      // Từ hình ảnh, có thể thấy tên hiển thị của khách hàng là "customer"
+      // Nên cần kiểm tra bằng các phương thức khác
+      const customerEmail = user.email?.toLowerCase() || '';
+      const customerName = user.fullName?.toLowerCase() || '';
+      
+      userRoleMatches = false; // Mặc định là không hiển thị
+      
+      // Kiểm tra nếu tên khách hàng có chứa "customer" hoặc match với user.fullName
+      if (order.ten_khach && (
+          order.ten_khach.toLowerCase().includes('customer') ||
+          order.ten_khach.toLowerCase().includes(customerName) ||
+          customerName.includes(order.ten_khach.toLowerCase())
+      )) {
+        userRoleMatches = true;
+      }
+      
+      // Hoặc nếu id_nguoi_tao chứa email hoặc từ "customer"
+      if (order.id_nguoi_tao && (
+          order.id_nguoi_tao.toLowerCase().includes(customerEmail) ||
+          order.id_nguoi_tao.toLowerCase().includes('customer')
+      )) {
+        userRoleMatches = true;
+      }
+      
+      // Hoặc kiểm tra theo email trong id_nguoi_tao
+      if (order.id_nguoi_tao && order.id_nguoi_tao.includes('@')) {
+        userRoleMatches = true;
+      }
+    }
+    
+    return searchMatches && dateMatches && statusMatches && userRoleMatches;
   });
+
+  // Helper function to check if user has permission to update order status
+  const canUpdateOrderStatus = (): boolean => {
+    if (!user) return false;
+    const role = user.role?.toLowerCase() || '';
+    return role === 'admin' || role === 'staff';
+  };
+
+  // Xử lý khi mở modal tạo đơn hàng mới
+  const handleOpenAddModal = () => {
+    // Reset form data với thông tin người dùng nếu đang đăng nhập
+    if (user && user.role?.toLowerCase() === 'customer') {
+      setFormData({
+        ...formData,
+        ten_khach: user.fullName || "",
+        // Điền thêm thông tin khác nếu có (số điện thoại, địa chỉ)
+      });
+    } else {
+      // Reset form cho admin/staff
+      setFormData({
+        ten_khach: "",
+        so_dien_thoai: "",
+        dia_chi: "",
+        ngay_dat: new Date().toISOString().split("T")[0],
+        ngay_giao: "",
+        phuong_thuc_thanh_toan: "",
+        ghi_chu: "",
+        trang_thai: "pending"
+      });
+    }
+    
+    // Mở modal
+    setShowAddModal(true);
+  };
+
+  // Xử lý đóng modal tạo đơn hàng
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+    setSelectedItems([]);
+  };
+  
+  // Reset form sau khi tạo đơn hàng thành công
+  const resetOrderForm = () => {
+    setFormData({
+      ten_khach: "",
+      so_dien_thoai: "",
+      dia_chi: "",
+      ngay_dat: new Date().toISOString().split("T")[0],
+      ngay_giao: "",
+      phuong_thuc_thanh_toan: "",
+      ghi_chu: "",
+      trang_thai: "pending"
+    });
+    setSelectedItems([]);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 text-gray-700">
@@ -416,7 +501,7 @@ export default function OrdersPage() {
           </div>
           <div className="flex gap-4">
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={handleOpenAddModal}
               className="px-6 py-2 rounded-xl font-medium bg-white text-[#3E503C] hover:bg-[#3E503C]/10 shadow-lg transition-all duration-200 flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -708,12 +793,14 @@ export default function OrdersPage() {
                   }`}>
                     {selectedOrder?.trang_thai}
                   </span>
-                  <Button
-                    onClick={() => handleStatusChange(getNextStatus(selectedOrder?.trang_thai))}
-                    className="px-4 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all"
-                  >
-                    Cập nhật trạng thái
-                  </Button>
+                  {canUpdateOrderStatus() && (
+                    <Button
+                      onClick={() => handleStatusChange(getNextStatus(selectedOrder?.trang_thai))}
+                      className="px-4 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all"
+                    >
+                      Cập nhật trạng thái
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -729,7 +816,7 @@ export default function OrdersPage() {
                   }`}>
                     {selectedOrder?.trang_thai_thanh_toan}
                   </span>
-                  {selectedOrder?.trang_thai_thanh_toan !== 'Đã thanh toán' && (
+                  {canUpdateOrderStatus() && selectedOrder?.trang_thai_thanh_toan !== 'Đã thanh toán' && (
                     <Button
                       onClick={() => handleStatusChange(getNextPaymentStatus(selectedOrder?.trang_thai_thanh_toan), true)}
                       className="px-4 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all"
@@ -782,6 +869,8 @@ export default function OrdersPage() {
                     onChange={(e) => setFormData({ ...formData, ten_khach: e.target.value })}
                     className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C] placeholder:text-[#3E503C]/50"
                     placeholder="Nhập họ tên khách hàng"
+                    disabled={user?.role?.toLowerCase() === 'customer'}
+                    readOnly={user?.role?.toLowerCase() === 'customer'}
                   />
                 </div>
                 <div className="space-y-2">
@@ -878,27 +967,29 @@ export default function OrdersPage() {
                     }).format(selectedItems.reduce((sum, item) => sum + item.don_gia * item.so_luong, 0))}
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-[#3E503C] font-medium">Trạng thái</Label>
-                  <Select value={formData.trang_thai} onValueChange={(value: 'pending' | 'processing' | 'completed' | 'cancelled') => setFormData({ ...formData, trang_thai: value })}>
-                    <SelectTrigger className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C] bg-white">
-                      <SelectValue placeholder="Chọn trạng thái" className="text-[#3E503C]/50" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-200 shadow-md">
-                      <SelectItem value="pending" className="text-[#3E503C] hover:bg-[#3E503C]/10">Chờ xử lý</SelectItem>
-                      <SelectItem value="processing" className="text-[#3E503C] hover:bg-[#3E503C]/10">Đang xử lý</SelectItem>
-                      <SelectItem value="completed" className="text-[#3E503C] hover:bg-[#3E503C]/10">Hoàn thành</SelectItem>
-                      <SelectItem value="cancelled" className="text-[#3E503C] hover:bg-[#3E503C]/10">Đã hủy</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {(user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'staff') && (
+                  <div className="space-y-2">
+                    <Label className="text-[#3E503C] font-medium">Trạng thái</Label>
+                    <Select value={formData.trang_thai} onValueChange={(value: 'pending' | 'processing' | 'completed' | 'cancelled') => setFormData({ ...formData, trang_thai: value })}>
+                      <SelectTrigger className="w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C] bg-white">
+                        <SelectValue placeholder="Chọn trạng thái" className="text-[#3E503C]/50" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border-gray-200 shadow-md">
+                        <SelectItem value="pending" className="text-[#3E503C] hover:bg-[#3E503C]/10">Chờ xử lý</SelectItem>
+                        <SelectItem value="processing" className="text-[#3E503C] hover:bg-[#3E503C]/10">Đang xử lý</SelectItem>
+                        <SelectItem value="completed" className="text-[#3E503C] hover:bg-[#3E503C]/10">Hoàn thành</SelectItem>
+                        <SelectItem value="cancelled" className="text-[#3E503C] hover:bg-[#3E503C]/10">Đã hủy</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
             </div>
           </div>
           <DialogFooter className="gap-2">
             <Button
               type="button"
-              onClick={() => setShowAddModal(false)}
+              onClick={handleCloseAddModal}
               className="px-6 py-2 rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-[#3E503C]/20 hover:border-[#3E503C]/30 transition-all"
             >
               Hủy
