@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '../context/AuthContext';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 
 interface Product {
   id: string;
@@ -39,7 +40,7 @@ interface CheckoutInfo {
   email: string;
   phone: string;
   address: string;
-  paymentMethod: 'cod' | 'banking';
+  paymentMethod: 'cod' | 'banking' | 'momo';
   bankingConfirmation: boolean;
 }
 
@@ -65,6 +66,9 @@ export default function ProductsPage() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  // Import MomoPaymentButton
+  const MomoPaymentButton = dynamic(() => import('@/components/MomoPaymentButton'), { ssr: false });
 
   // Generate a unique user ID for tracking reservations
   useEffect(() => {
@@ -500,6 +504,28 @@ export default function ProductsPage() {
     }
   };
 
+  const handleMomoPayment = async () => {
+    // Validate checkout information
+    if (!validateCheckout()) {
+      return;
+    }
+    
+    try {
+      // Generate order ID based on timestamp
+      const momoOrderId = `ORDER_${Date.now()}`;
+      
+      // Create a new order in your database here if needed
+      // Example: await createOrder(momoOrderId, cart, checkoutInfo, orderTotal);
+      
+      // Redirect to MoMo payment
+      return momoOrderId;
+    } catch (error) {
+      console.error('Error preparing MoMo payment:', error);
+      setCheckoutError("Có lỗi xảy ra khi chuẩn bị thanh toán. Vui lòng thử lại sau.");
+      return null;
+    }
+  };
+
   // Filter products based on search query and category
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -812,6 +838,19 @@ export default function ProductsPage() {
                     <Label htmlFor="paymentBanking" className="text-gray-700">Chuyển khoản ngân hàng</Label>
                   </div>
                   
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id="paymentMomo"
+                      name="paymentMethod"
+                      value="momo"
+                      checked={checkoutInfo.paymentMethod === 'momo'}
+                      onChange={handleCheckoutInputChange}
+                      className="w-4 h-4"
+                    />
+                    <Label htmlFor="paymentMomo" className="text-gray-700">Thanh toán qua MoMo</Label>
+                  </div>
+                  
                   {checkoutInfo.paymentMethod === 'banking' && (
                     <div className="ml-6 p-4 bg-gray-50 rounded-lg">
                       <p className="font-semibold mb-1 text-gray-700">Thông tin chuyển khoản:</p>
@@ -869,12 +908,22 @@ export default function ProductsPage() {
             >
               Quay lại giỏ hàng
             </Button>
-            <Button
-              onClick={submitOrder}
-              className="rounded-xl flex-1 bg-[#7F886A] hover:bg-[#3E503C] text-white transition-colors"
-            >
-              Xác nhận đặt hàng
-            </Button>
+            
+            {checkoutInfo.paymentMethod === 'momo' ? (
+              <MomoPaymentButton 
+                amount={orderTotal}
+                orderId={`ORDER_${Date.now()}`}
+                orderInfo={`Thanh toán đơn hàng`}
+                className="flex-1"
+              />
+            ) : (
+              <Button
+                onClick={submitOrder}
+                className="rounded-xl flex-1 bg-[#7F886A] hover:bg-[#3E503C] text-white transition-colors"
+              >
+                Xác nhận đặt hàng
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
