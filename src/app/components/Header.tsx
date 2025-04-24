@@ -10,6 +10,27 @@ export default function Header() {
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Helper function to determine if a menu item should be shown based on user role
+  const shouldShowMenuItem = (menuItem: string): boolean => {
+    if (!user) return true; // Show all items if not logged in
+    
+    const role = user.role?.toLowerCase() || '';
+    
+    if (role === 'admin') return true; // Admins see everything
+    
+    if (role === 'staff') {
+      // Staff sees everything except admin and reports
+      return !['admin', 'reports'].includes(menuItem);
+    }
+    
+    if (role === 'customer') {
+      // Customers only see home and products
+      return ['home', 'products'].includes(menuItem);
+    }
+    
+    return true; // Default fallback
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-xl shadow-sm">
       <div className="container mx-auto px-4 py-3">
@@ -28,59 +49,69 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
-            <Link 
-              href="/home" 
-              className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
-                pathname === '/home' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
-              }`}
-            >
-              Trang Chủ
-            </Link>
+            {shouldShowMenuItem('home') && (
+              <Link 
+                href="/home" 
+                className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
+                  pathname === '/home' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                }`}
+              >
+                Trang Chủ
+              </Link>
+            )}
             
-            <Link 
-              href="/transactions" 
-              className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
-                pathname === '/transactions' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
-              }`}
-            >
-              Giao Dịch
-            </Link>
+            {shouldShowMenuItem('transactions') && (
+              <Link 
+                href="/transactions" 
+                className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
+                  pathname === '/transactions' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                }`}
+              >
+                Giao Dịch
+              </Link>
+            )}
             
-            <Link 
-              href="/reports" 
-              className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
-                pathname === '/reports' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
-              }`}
-            >
-              Báo Cáo
-            </Link>
+            {shouldShowMenuItem('reports') && (
+              <Link 
+                href="/reports" 
+                className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
+                  pathname === '/reports' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                }`}
+              >
+                Báo Cáo
+              </Link>
+            )}
             
-            <Link 
-              href="/products" 
-              className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
-                pathname === '/products' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
-              }`}
-            >
-              Sản Phẩm
-            </Link>
+            {shouldShowMenuItem('products') && (
+              <Link 
+                href="/products" 
+                className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
+                  pathname === '/products' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                }`}
+              >
+                Sản Phẩm
+              </Link>
+            )}
             
-            <Link 
-              href="/orders" 
-              className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
-                pathname === '/orders' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
-              }`}
-            >
-              Đơn Hàng
-            </Link>
-            
-            {user?.role === 'admin' && (
+            {shouldShowMenuItem('orders') && (
+              <Link 
+                href="/orders" 
+                className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
+                  pathname === '/orders' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                }`}
+              >
+                Đơn Hàng
+              </Link>
+            )}
+
+            {shouldShowMenuItem('admin') && (
               <Link 
                 href="/admin" 
                 className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
                   pathname === '/admin' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
                 }`}
               >
-                Quản Trị
+                Quản Lý
               </Link>
             )}
           </nav>
@@ -98,6 +129,7 @@ export default function Header() {
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 hidden group-hover:block">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <p className="text-sm font-medium text-gray-700">{user.email}</p>
+                    <p className="text-xs text-gray-500 mt-1">Vai trò: {user.role || 'Người dùng'}</p>
                   </div>
                   <button 
                     onClick={logout}
@@ -113,7 +145,7 @@ export default function Header() {
             ) : (
               <Link 
                 href="/login" 
-                className="px-4 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-all flex items-center gap-2"
+                className="px-4 py-2 bg-white text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
@@ -142,57 +174,67 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t border-gray-100 pt-4">
             <nav className="flex flex-col gap-2">
-              <Link 
-                href="/home" 
-                className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
-                  pathname === '/home' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Trang Chủ
-              </Link>
+              {shouldShowMenuItem('home') && (
+                <Link 
+                  href="/home" 
+                  className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
+                    pathname === '/home' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Trang Chủ
+                </Link>
+              )}
               
-              <Link 
-                href="/transactions" 
-                className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
-                  pathname === '/transactions' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Giao Dịch
-              </Link>
+              {shouldShowMenuItem('transactions') && (
+                <Link 
+                  href="/transactions" 
+                  className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
+                    pathname === '/transactions' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Giao Dịch
+                </Link>
+              )}
               
-              <Link 
-                href="/reports" 
-                className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
-                  pathname === '/reports' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Báo Cáo
-              </Link>
+              {shouldShowMenuItem('reports') && (
+                <Link 
+                  href="/reports" 
+                  className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
+                    pathname === '/reports' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Báo Cáo
+                </Link>
+              )}
               
-              <Link 
-                href="/products" 
-                className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
-                  pathname === '/products' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sản Phẩm
-              </Link>
+              {shouldShowMenuItem('products') && (
+                <Link 
+                  href="/products" 
+                  className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
+                    pathname === '/products' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sản Phẩm
+                </Link>
+              )}
               
-              <Link 
-                href="/orders" 
-                className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
-                  pathname === '/orders' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Đơn Hàng
-              </Link>
+              {shouldShowMenuItem('orders') && (
+                <Link 
+                  href="/orders" 
+                  className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
+                    pathname === '/orders' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Đơn Hàng
+                </Link>
+              )}
               
-              {user?.role === 'admin' && (
+              {shouldShowMenuItem('admin') && (
                 <Link 
                   href="/admin" 
                   className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
@@ -200,7 +242,7 @@ export default function Header() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Quản Trị
+                  Quản Lý
                 </Link>
               )}
             </nav>

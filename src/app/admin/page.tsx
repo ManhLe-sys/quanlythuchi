@@ -364,7 +364,7 @@ export default function AdminPage() {
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    const matchesRole = roleFilter === 'all' || user.role.toLowerCase() === roleFilter.toLowerCase();
     return matchesSearch && matchesRole;
   });
 
@@ -541,6 +541,7 @@ export default function AdminPage() {
       </div>
 
       {/* Quick Access Buttons */}
+      {/* 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <Link href="/admin/account">
           <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 h-full">
@@ -562,7 +563,7 @@ export default function AdminPage() {
             <div className="flex items-center gap-4">
               <div className="h-14 w-14 rounded-xl bg-green-50 flex items-center justify-center">
                 <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4.5M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293A1 1 0 005.414 17H15a1 1 0 100-2H7a1 1 0 11-2 0 1 1 0 012 0zm15.5-3.5l-7 7m0 0l-3.5-3.5m3.5 3.5l-7-7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4.5M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293A1 1 0 005.414 17H15a1 1 0 100-2H7a1 1 0 11-2 0zm15.5-3.5l-7 7m0 0l-3.5-3.5m3.5 3.5l-7-7" />
                 </svg>
               </div>
               <div>
@@ -573,6 +574,7 @@ export default function AdminPage() {
           </div>
         </Link>
       </div>
+      */}
 
       {/* Users Management Section */}
       {activeTab === 'users' && (
@@ -976,7 +978,13 @@ export default function AdminPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  menuItems.map((item) => (
+                  menuItems
+                    .filter(item => 
+                      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+                    )
+                    .map((item) => (
                     <TableRow key={item.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                       <TableCell className="py-4 px-6">
                         <div className="font-medium text-gray-900">{item.name}</div>

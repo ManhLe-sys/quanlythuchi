@@ -42,6 +42,9 @@ export default function OrdersPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterDate, setFilterDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [filterStatus, setFilterStatus] = useState<string>("");
   const [formData, setFormData] = useState({
     ten_khach: "",
     so_dien_thoai: "",
@@ -373,6 +376,32 @@ export default function OrdersPage() {
     }
   };
 
+  // Filter orders based on search term, date and status
+  const filteredOrders = orders.filter(order => {
+    // Search term filter
+    const searchMatches = !searchTerm.trim() || 
+      order.ma_don?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.ten_khach?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.so_dien_thoai?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.dia_chi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.san_pham?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Date filter
+    const dateMatches = !filterDate || 
+      new Date(order.ngay_dat).toISOString().split("T")[0] === filterDate;
+    
+    // Status filter
+    let statusMatches = true;
+    if (filterStatus) {
+      if (filterStatus === "pending") statusMatches = order.trang_thai === "Chờ xử lý";
+      else if (filterStatus === "processing") statusMatches = order.trang_thai === "Đang xử lý";
+      else if (filterStatus === "completed") statusMatches = order.trang_thai === "Hoàn thành";
+      else if (filterStatus === "cancelled") statusMatches = order.trang_thai === "Đã hủy";
+    }
+    
+    return searchMatches && dateMatches && statusMatches;
+  });
+
   return (
     <div className="container mx-auto px-4 py-8 text-gray-700">
       {/* Header with gradient background */}
@@ -408,6 +437,8 @@ export default function OrdersPage() {
                 <input
                   type="text"
                   placeholder="Tìm kiếm đơn hàng..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent"
                 />
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
@@ -419,14 +450,20 @@ export default function OrdersPage() {
               <div className="flex gap-4">
                 <input
                   type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
                   className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent"
                 />
-                <select className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-[#3E503C]">
-                  <option value="" className="text-[#3E503C]">Tất cả trạng thái</option>
-                  <option value="pending" className="text-[#3E503C]">Chờ xử lý</option>
-                  <option value="processing" className="text-[#3E503C]">Đang xử lý</option>
-                  <option value="completed" className="text-[#3E503C]">Hoàn thành</option>
-                  <option value="cancelled" className="text-[#3E503C]">Đã hủy</option>
+                <select 
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-gray-700"
+                >
+                  <option value="" className="text-gray-700">Tất cả trạng thái</option>
+                  <option value="pending" className="text-gray-700">Chờ xử lý</option>
+                  <option value="processing" className="text-gray-700">Đang xử lý</option>
+                  <option value="completed" className="text-gray-700">Hoàn thành</option>
+                  <option value="cancelled" className="text-gray-700">Đã hủy</option>
                 </select>
               </div>
             </div>
@@ -459,19 +496,19 @@ export default function OrdersPage() {
                     </div>
                   </td>
                 </tr>
-              ) : orders.length === 0 ? (
+              ) : filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8">
                     <div className="flex flex-col items-center gap-4 text-gray-500">
                       <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
-                      <p>Chưa có đơn hàng nào</p>
+                      <p>Không tìm thấy đơn hàng nào</p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                orders.map((order) => (
+                filteredOrders.map((order) => (
                   <tr key={order.ma_don} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-medium text-gray-900">{order.ma_don}</div>
@@ -521,7 +558,7 @@ export default function OrdersPage() {
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => handleOpenDetail(order)}
-                          className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
+                          className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-gray-700 border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -673,7 +710,7 @@ export default function OrdersPage() {
                   </span>
                   <Button
                     onClick={() => handleStatusChange(getNextStatus(selectedOrder?.trang_thai))}
-                    className="px-4 py-2 rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg"
+                    className="px-4 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all"
                   >
                     Cập nhật trạng thái
                   </Button>
@@ -695,7 +732,7 @@ export default function OrdersPage() {
                   {selectedOrder?.trang_thai_thanh_toan !== 'Đã thanh toán' && (
                     <Button
                       onClick={() => handleStatusChange(getNextPaymentStatus(selectedOrder?.trang_thai_thanh_toan), true)}
-                      className="px-4 py-2 rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg"
+                      className="px-4 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all"
                     >
                       Đã thanh toán
                     </Button>
@@ -718,7 +755,7 @@ export default function OrdersPage() {
           <DialogFooter>
             <Button
               onClick={() => setShowDetailModal(false)}
-              className="px-6 py-2 rounded-xl bg-white hover:bg-gray-50 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 transition-all"
+              className="px-6 py-2 rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-[#3E503C]/20 hover:border-[#3E503C]/30 transition-all"
             >
               Đóng
             </Button>
@@ -767,7 +804,7 @@ export default function OrdersPage() {
                 <Button
                   type="button"
                   onClick={handleAddItem}
-                  className="px-4 py-2 rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg flex items-center gap-2"
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all shadow-lg flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -862,14 +899,14 @@ export default function OrdersPage() {
             <Button
               type="button"
               onClick={() => setShowAddModal(false)}
-              className="px-6 py-2 rounded-xl bg-white hover:bg-gray-50 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 transition-all"
+              className="px-6 py-2 rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-[#3E503C]/20 hover:border-[#3E503C]/30 transition-all"
             >
               Hủy
             </Button>
             <Button
               type="submit"
               onClick={handleSubmit}
-              className="px-6 py-2 rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg"
+              className="px-6 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all shadow-lg"
             >
               Tạo đơn hàng
             </Button>
