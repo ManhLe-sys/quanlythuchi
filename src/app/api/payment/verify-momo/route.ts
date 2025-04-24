@@ -1,5 +1,22 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { google } from 'googleapis';
+import { JWT } from 'google-auth-library';
+
+// Khởi tạo Google Sheets API
+const auth = new JWT({
+  email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
+  key: process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+});
+
+const sheets = google.sheets({ version: 'v4', auth });
+
+// ID của Google Spreadsheet
+const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_SHEET_ID;
+
+// Tên sheet đơn hàng
+const DON_HANG_SHEET = 'Đơn hàng';
 
 export async function POST(request: Request) {
   try {
@@ -60,8 +77,56 @@ export async function POST(request: Request) {
     
     // Check if payment was successful
     if (resultCode === '0') {
-      // Update your order status in the database here
-      // Example: await prisma.order.update({ where: { id: orderId }, data: { paymentStatus: 'Đã thanh toán' } });
+      // Update order status in the database
+      try {
+        // 1. Get all orders from the sheet
+        const response = await sheets.spreadsheets.values.get({
+          spreadsheetId: SPREADSHEET_ID,
+          range: `${DON_HANG_SHEET}!A:P`,
+        });
+        
+        const rows = response.data.values;
+        if (!rows || rows.length <= 1) {
+          throw new Error('No orders found');
+        }
+        
+        // 2. Find the row with matching order ID
+        let foundRowIndex = -1;
+        for (let i = 1; i < rows.length; i++) {
+          if (rows[i][1] === orderId) { // Index 1 is the ma_don column
+            foundRowIndex = i;
+            break;
+          }
+        }
+        
+        if (foundRowIndex === -1) {
+          throw new Error(`Order ${orderId} not found`);
+        }
+        
+        // 3. Update the order payment status
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: `${DON_HANG_SHEET}!J${foundRowIndex + 1}`,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: [['Đã thanh toán']]
+          },
+        });
+        
+        // 4. Update the last updated timestamp
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: `${DON_HANG_SHEET}!O${foundRowIndex + 1}`,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: [[new Date().toISOString()]]
+          },
+        });
+        
+      } catch (dbError) {
+        console.error('Error updating order status:', dbError);
+        // Still return success to MoMo, but log the error
+      }
       
       return NextResponse.json({ 
         message: "Payment verification successful",

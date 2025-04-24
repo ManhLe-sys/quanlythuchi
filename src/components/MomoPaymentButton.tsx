@@ -9,14 +9,34 @@ interface MomoPaymentButtonProps {
   orderId: string;
   orderInfo: string;
   className?: string;
+  onOrderCreated?: (orderId: string) => Promise<string | null>;
 }
 
-export default function MomoPaymentButton({ amount, orderId, orderInfo, className }: MomoPaymentButtonProps) {
+export default function MomoPaymentButton({ 
+  amount, 
+  orderId, 
+  orderInfo, 
+  className,
+  onOrderCreated 
+}: MomoPaymentButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handleMomoPayment = async () => {
     try {
       setLoading(true);
+      
+      // If there's an onOrderCreated callback, invoke it first to create order in database
+      let finalOrderId = orderId;
+      if (onOrderCreated) {
+        const result = await onOrderCreated(orderId);
+        if (result) {
+          finalOrderId = result;
+        } else {
+          // If order creation failed, stop the payment process
+          setLoading(false);
+          return;
+        }
+      }
       
       const response = await fetch('/api/payment/create-momo-url', {
         method: 'POST',
@@ -25,8 +45,8 @@ export default function MomoPaymentButton({ amount, orderId, orderInfo, classNam
         },
         body: JSON.stringify({
           amount,
-          orderId,
-          orderInfo: orderInfo || `Thanh toán đơn hàng ${orderId}`,
+          orderId: finalOrderId,
+          orderInfo: orderInfo || `Thanh toán đơn hàng ${finalOrderId}`,
         }),
       });
       

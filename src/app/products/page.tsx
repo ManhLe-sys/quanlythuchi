@@ -451,9 +451,54 @@ export default function ProductsPage() {
     }
     
     try {
-      // Here you would implement the order creation logic
-      // including committing the reservations to actual order quantities
-      // and updating the inventory in the database
+      // Create order items from cart
+      const orderItems = cart.map((item, index) => {
+        const product = getProductById(item.productId);
+        return {
+          stt: index + 1,
+          ma_mon: item.productId,
+          ten_mon: product?.name || "",
+          don_vi_tinh: "Cái",
+          so_luong: item.quantity,
+          don_gia: product?.price || 0,
+          thanh_tien: (product?.price || 0) * item.quantity,
+          ghi_chu: ""
+        };
+      });
+
+      // Create order data
+      const orderData = {
+        ma_don: `DH${Date.now()}`,
+        ngay_dat: new Date().toISOString().split("T")[0],
+        ngay_giao: new Date().toISOString().split("T")[0], // Same day delivery for now
+        ten_khach: checkoutInfo.fullName,
+        so_dien_thoai: checkoutInfo.phone,
+        dia_chi: checkoutInfo.address,
+        tong_tien: orderTotal,
+        trang_thai: "Chờ xử lý",
+        trang_thai_thanh_toan: checkoutInfo.paymentMethod === 'cod' ? 'Chưa thanh toán' : 'Đã thanh toán',
+        phuong_thuc_thanh_toan: checkoutInfo.paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : 
+                                checkoutInfo.paymentMethod === 'banking' ? 'Chuyển khoản ngân hàng' : 'MoMo',
+        ghi_chu: `Email: ${checkoutInfo.email}`,
+        id_nguoi_tao: user?.email || userId || "GUEST",
+        thoi_gian_tao: new Date().toISOString(),
+        thoi_gian_cap_nhat: new Date().toISOString(),
+        danh_sach_mon: orderItems
+      };
+
+      // Save order to database
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+      
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json();
+        throw new Error(errorData.message || 'Có lỗi xảy ra khi tạo đơn hàng');
+      }
+      
+      const orderResult = await orderResponse.json();
       
       // Send email confirmation
       await fetch('/api/sendOrderEmail', {
@@ -472,7 +517,8 @@ export default function ProductsPage() {
               };
             }),
             customerInfo: checkoutInfo,
-            total: orderTotal
+            total: orderTotal,
+            orderCode: orderResult.data?.ma_don || orderData.ma_don
           }
         })
       });
@@ -504,20 +550,63 @@ export default function ProductsPage() {
     }
   };
 
-  const handleMomoPayment = async () => {
+  const handleMomoPayment = async (orderId: string): Promise<string | null> => {
     // Validate checkout information
     if (!validateCheckout()) {
-      return;
+      return null;
     }
     
     try {
-      // Generate order ID based on timestamp
-      const momoOrderId = `ORDER_${Date.now()}`;
+      // Use provided orderId or generate one if not provided
+      const momoOrderId = orderId || `ORDER_${Date.now()}`;
       
-      // Create a new order in your database here if needed
-      // Example: await createOrder(momoOrderId, cart, checkoutInfo, orderTotal);
+      // Create order items from cart
+      const orderItems = cart.map((item, index) => {
+        const product = getProductById(item.productId);
+        return {
+          stt: index + 1,
+          ma_mon: item.productId,
+          ten_mon: product?.name || "",
+          don_vi_tinh: "Cái",
+          so_luong: item.quantity,
+          don_gia: product?.price || 0,
+          thanh_tien: (product?.price || 0) * item.quantity,
+          ghi_chu: ""
+        };
+      });
+
+      // Create a new order in the database
+      const orderData = {
+        ma_don: momoOrderId,
+        ngay_dat: new Date().toISOString().split("T")[0],
+        ngay_giao: new Date().toISOString().split("T")[0], // Same day delivery for now
+        ten_khach: checkoutInfo.fullName,
+        so_dien_thoai: checkoutInfo.phone,
+        dia_chi: checkoutInfo.address,
+        tong_tien: orderTotal,
+        trang_thai: "Chờ xử lý",
+        trang_thai_thanh_toan: 'Đang xử lý',
+        phuong_thuc_thanh_toan: 'MoMo',
+        ghi_chu: `Email: ${checkoutInfo.email}`,
+        id_nguoi_tao: user?.email || userId || "GUEST",
+        thoi_gian_tao: new Date().toISOString(),
+        thoi_gian_cap_nhat: new Date().toISOString(),
+        danh_sach_mon: orderItems
+      };
+
+      // Save order to database
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
       
-      // Redirect to MoMo payment
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json();
+        throw new Error(errorData.message || 'Có lỗi xảy ra khi tạo đơn hàng');
+      }
+      
+      // Return the order ID for MoMo payment
       return momoOrderId;
     } catch (error) {
       console.error('Error preparing MoMo payment:', error);
@@ -915,6 +1004,7 @@ export default function ProductsPage() {
                 orderId={`ORDER_${Date.now()}`}
                 orderInfo={`Thanh toán đơn hàng`}
                 className="flex-1"
+                onOrderCreated={handleMomoPayment}
               />
             ) : (
               <Button
