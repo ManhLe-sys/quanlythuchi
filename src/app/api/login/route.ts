@@ -108,8 +108,3 @@ export async function POST(req: Request) {
     );
   }
 }
-
-const isAdmin = () => {
-  if (!user) return false;
-  return user.role.toLowerCase() === 'admin';
-}; 
