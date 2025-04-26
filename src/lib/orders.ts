@@ -339,7 +339,7 @@ export async function getOrders(menuItems: MenuItem[]) {
 
       // Tạo chuỗi sản phẩm để hiển thị
       const sanPham = orderDetail
-        .map(detail => `${detail.ten_mon} (x${detail.so_luong})`)
+        .map((detail: any) => `${detail.ten_mon} (x${detail.so_luong})`)
         .join(', ');
 
       return {
