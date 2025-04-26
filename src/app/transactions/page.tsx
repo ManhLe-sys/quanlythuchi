@@ -118,7 +118,7 @@ export default function TransactionsPage() {
                 setTransactionType("income");
                 setShowAddModal(true);
               }}
-              className="px-6 py-3 bg-white text-[#3E503C] rounded-xl hover:bg-[#3E503C]/10 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
+              className="px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -130,7 +130,7 @@ export default function TransactionsPage() {
                 setTransactionType("expense");
                 setShowAddModal(true);
               }}
-              className="px-6 py-3 bg-white text-[#FF6F3D] rounded-xl hover:bg-[#FF6F3D]/10 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
+              className="px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -232,7 +232,7 @@ export default function TransactionsPage() {
                             setTransactionType("income");
                             setShowAddModal(true);
                           }}
-                          className="px-4 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors"
+                          className="px-4 py-2 text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors"
                         >
                           {translate('them_thu_nhap_btn')}
                         </button>
@@ -241,7 +241,7 @@ export default function TransactionsPage() {
                             setTransactionType("expense");
                             setShowAddModal(true);
                           }}
-                          className="px-4 py-2 bg-[#FF6F3D] text-white rounded-xl hover:bg-[#FF6F3D]/90 transition-colors"
+                          className="px-4 py-2 text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors"
                         >
                           {translate('them_chi_tieu_btn')}
                         </button>

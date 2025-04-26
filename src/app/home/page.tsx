@@ -237,7 +237,7 @@ export default function HomePage() {
               </svg>
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-[#3E503C]">{translate('them_khoan_thu')}</h3>
+              <h3 className="text-xl font-semibold text-gray-700">{translate('them_khoan_thu')}</h3>
               <p className="text-gray-700">{translate('them_thu_nhap')}</p>
             </div>
           </div>
@@ -254,7 +254,7 @@ export default function HomePage() {
               </svg>
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-[#FF6F3D]">{translate('them_khoan_chi')}</h3>
+              <h3 className="text-xl font-semibold text-gray-700">{translate('them_khoan_chi')}</h3>
               <p className="text-gray-700">{translate('them_chi_tieu')}</p>
             </div>
           </div>

@@ -42,6 +42,12 @@ const translations: Record<Language, Record<string, string>> = {
     'vai_tro': 'Vai trò',
     'nguoi_dung': 'Người dùng',
     
+    // Common validation and error messages
+    'vui_long_dien_day_du': 'Vui lòng điền đầy đủ thông tin',
+    'co_loi_xay_ra': 'Có lỗi xảy ra',
+    'loi_them_khoan_thu': 'Có lỗi xảy ra khi thêm khoản thu',
+    'loi_them_khoan_chi': 'Có lỗi xảy ra khi thêm khoản chi',
+    
     // Admin page
     'quan_ly_he_thong': 'Quản Lý Hệ Thống',
     'quan_ly_nguoi_dung': 'Quản Lý Người Dùng',
@@ -212,6 +218,12 @@ const translations: Record<Language, Record<string, string>> = {
     'dang_xuat': 'Logout',
     'vai_tro': 'Role',
     'nguoi_dung': 'User',
+    
+    // Common validation and error messages
+    'vui_long_dien_day_du': 'Please fill in all the required information',
+    'co_loi_xay_ra': 'An error occurred',
+    'loi_them_khoan_thu': 'An error occurred while adding the income',
+    'loi_them_khoan_chi': 'An error occurred while adding the expense',
     
     // Admin page
     'quan_ly_he_thong': 'System Management',

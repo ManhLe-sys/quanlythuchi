@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ProtectedRoute from './ProtectedRoute';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ interface FormData {
 
 export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpenseModalProps) {
   const { user } = useAuth();
+  const { translate } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
@@ -37,7 +39,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
 
     // Validate form
     if (!formData.date || !formData.category || !formData.amount || !formData.description) {
-      setError('Vui lòng điền đầy đủ thông tin');
+      setError(translate('vui_long_dien_day_du'));
       setIsLoading(false);
       return;
     }
@@ -60,7 +62,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Có lỗi xảy ra khi thêm khoản chi');
+        throw new Error(data.error || translate('loi_them_khoan_chi'));
       }
 
       onSuccess();
@@ -73,7 +75,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
         notes: ''
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra');
+      setError(err instanceof Error ? err.message : translate('co_loi_xay_ra'));
     } finally {
       setIsLoading(false);
     }
@@ -92,7 +94,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-700">Thêm Khoản Chi</h2>
+              <h2 className="text-2xl font-bold text-gray-700">{translate('them_khoan_chi')}</h2>
             </div>
             <button
               onClick={onClose}
@@ -106,7 +108,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ngày</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{translate('ngay')}</label>
                 <input
                   type="date"
                   name="date"
@@ -117,7 +119,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Loại Chi Tiêu</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{translate('danh_muc')}</label>
                 <select
                   name="category"
                   value={formData.category}
@@ -125,17 +127,19 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
                   required
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-gray-700"
                 >
-                  <option value="">Chọn loại chi tiêu</option>
-                  <option value="FOOD">Ăn uống</option>
-                  <option value="TRANSPORT">Di chuyển</option>
-                  <option value="SHOPPING">Mua sắm</option>
-                  <option value="BILLS">Hóa đơn</option>
-                  <option value="OTHER">Khác</option>
+                  <option value="">{translate('loai')}</option>
+                  <option value="FOOD">{translate('food')}</option>
+                  <option value="TRANSPORT">{translate('transport')}</option>
+                  <option value="RENT">{translate('rent')}</option>
+                  <option value="UTILITIES">{translate('utilities')}</option>
+                  <option value="ENTERTAINMENT">{translate('entertainment')}</option>
+                  <option value="HEALTH">{translate('health')}</option>
+                  <option value="OTHER">{translate('other')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Số Tiền</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{translate('so_tien')}</label>
               <div className="relative">
                 <span className="absolute left-4 top-2.5 text-gray-500">₫</span>
                 <input
@@ -151,7 +155,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Mô Tả</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{translate('mo_ta')}</label>
               <input
                 type="text"
                 name="description"
@@ -159,18 +163,18 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 required
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                placeholder="Nhập mô tả chi tiết"
+                placeholder={translate('description_placeholder')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Ghi Chú</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{translate('ghi_chu')}</label>
               <textarea
                 name="notes"
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                 rows={3}
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                placeholder="Nhập ghi chú (nếu có)"
+                placeholder={translate('notes_placeholder')}
               />
             </div>
             {error && (
@@ -184,7 +188,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
                 onClick={onClose}
                 className="px-6 py-2.5 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors duration-200"
               >
-                Hủy
+                {translate('huy')}
               </button>
               <button
                 type="submit"
@@ -197,14 +201,14 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>Đang xử lý...</span>
+                    <span>{translate('processing')}</span>
                   </>
                 ) : (
                   <>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Lưu</span>
+                    <span>{translate('luu')}</span>
                   </>
                 )}
               </button>
