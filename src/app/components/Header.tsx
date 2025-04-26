@@ -4,10 +4,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Header() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { language, setLanguage, translate } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Helper function to determine if a menu item should be shown based on user role
@@ -31,6 +33,11 @@ export default function Header() {
     return true; // Default fallback
   };
 
+  // Toggle language function
+  const toggleLanguage = () => {
+    setLanguage(language === 'vi' ? 'en' : 'vi');
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-xl shadow-sm">
       <div className="container mx-auto px-4 py-3">
@@ -43,7 +50,7 @@ export default function Header() {
               </svg>
             </div>
             <div className="font-bold text-lg text-gray-700">
-              Quản Lý Thu Chi
+              {translate('app_name')}
             </div>
           </Link>
 
@@ -56,7 +63,7 @@ export default function Header() {
                   pathname === '/home' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
                 }`}
               >
-                Thu Chi
+                {translate('thu_chi')}
               </Link>
             )}
             
@@ -67,7 +74,7 @@ export default function Header() {
                   pathname === '/transactions' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
                 }`}
               >
-                Giao Dịch
+                {translate('giao_dich')}
               </Link>
             )}
             
@@ -78,7 +85,7 @@ export default function Header() {
                   pathname === '/reports' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
                 }`}
               >
-                Báo Cáo
+                {translate('bao_cao')}
               </Link>
             )}
             
@@ -89,7 +96,7 @@ export default function Header() {
                   pathname === '/products' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
                 }`}
               >
-                Sản Phẩm
+                {translate('san_pham')}
               </Link>
             )}
             
@@ -100,7 +107,7 @@ export default function Header() {
                   pathname === '/orders' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
                 }`}
               >
-                Đơn Hàng
+                {translate('don_hang')}
               </Link>
             )}
 
@@ -111,13 +118,24 @@ export default function Header() {
                   pathname === '/admin' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
                 }`}
               >
-                Quản Lý
+                {translate('quan_ly')}
               </Link>
             )}
           </nav>
 
-          {/* User Menu or Login Button */}
+          {/* User Menu or Login Button and Language Switcher */}
           <div className="flex items-center gap-2">
+            {/* Language Switcher */}
+            <button 
+              onClick={toggleLanguage}
+              className="px-3 py-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center gap-1"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+              </svg>
+              <span className="font-medium">{language.toUpperCase()}</span>
+            </button>
+
             {user ? (
               <div className="relative group">
                 <button className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-all">
@@ -129,7 +147,7 @@ export default function Header() {
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 hidden group-hover:block">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <p className="text-sm font-medium text-gray-700">{user.email}</p>
-                    <p className="text-xs text-gray-500 mt-1">Vai trò: {user.role || 'Người dùng'}</p>
+                    <p className="text-xs text-gray-500 mt-1">{translate('vai_tro')}: {user.role || translate('nguoi_dung')}</p>
                   </div>
                   <button 
                     onClick={logout}
@@ -138,7 +156,7 @@ export default function Header() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
-                    <span>Đăng Xuất</span>
+                    <span>{translate('dang_xuat')}</span>
                   </button>
                 </div>
               </div>
@@ -150,7 +168,7 @@ export default function Header() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                 </svg>
-                <span>Đăng Nhập</span>
+                <span>{translate('dang_nhap')}</span>
               </Link>
             )}
           </div>
@@ -182,7 +200,7 @@ export default function Header() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Thu Chi
+                  {translate('thu_chi')}
                 </Link>
               )}
               
@@ -194,7 +212,7 @@ export default function Header() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Giao Dịch
+                  {translate('giao_dich')}
                 </Link>
               )}
               
@@ -206,7 +224,7 @@ export default function Header() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Báo Cáo
+                  {translate('bao_cao')}
                 </Link>
               )}
               
@@ -218,7 +236,7 @@ export default function Header() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Sản Phẩm
+                  {translate('san_pham')}
                 </Link>
               )}
               
@@ -230,7 +248,7 @@ export default function Header() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Đơn Hàng
+                  {translate('don_hang')}
                 </Link>
               )}
               
@@ -242,9 +260,20 @@ export default function Header() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Quản Lý
+                  {translate('quan_ly')}
                 </Link>
               )}
+
+              {/* Mobile Language Switcher */}
+              <button 
+                onClick={toggleLanguage}
+                className="mt-2 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                </svg>
+                <span className="font-medium">{language === 'vi' ? 'Tiếng Việt' : 'English'}</span>
+              </button>
             </nav>
           </div>
         )}

@@ -16,6 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Product {
   id: string;
@@ -66,6 +67,7 @@ export default function ProductsPage() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { translate, language } = useLanguage();
 
   // Import MomoPaymentButton
   const MomoPaymentButton = dynamic(() => import('@/components/MomoPaymentButton'), { ssr: false });
@@ -99,7 +101,7 @@ export default function ProductsPage() {
       const response = await fetch('/api/menu/getItems');
       
       if (!response.ok) {
-        throw new Error('Có lỗi xảy ra khi tải dữ liệu');
+        throw new Error(translate('loi_tai_du_lieu') || 'Có lỗi xảy ra khi tải dữ liệu');
       }
       
       const data = await response.json();
@@ -127,14 +129,14 @@ export default function ProductsPage() {
         setError(null);
       } else {
         setProducts([]);
-        setError('Không có dữ liệu sản phẩm');
+        setError(translate('khong_co_du_lieu_san_pham') || 'Không có dữ liệu sản phẩm');
       }
     } catch (error) {
       console.error('Error fetching products:', error);
-      setError('Không thể tải danh sách sản phẩm');
+      setError(translate('khong_the_tai_ds_sp') || 'Không thể tải danh sách sản phẩm');
       toast({
-        title: "Lỗi",
-        description: "Không thể tải danh sách sản phẩm",
+        title: translate('loi') || "Lỗi",
+        description: translate('khong_the_tai_ds_sp') || "Không thể tải danh sách sản phẩm",
         variant: "destructive"
       });
     } finally {
@@ -644,19 +646,19 @@ export default function ProductsPage() {
       {/* Fixed Cart Button */}
       <button 
         onClick={() => setIsCartOpen(true)}
-        className="fixed top-24 right-6 z-30 bg-[#3E503C] text-white p-3 rounded-full shadow-lg hover:bg-[#7F886A] transition-all group"
+        className="fixed top-24 right-6 z-30 bg-white text-gray-700 p-3 rounded-full shadow-lg hover:bg-gray-50 transition-all group border border-gray-200"
       >
         <div className="relative">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           {cart.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+            <span className="absolute -top-2 -right-2 bg-white text-gray-700 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border border-gray-200">
               {cart.reduce((sum, item) => sum + item.quantity, 0)}
             </span>
           )}
         </div>
-        <span className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 bg-white text-[#3E503C] px-2 py-1 rounded text-sm font-medium shadow-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">
+        <span className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 bg-white text-gray-700 px-2 py-1 rounded text-sm font-medium shadow-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap border border-gray-200">
           Giỏ hàng của bạn
         </span>
       </button>
@@ -666,15 +668,15 @@ export default function ProductsPage() {
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Sản Phẩm</h1>
+            <h1 className="text-4xl font-bold text-white mb-2">{translate('san_pham')}</h1>
             <p className="text-white/80">
-              Khám phá danh sách sản phẩm của chúng tôi
+              {translate('san_pham_desc')}
             </p>
           </div>
           <div className="relative w-full md:w-1/3">
             <input
               type="text"
-              placeholder="Tìm kiếm sản phẩm..."
+              placeholder={`${translate('tim_kiem')}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-5 py-3 pl-12 rounded-xl bg-white/80 backdrop-blur-sm border-transparent focus:border-white focus:ring-2 focus:ring-white transition-all duration-300 shadow-sm"
@@ -695,11 +697,11 @@ export default function ProductsPage() {
             onClick={() => setActiveCategory(null)}
             className={`px-4 py-2 rounded-xl font-medium transition-all ${
               activeCategory === null
-                ? 'bg-[#3E503C] text-white shadow-md'
+                ? 'bg-white/90 text-[#3E503C] shadow-md'
                 : 'bg-white text-gray-700 hover:bg-gray-100'
             }`}
           >
-            Tất cả
+            {translate('tat_ca')}
           </button>
           {categories.map((category) => (
             <button
@@ -707,7 +709,7 @@ export default function ProductsPage() {
               onClick={() => setActiveCategory(category)}
               className={`px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap ${
                 activeCategory === category
-                  ? 'bg-[#3E503C] text-white shadow-md'
+                  ? 'bg-white/90 text-[#3E503C] shadow-md'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
               }`}
             >
@@ -721,23 +723,19 @@ export default function ProductsPage() {
       <Dialog open={isCartOpen} onOpenChange={setIsCartOpen}>
         <DialogContent className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-xl border-0 max-w-3xl w-full">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-[#3E503C]">Giỏ hàng của bạn</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-gray-700">
+              {translate('gio_hang') || 'Giỏ Hàng'}
+            </DialogTitle>
           </DialogHeader>
           
           {cart.length === 0 ? (
-            <div className="py-12 text-center">
-              <div className="h-24 w-24 text-gray-400 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Giỏ hàng trống</h3>
-              <p className="text-gray-500 mb-6">Bạn chưa thêm sản phẩm nào vào giỏ hàng</p>
+            <div className="py-8 text-center">
+              <p className="text-gray-700 mb-4">{translate('gio_hang_trong') || 'Giỏ hàng của bạn đang trống'}</p>
               <Button 
-                onClick={() => setIsCartOpen(false)}
-                className="px-6 py-3 bg-[#7F886A] text-white rounded-xl hover:bg-[#3E503C] transition-all duration-200"
+                onClick={() => setIsCartOpen(false)} 
+                className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200"
               >
-                Tiếp tục mua sắm
+                {translate('tiep_tuc_mua_hang') || 'Tiếp tục mua hàng'}
               </Button>
             </div>
           ) : (
@@ -758,17 +756,17 @@ export default function ProductsPage() {
                       </div>
                       <div className="flex-1">
                         <h4 className="text-lg font-medium text-gray-700">{product.name}</h4>
-                        <p className="text-[#3E503C] font-semibold">
-                          {new Intl.NumberFormat('vi-VN', {
+                        <p className="text-gray-700 font-semibold">
+                          {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
                             style: 'currency',
-                            currency: 'VND'
+                            currency: language === 'en' ? 'USD' : 'VND'
                           }).format(product.price)}
                         </p>
-                        <p className="text-sm text-gray-500">
-                          Còn lại: {product.quantity} {product.actualAvailable !== undefined && (
+                        <p className="text-sm text-gray-700">
+                          {translate('con_lai') || 'Còn lại'}: {product.quantity} {product.actualAvailable !== undefined && (
                             product.actualAvailable === 1 ? 
-                            <span className="text-amber-600 font-medium">(Chỉ còn 1 có sẵn)</span> : 
-                            `(${product.actualAvailable} có sẵn)`
+                            <span className="text-gray-700 font-medium">({translate('chi_con_1') || 'Chỉ còn 1 có sẵn'})</span> : 
+                            `(${product.actualAvailable} ${translate('co_san') || 'có sẵn'})`
                           )}
                         </p>
                       </div>
@@ -777,7 +775,7 @@ export default function ProductsPage() {
                           variant="outline"
                           size="icon"
                           onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                          className="h-8 w-8 rounded-full"
+                          className="h-8 w-8 rounded-full bg-white text-gray-700 border-gray-300"
                         >
                           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
@@ -789,13 +787,13 @@ export default function ProductsPage() {
                           max={product.quantity}
                           value={item.quantity}
                           onChange={(e) => updateQuantity(item.productId, parseInt(e.target.value) || 1)}
-                          className="w-14 text-center h-8 rounded-lg"
+                          className="w-14 text-center h-8 rounded-lg text-gray-700"
                         />
                         <Button
                           variant="outline"
                           size="icon"
                           onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          className="h-8 w-8 rounded-full"
+                          className="h-8 w-8 rounded-full bg-white text-gray-700 border-gray-300"
                           disabled={product.actualAvailable !== undefined 
                             ? item.quantity >= (product.actualAvailable + item.quantity)
                             : item.quantity >= product.quantity}
@@ -806,10 +804,10 @@ export default function ProductsPage() {
                         </Button>
                       </div>
                       <div className="text-right min-w-[100px]">
-                        <p className="font-bold text-[#3E503C]">
-                          {new Intl.NumberFormat('vi-VN', {
+                        <p className="font-bold text-gray-700">
+                          {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
                             style: 'currency',
-                            currency: 'VND'
+                            currency: language === 'en' ? 'USD' : 'VND'
                           }).format(product.price * item.quantity)}
                         </p>
                       </div>
@@ -818,33 +816,32 @@ export default function ProductsPage() {
                 })}
               </div>
               
-              <div className="border-t border-gray-100 pt-4">
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-700">Tổng tiền:</span>
-                  <span className="text-xl font-bold text-[#3E503C]">
-                    {new Intl.NumberFormat('vi-VN', {
+              <div className="mt-6 space-y-4">
+                <div className="flex justify-between text-lg font-semibold">
+                  <span className="text-gray-700">{translate('tong_cong') || 'Tổng cộng'}:</span>
+                  <span className="text-gray-700">
+                    {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
                       style: 'currency',
-                      currency: 'VND'
+                      currency: language === 'en' ? 'USD' : 'VND'
                     }).format(calculateTotal())}
                   </span>
                 </div>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => setIsCartOpen(false)} 
+                    variant="outline" 
+                    className="flex-1 bg-white text-gray-700 border-gray-300"
+                  >
+                    {translate('tiep_tuc_mua_hang') || 'Tiếp tục mua hàng'}
+                  </Button>
+                  <Button 
+                    onClick={placeOrder} 
+                    className="flex-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
+                  >
+                    {translate('thanh_toan') || 'Thanh toán'}
+                  </Button>
+                </div>
               </div>
-              
-              <DialogFooter className="flex space-x-4 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsCartOpen(false)}
-                  className="rounded-xl flex-1 hover:bg-gray-50"
-                >
-                  Tiếp tục mua sắm
-                </Button>
-                <Button
-                  onClick={placeOrder}
-                  className="rounded-xl flex-1 bg-[#7F886A] hover:bg-[#3E503C] text-white transition-colors"
-                >
-                  Đặt hàng ngay
-                </Button>
-              </DialogFooter>
             </>
           )}
         </DialogContent>
@@ -854,7 +851,7 @@ export default function ProductsPage() {
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
         <DialogContent className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-xl border-0 max-w-3xl w-full">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-[#3E503C]">Thông tin đặt hàng</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-gray-700">Thông tin đặt hàng</DialogTitle>
           </DialogHeader>
           
           <div className="py-4 max-h-[70vh] overflow-y-auto">
@@ -984,7 +981,7 @@ export default function ProductsPage() {
               <div className="border-t border-gray-100 pt-4 mt-2">
                 <div className="flex justify-between items-center py-2">
                   <span className="text-lg font-medium text-gray-700">Tổng thanh toán:</span>
-                  <span className="text-xl font-bold text-[#3E503C]">
+                  <span className="text-xl font-bold text-gray-700">
                     {new Intl.NumberFormat('vi-VN', {
                       style: 'currency',
                       currency: 'VND'
@@ -1008,7 +1005,7 @@ export default function ProductsPage() {
                 setIsCheckoutOpen(false);
                 setIsCartOpen(true);
               }}
-              className="rounded-xl flex-1 hover:bg-gray-50"
+              className="rounded-xl flex-1 bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
             >
               Quay lại giỏ hàng
             </Button>
@@ -1024,7 +1021,7 @@ export default function ProductsPage() {
             ) : (
               <Button
                 onClick={submitOrder}
-                className="rounded-xl flex-1 bg-[#7F886A] hover:bg-[#3E503C] text-white transition-colors"
+                className="rounded-xl flex-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 transition-colors"
               >
                 Xác nhận đặt hàng
               </Button>
@@ -1058,8 +1055,8 @@ export default function ProductsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 className="text-xl font-medium text-gray-600 mb-1">Không tìm thấy sản phẩm</h3>
-          <p className="text-gray-500">Không có sản phẩm phù hợp với tìm kiếm của bạn.</p>
+          <h3 className="text-xl font-medium text-gray-600 mb-1">{translate('khong_tim_thay_sp')}</h3>
+          <p className="text-gray-500">{translate('thu_tim_kiem_khac')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
@@ -1079,23 +1076,23 @@ export default function ProductsPage() {
               <div className="p-4 sm:p-5 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-lg sm:text-xl font-semibold text-gray-700 line-clamp-2">{product.name}</h3>
-                  <span className="px-2 py-1 bg-[#3E503C]/10 text-[#3E503C] text-xs font-medium rounded-md ml-2 flex-shrink-0">
+                  <span className="px-2 py-1 bg-white text-gray-700 text-xs font-medium rounded-md ml-2 flex-shrink-0 border border-gray-200">
                     {product.category}
                   </span>
                 </div>
                 <p className="text-gray-700 text-sm line-clamp-2 mb-3">{product.description}</p>
                 <p className="text-gray-700 text-sm mb-2">
-                  Còn lại: {product.quantity} {product.actualAvailable !== undefined && (
+                  {translate('con_lai') || 'Còn lại'}: {product.quantity} {product.actualAvailable !== undefined && (
                     product.actualAvailable === 1 ? 
-                    <span className="text-amber-600 font-medium">(Chỉ còn 1 có sẵn)</span> : 
-                    `(${product.actualAvailable} có sẵn)`
+                    <span className="text-gray-700 font-medium">({translate('chi_con_1') || 'Chỉ còn 1 có sẵn'})</span> : 
+                    `(${product.actualAvailable} ${translate('co_san') || 'có sẵn'})`
                   )}
                 </p>
                 <div className="flex justify-between items-center mt-auto">
-                  <span className="text-lg sm:text-xl font-bold text-[#3E503C]">
-                    {new Intl.NumberFormat('vi-VN', {
+                  <span className="text-lg sm:text-xl font-bold text-gray-700">
+                    {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
                       style: 'currency',
-                      currency: 'VND'
+                      currency: language === 'en' ? 'USD' : 'VND'
                     }).format(product.price)}
                   </span>
                   <div className="flex gap-1 sm:gap-2">
@@ -1104,10 +1101,10 @@ export default function ProductsPage() {
                       disabled={!product.isAvailable || 
                                 product.quantity === 0 || 
                                 (product.actualAvailable !== undefined && product.actualAvailable < 1)}
-                      className="p-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors text-sm font-medium"
-                      title={!product.isAvailable ? "Sản phẩm không có sẵn" :
-                             product.quantity === 0 ? "Hết hàng" :
-                             (product.actualAvailable !== undefined && product.actualAvailable < 1) ? "Hết hàng" : "Thêm vào giỏ hàng"}
+                      className="p-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 border border-gray-300 transition-colors text-sm font-medium"
+                      title={!product.isAvailable ? translate('sp_ko_san_sang') || "Sản phẩm không có sẵn" :
+                             product.quantity === 0 ? translate('het_hang') || "Hết hàng" :
+                             (product.actualAvailable !== undefined && product.actualAvailable < 1) ? translate('het_hang') || "Hết hàng" : translate('them_vao_gio') || "Thêm vào giỏ hàng"}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -1121,12 +1118,12 @@ export default function ProductsPage() {
                       disabled={!product.isAvailable || 
                                 product.quantity === 0 || 
                                 (product.actualAvailable !== undefined && product.actualAvailable < 1)}
-                      className="px-2 py-2 bg-[#7F886A] text-white rounded-xl hover:bg-[#3E503C] transition-colors text-sm font-medium whitespace-nowrap"
-                      title={!product.isAvailable ? "Sản phẩm không có sẵn" :
-                             product.quantity === 0 ? "Hết hàng" :
-                             (product.actualAvailable !== undefined && product.actualAvailable < 1) ? "Hết hàng" : "Mua ngay"}
+                      className="px-2 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 border border-gray-300 transition-colors text-sm font-medium whitespace-nowrap"
+                      title={!product.isAvailable ? translate('sp_ko_san_sang') || "Sản phẩm không có sẵn" :
+                             product.quantity === 0 ? translate('het_hang') || "Hết hàng" :
+                             (product.actualAvailable !== undefined && product.actualAvailable < 1) ? translate('het_hang') || "Hết hàng" : translate('mua_ngay') || "Mua ngay"}
                     >
-                      Mua ngay
+                      {translate('mua_ngay') || 'Mua ngay'}
                     </Button>
                   </div>
                 </div>

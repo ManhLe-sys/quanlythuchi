@@ -5,6 +5,7 @@ import AddIncomeModal from '../components/AddIncomeModal';
 import AddExpenseModal from '../components/AddExpenseModal';
 import { RecentTransactions } from '../components/RecentTransactions';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function HomePage() {
   const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
@@ -18,6 +19,7 @@ export default function HomePage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+  const { translate, language } = useLanguage();
 
   const fetchSummary = async () => {
     if (!user?.fullName) return;
@@ -109,11 +111,10 @@ export default function HomePage() {
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">
-              <span>Quản Lý</span>{" "}
-              <span>Thu Chi</span>
+              {translate('quan_ly_thu_chi')}
             </h1>
             <p className="text-white/80">
-              Theo dõi và quản lý thu chi của bạn một cách hiệu quả
+              {translate('theo_doi_thu_chi')}
             </p>
           </div>
           <div className="flex gap-2">
@@ -125,7 +126,7 @@ export default function HomePage() {
                   : 'bg-white/10 text-white hover:bg-white/20'
               }`}
             >
-              Ngày
+              {translate('ngay')}
             </button>
             <button
               onClick={() => setSelectedPeriod("week")}
@@ -135,7 +136,7 @@ export default function HomePage() {
                   : 'bg-white/10 text-white hover:bg-white/20'
               }`}
             >
-              Tuần
+              {translate('tuan')}
             </button>
             <button
               onClick={() => setSelectedPeriod("month")}
@@ -145,7 +146,7 @@ export default function HomePage() {
                   : 'bg-white/10 text-white hover:bg-white/20'
               }`}
             >
-              Tháng
+              {translate('thang')}
             </button>
           </div>
         </div>
@@ -155,7 +156,7 @@ export default function HomePage() {
         {/* Summary Cards */}
         <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-[#3E503C]">Tổng Thu</h3>
+            <h3 className="text-lg font-semibold text-[#3E503C]">{translate('tong_thu')}</h3>
             <div className="p-3 bg-[#3E503C]/10 rounded-full">
               <svg className="w-6 h-6 text-[#3E503C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -168,9 +169,9 @@ export default function HomePage() {
             </div>
           ) : (
             <p className="text-3xl font-bold text-[#3E503C]">
-              {new Intl.NumberFormat('vi-VN', {
+              {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                 style: 'currency',
-                currency: 'VND'
+                currency: language === 'vi' ? 'VND' : 'USD'
               }).format(summary.totalIncome)}
             </p>
           )}
@@ -178,7 +179,7 @@ export default function HomePage() {
 
         <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-[#3E503C]">Tổng Chi</h3>
+            <h3 className="text-lg font-semibold text-[#3E503C]">{translate('tong_chi')}</h3>
             <div className="p-3 bg-[#FF6F3D]/10 rounded-full">
               <svg className="w-6 h-6 text-[#FF6F3D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -191,9 +192,9 @@ export default function HomePage() {
             </div>
           ) : (
             <p className="text-3xl font-bold text-[#FF6F3D]">
-              {new Intl.NumberFormat('vi-VN', {
+              {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                 style: 'currency',
-                currency: 'VND'
+                currency: language === 'vi' ? 'VND' : 'USD'
               }).format(summary.totalExpense)}
             </p>
           )}
@@ -201,7 +202,7 @@ export default function HomePage() {
 
         <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-[#3E503C]">Số Dư</h3>
+            <h3 className="text-lg font-semibold text-[#3E503C]">{translate('so_du')}</h3>
             <div className="p-3 bg-[#4C94F6]/10 rounded-full">
               <svg className="w-6 h-6 text-[#4C94F6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
@@ -214,9 +215,9 @@ export default function HomePage() {
             </div>
           ) : (
             <p className={`text-3xl font-bold ${summary.balance >= 0 ? 'text-[#4C94F6]' : 'text-[#FF6F3D]'}`}>
-              {new Intl.NumberFormat('vi-VN', {
+              {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                 style: 'currency',
-                currency: 'VND'
+                currency: language === 'vi' ? 'VND' : 'USD'
               }).format(summary.balance)}
             </p>
           )}
@@ -236,8 +237,8 @@ export default function HomePage() {
               </svg>
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-[#3E503C]">Thêm Khoản Thu</h3>
-              <p className="text-gray-500">Thêm thu nhập, tiền lương, thưởng, v.v.</p>
+              <h3 className="text-xl font-semibold text-[#3E503C]">{translate('them_khoan_thu')}</h3>
+              <p className="text-gray-700">{translate('them_thu_nhap')}</p>
             </div>
           </div>
         </button>
@@ -253,8 +254,8 @@ export default function HomePage() {
               </svg>
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-[#FF6F3D]">Thêm Khoản Chi</h3>
-              <p className="text-gray-500">Thêm chi tiêu, hóa đơn, mua sắm, v.v.</p>
+              <h3 className="text-xl font-semibold text-[#FF6F3D]">{translate('them_khoan_chi')}</h3>
+              <p className="text-gray-700">{translate('them_chi_tieu')}</p>
             </div>
           </div>
         </button>
@@ -263,7 +264,7 @@ export default function HomePage() {
       {/* Recent Transactions */}
       <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-700">Giao Dịch Gần Đây</h2>
+          <h2 className="text-2xl font-bold text-gray-700">{translate('giao_dich_gan_day')}</h2>
         </div>
         <RecentTransactions refreshTrigger={refreshTrigger} />
       </div>

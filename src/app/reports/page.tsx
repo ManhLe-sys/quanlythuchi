@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/app/context/AuthContext";
+import { useLanguage } from "@/app/contexts/LanguageContext";
 import DateRangePicker from "../components/DateRangePicker";
 import {
   LineChart,
@@ -67,6 +68,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d'
 
 export default function ReportsPage() {
   const { user } = useAuth();
+  const { translate, language } = useLanguage();
   const [timeRange, setTimeRange] = useState<"day" | "week" | "month" | "year">("month");
   const [dateRange, setDateRange] = useState({
     startDate: '',
@@ -370,7 +372,7 @@ export default function ReportsPage() {
       // Add title - use simplified text without accents for better compatibility
       pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Bao Cao Thu Chi', 14, 22, textOptions);
+      pdf.text(translate('bao_cao'), 14, 22, textOptions);
       
       // Add date range - simplify text
       pdf.setFontSize(12);
@@ -384,19 +386,19 @@ export default function ReportsPage() {
       
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(`Tong Thu Nhap: ${new Intl.NumberFormat('vi-VN', {
+      pdf.text(`Tong Thu Nhap: ${new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
         style: 'currency',
-        currency: 'VND'
+        currency: language === 'vi' ? 'VND' : 'USD'
       }).format(summary.totalIncome)}`, 14, 48, textOptions);
       
-      pdf.text(`Tong Chi Tieu: ${new Intl.NumberFormat('vi-VN', {
+      pdf.text(`Tong Chi Tieu: ${new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
         style: 'currency',
-        currency: 'VND'
+        currency: language === 'vi' ? 'VND' : 'USD'
       }).format(summary.totalExpense)}`, 14, 56, textOptions);
       
-      pdf.text(`So Du: ${new Intl.NumberFormat('vi-VN', {
+      pdf.text(`So Du: ${new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
         style: 'currency',
-        currency: 'VND'
+        currency: language === 'vi' ? 'VND' : 'USD'
       }).format(summary.balance)}`, 14, 64, textOptions);
       
       // Add transactions table - using plain ASCII characters for headers
@@ -406,9 +408,9 @@ export default function ReportsPage() {
         item.type === 'Thu' ? 'Thu' : 'Chi',
         item.category,
         item.description,
-        new Intl.NumberFormat('vi-VN', {
+        new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
           style: 'currency',
-          currency: 'VND'
+          currency: language === 'vi' ? 'VND' : 'USD'
         }).format(item.amount)
       ]);
 
@@ -437,7 +439,7 @@ export default function ReportsPage() {
         // Add title for order report
         orderPdf.setFontSize(18);
         orderPdf.setFont('helvetica', 'bold');
-        orderPdf.text('Bao Cao Don Hang', 14, 22, textOptions);
+        orderPdf.text(translate('bao_cao_don_hang'), 14, 22, textOptions);
         
         // Add date range
         orderPdf.setFontSize(12);
@@ -453,9 +455,9 @@ export default function ReportsPage() {
         orderPdf.setFont('helvetica', 'normal');
         orderPdf.text(`Tong So Don Hang: ${summary.totalOrders}`, 14, 48, textOptions);
         
-        orderPdf.text(`Tong Gia Tri Don Hang: ${new Intl.NumberFormat('vi-VN', {
+        orderPdf.text(`Tong Gia Tri Don Hang: ${new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
           style: 'currency',
-          currency: 'VND'
+          currency: language === 'vi' ? 'VND' : 'USD'
         }).format(summary.totalOrderValue)}`, 14, 56, textOptions);
         
         // Add orders table - simplify column names
@@ -463,9 +465,9 @@ export default function ReportsPage() {
         const orderTableRows = summary.orders.map(item => [
           item.ma_don,
           new Date(item.ngay_dat).toLocaleDateString('vi-VN'),
-          new Intl.NumberFormat('vi-VN', {
+          new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
             style: 'currency',
-            currency: 'VND'
+            currency: language === 'vi' ? 'VND' : 'USD'
           }).format(item.tong_tien),
           item.trang_thai,
           item.trang_thai_thanh_toan
@@ -571,7 +573,7 @@ export default function ReportsPage() {
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Báo Cáo Thu Chi</h1>
+            <h1 className="text-4xl font-bold text-white mb-2">{translate('bao_cao')}</h1>
             <p className="text-white/80">
               Thống kê chi tiết thu chi theo thời gian và danh mục
             </p>
@@ -583,10 +585,10 @@ export default function ReportsPage() {
                 onChange={(e) => setTimeRange(e.target.value as "day" | "week" | "month" | "year")}
                 className="w-full md:w-auto pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200 cursor-pointer appearance-none text-gray-700 font-medium shadow-sm hover:shadow-md"
               >
-                <option value="day">Hôm nay</option>
-                <option value="week">Tuần này</option>
-                <option value="month">Tháng này</option>
-                <option value="year">Năm nay</option>
+                <option value="day">{translate('ngay')}</option>
+                <option value="week">{translate('tuan')}</option>
+                <option value="month">{translate('thang')}</option>
+                <option value="year">{translate('nam')}</option>
               </select>
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -646,7 +648,7 @@ export default function ReportsPage() {
             activeReport === "transactions" ? 'bg-[#3E503C]/10 text-[#3E503C] font-semibold' : 'hover:bg-gray-100'
           }`}
         >
-          Báo Cáo Thu Chi
+          {translate('bao_cao_thu_chi')}
         </button>
         <button
           onClick={() => setActiveReport("orders")}
@@ -654,7 +656,7 @@ export default function ReportsPage() {
             activeReport === "orders" ? 'bg-[#3E503C]/10 text-[#3E503C] font-semibold' : 'hover:bg-gray-100'
           }`}
         >
-          Báo Cáo Đơn Hàng
+          {translate('bao_cao_don_hang')}
         </button>
       </div>
 
@@ -668,11 +670,11 @@ export default function ReportsPage() {
               <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Tổng Thu Nhập</p>
+                    <p className="text-sm font-medium text-gray-700">{translate('tong_thu_nhap')}</p>
                     <p className="text-2xl font-bold text-green-600 mt-1">
-                      {new Intl.NumberFormat('vi-VN', {
+                      {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                         style: 'currency',
-                        currency: 'VND'
+                        currency: language === 'vi' ? 'VND' : 'USD'
                       }).format(summary.totalIncome)}
                     </p>
                   </div>
@@ -688,11 +690,11 @@ export default function ReportsPage() {
               <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Tổng Chi Tiêu</p>
+                    <p className="text-sm font-medium text-gray-700">{translate('tong_chi_tieu')}</p>
                     <p className="text-2xl font-bold text-red-600 mt-1">
-                      {new Intl.NumberFormat('vi-VN', {
+                      {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                         style: 'currency',
-                        currency: 'VND'
+                        currency: language === 'vi' ? 'VND' : 'USD'
                       }).format(summary.totalExpense)}
                     </p>
                   </div>
@@ -708,11 +710,11 @@ export default function ReportsPage() {
               <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-[#3E503C]">Số Dư</p>
+                    <p className="text-sm font-medium text-gray-700">{translate('so_du')}</p>
                     <p className={`text-2xl font-bold mt-1 ${summary.balance >= 0 ? 'text-[#3E503C]' : 'text-[#FF6F3D]'}`}>
-                      {new Intl.NumberFormat('vi-VN', {
+                      {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                         style: 'currency',
-                        currency: 'VND'
+                        currency: language === 'vi' ? 'VND' : 'USD'
                       }).format(summary.balance)}
                     </p>
                   </div>
@@ -729,7 +731,7 @@ export default function ReportsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               {/* Time-based Chart */}
               <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold mb-6">Biểu Đồ Thu Chi Theo Thời Gian</h3>
+                <h3 className="text-lg font-semibold mb-6">{translate('bieu_do_thu_chi_thoi_gian')}</h3>
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={timeChartData()}>
@@ -743,6 +745,10 @@ export default function ReportsPage() {
                           border: '1px solid #E5E7EB',
                           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                         }}
+                        formatter={(value: any) => new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+                          style: 'currency',
+                          currency: language === 'vi' ? 'VND' : 'USD'
+                        }).format(Number(value))}
                       />
                       <Legend />
                       <Line type="monotone" dataKey="Thu" stroke="#10B981" strokeWidth={2} dot={{ fill: '#10B981' }} />
@@ -754,7 +760,7 @@ export default function ReportsPage() {
 
               {/* Category-based Chart */}
               <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold mb-6">Biểu Đồ Chi Tiêu Theo Danh Mục</h3>
+                <h3 className="text-lg font-semibold mb-6">{translate('bieu_do_chi_tieu_danh_muc')}</h3>
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -779,9 +785,9 @@ export default function ReportsPage() {
                           border: '1px solid #E5E7EB',
                           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                         }}
-                        formatter={(value: any) => new Intl.NumberFormat('vi-VN', {
+                        formatter={(value: any) => new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                           style: 'currency',
-                          currency: 'VND'
+                          currency: language === 'vi' ? 'VND' : 'USD'
                         }).format(Number(value))}
                       />
                     </PieChart>
@@ -798,7 +804,7 @@ export default function ReportsPage() {
               <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Tổng Số Đơn Hàng</p>
+                    <p className="text-sm font-medium text-gray-700">{translate('tong_so_don_hang')}</p>
                     <p className="text-2xl font-bold text-[#3E503C] mt-1">
                       {summary.totalOrders}
                     </p>
@@ -815,11 +821,11 @@ export default function ReportsPage() {
               <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Tổng Giá Trị Đơn Hàng</p>
+                    <p className="text-sm font-medium text-gray-700">{translate('tong_gia_tri_don_hang')}</p>
                     <p className="text-2xl font-bold text-[#3E503C] mt-1">
-                      {new Intl.NumberFormat('vi-VN', {
+                      {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                         style: 'currency',
-                        currency: 'VND'
+                        currency: language === 'vi' ? 'VND' : 'USD'
                       }).format(summary.totalOrderValue)}
                     </p>
                   </div>
@@ -836,7 +842,7 @@ export default function ReportsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               {/* Orders by Date Chart */}
               <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold mb-6">Doanh Thu Theo Thời Gian</h3>
+                <h3 className="text-lg font-semibold mb-6">{translate('doanh_thu_thoi_gian')}</h3>
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={ordersByDateData()}>
@@ -850,9 +856,9 @@ export default function ReportsPage() {
                           border: '1px solid #E5E7EB',
                           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                         }}
-                        formatter={(value: any) => new Intl.NumberFormat('vi-VN', {
+                        formatter={(value: any) => new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                           style: 'currency',
-                          currency: 'VND'
+                          currency: language === 'vi' ? 'VND' : 'USD'
                         }).format(Number(value))}
                       />
                       <Bar dataKey="value" fill="#3E503C" />
@@ -863,7 +869,7 @@ export default function ReportsPage() {
 
               {/* Top Products Chart - REPLACED */}
               <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold mb-6">Phân Tích Theo Trạng Thái Đơn Hàng</h3>
+                <h3 className="text-lg font-semibold mb-6">{translate('phan_tich_trang_thai')}</h3>
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -879,10 +885,10 @@ export default function ReportsPage() {
                       >
                         {ordersByStatusData().map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={
-                            entry.name === 'Hoàn thành' ? '#10B981' : 
-                            entry.name === 'Đang xử lý' ? '#FFBB28' : 
-                            entry.name === 'Chờ xử lý' ? '#0088FE' : 
-                            entry.name === 'Đã hủy' ? '#FF8042' : 
+                            entry.name === translate('hoan_thanh') ? '#10B981' : 
+                            entry.name === translate('dang_xu_ly') ? '#FFBB28' : 
+                            entry.name === translate('cho_xu_ly') ? '#0088FE' : 
+                            entry.name === translate('da_huy') ? '#FF8042' : 
                             COLORS[index % COLORS.length]
                           } />
                         ))}
@@ -894,7 +900,7 @@ export default function ReportsPage() {
                           border: '1px solid #E5E7EB',
                           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                         }}
-                        formatter={(value: number) => [`${value} đơn hàng`, 'Số lượng']}
+                        formatter={(value: number) => [`${value} ${translate('don_hang_text')}`, translate('so_luong')]}
                       />
                       <Legend />
                     </PieChart>
@@ -937,9 +943,9 @@ export default function ReportsPage() {
                           {new Date(order.ngay_dat).toLocaleDateString('vi-VN')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Intl.NumberFormat('vi-VN', {
+                          {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                             style: 'currency',
-                            currency: 'VND'
+                            currency: language === 'vi' ? 'VND' : 'USD'
                           }).format(order.tong_tien)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">

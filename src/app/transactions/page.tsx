@@ -6,6 +6,7 @@ import AddIncomeModal from "@/app/components/AddIncomeModal";
 import AddExpenseModal from "@/app/components/AddExpenseModal";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import DateRangePicker from '../components/DateRangePicker';
+import { useLanguage } from "@/app/contexts/LanguageContext";
 
 interface Transaction {
   id: string;
@@ -21,6 +22,7 @@ interface Transaction {
 
 export default function TransactionsPage() {
   const { user } = useAuth();
+  const { translate, language } = useLanguage();
   const [showAddModal, setShowAddModal] = useState(false);
   const [transactionType, setTransactionType] = useState<"income" | "expense">("income");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -105,9 +107,9 @@ export default function TransactionsPage() {
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
          <div className="relative flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Lịch Sử Giao Dịch</h1>
+            <h1 className="text-4xl font-bold text-white mb-2">{translate('lich_su_giao_dich')}</h1>
             <p className="text-white/80">
-              Xem và quản lý tất cả các giao dịch thu chi của bạn
+              {translate('xem_quan_ly_giao_dich')}
             </p>
           </div>
           <div className="flex gap-3">
@@ -121,7 +123,7 @@ export default function TransactionsPage() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Thêm Thu Nhập
+              {translate('them_thu_nhap_btn')}
             </button>
             <button
               onClick={() => {
@@ -133,7 +135,7 @@ export default function TransactionsPage() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              Thêm Chi Tiêu
+              {translate('them_chi_tieu_btn')}
             </button>
           </div>
         </div>
@@ -151,25 +153,25 @@ export default function TransactionsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">Loại</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{translate('loai')}</label>
             <select 
               value={filters.type}
               onChange={(e) => handleFilterChange('type', e.target.value)}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
             >
-              <option value="">Tất cả</option>
-              <option value="income">Thu nhập</option>
-              <option value="expense">Chi tiêu</option>
+              <option value="">{translate('tat_ca')}</option>
+              <option value="income">{translate('thu_nhap')}</option>
+              <option value="expense">{translate('chi_tieu')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">Người ghi</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{translate('nguoi_ghi')}</label>
             <select 
               value={filters.recordedBy}
               onChange={(e) => handleFilterChange('recordedBy', e.target.value)}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
             >
-              <option value="">Tất cả</option>
+              <option value="">{translate('tat_ca')}</option>
               <option value={user?.fullName}>{user?.fullName}</option>
             </select>
           </div>
@@ -182,13 +184,13 @@ export default function TransactionsPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50/50">
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-600">Ngày</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-600">Loại</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-600">Danh mục</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-600">Mô tả</th>
-                <th className="px-6 py-4 text-right text-sm font-medium text-gray-600">Số tiền</th>
-                <th className="px-6 py-4 text-center text-sm font-medium text-gray-600">Người ghi</th>
-                <th className="px-6 py-4 text-center text-sm font-medium text-gray-600">Thao tác</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">{translate('ngay')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">{translate('loai')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">{translate('danh_muc')}</th>
+                <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">{translate('mo_ta')}</th>
+                <th className="px-6 py-4 text-right text-sm font-medium text-gray-700">{translate('so_tien')}</th>
+                <th className="px-6 py-4 text-center text-sm font-medium text-gray-700">{translate('nguoi_ghi')}</th>
+                <th className="px-6 py-4 text-center text-sm font-medium text-gray-700">{translate('thao_tac')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -197,7 +199,7 @@ export default function TransactionsPage() {
                   <td colSpan={7} className="px-6 py-8 text-center">
                     <div className="flex flex-col items-center gap-4">
                       <div className="w-12 h-12 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin"></div>
-                      <p className="text-gray-600">Đang tải dữ liệu giao dịch...</p>
+                      <p className="text-gray-700">{translate('dang_tai_du_lieu')}</p>
                     </div>
                   </td>
                 </tr>
@@ -223,7 +225,7 @@ export default function TransactionsPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
                       </div>
-                      <p className="text-gray-500">Chưa có giao dịch nào</p>
+                      <p className="text-gray-700">{translate('chua_co_giao_dich')}</p>
                       <div className="flex gap-3">
                         <button
                           onClick={() => {
@@ -232,7 +234,7 @@ export default function TransactionsPage() {
                           }}
                           className="px-4 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors"
                         >
-                          Thêm Thu Nhập
+                          {translate('them_thu_nhap_btn')}
                         </button>
                         <button
                           onClick={() => {
@@ -241,7 +243,7 @@ export default function TransactionsPage() {
                           }}
                           className="px-4 py-2 bg-[#FF6F3D] text-white rounded-xl hover:bg-[#FF6F3D]/90 transition-colors"
                         >
-                          Thêm Chi Tiêu
+                          {translate('them_chi_tieu_btn')}
                         </button>
                       </div>
                     </div>
@@ -257,7 +259,7 @@ export default function TransactionsPage() {
                           ? 'text-green-800 bg-green-100'
                           : 'text-red-800 bg-red-100'
                       }`}>
-                        {transaction.type === 'Thu' ? 'Thu nhập' : 'Chi tiêu'}
+                        {transaction.type === 'Thu' ? translate('thu_nhap') : translate('chi_tieu')}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm">{transaction.category}</td>
@@ -265,9 +267,9 @@ export default function TransactionsPage() {
                     <td className={`px-6 py-4 text-sm font-medium text-right ${
                       transaction.type === 'Thu' ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {new Intl.NumberFormat('vi-VN', {
+                      {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                         style: 'currency',
-                        currency: 'VND'
+                        currency: language === 'vi' ? 'VND' : 'USD'
                       }).format(transaction.amount)}
                     </td>
                     <td className="px-6 py-4 text-sm text-center">{transaction.recordedBy}</td>
