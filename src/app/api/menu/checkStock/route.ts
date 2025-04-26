@@ -93,7 +93,24 @@ export async function POST(request: Request) {
         const additionalQuantity = quantity - existingReservation.quantity;
         
         // Check if we have enough stock for the additional quantity
-        if (availableQuantity - reservedQuantity < additionalQuantity) {
+        if (availableQuantity - reservedQuantity <= additionalQuantity) {
+          // Special case: If exactly the amount is available, allow it
+          if (availableQuantity - reservedQuantity === additionalQuantity && additionalQuantity > 0) {
+            // Allow exact quantity match
+            existingReservation.quantity = quantity;
+            existingReservation.timestamp = Date.now();
+            
+            // Recalculate reserved quantity
+            reservedQuantity = getReservedQuantity(productId);
+            
+            return NextResponse.json({
+              success: true,
+              availableQuantity,
+              reservedQuantity,
+              actualAvailable: availableQuantity - reservedQuantity
+            });
+          }
+          
           return NextResponse.json(
             { 
               success: false,
@@ -112,7 +129,28 @@ export async function POST(request: Request) {
         existingReservation.timestamp = Date.now();
       } else {
         // Create new reservation
-        if (availableQuantity - reservedQuantity < quantity) {
+        if (availableQuantity - reservedQuantity <= quantity) {
+          // Special case: If exactly the amount is available, allow it
+          if (availableQuantity - reservedQuantity === quantity && quantity > 0) {
+            // Add new reservation
+            reservations.push({
+              productId,
+              userId,
+              quantity,
+              timestamp: Date.now()
+            });
+            
+            // Recalculate reserved quantity
+            reservedQuantity = getReservedQuantity(productId);
+            
+            return NextResponse.json({
+              success: true,
+              availableQuantity,
+              reservedQuantity,
+              actualAvailable: availableQuantity - reservedQuantity
+            });
+          }
+          
           return NextResponse.json(
             { 
               success: false,

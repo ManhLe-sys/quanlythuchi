@@ -12,7 +12,7 @@ export default function Header() {
 
   // Helper function to determine if a menu item should be shown based on user role
   const shouldShowMenuItem = (menuItem: string): boolean => {
-    if (!user) return true; // Show all items if not logged in
+    if (!user) return menuItem === 'products'; // Only show products if not logged in
     
     const role = user.role?.toLowerCase() || '';
     
@@ -56,7 +56,7 @@ export default function Header() {
                   pathname === '/home' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
                 }`}
               >
-                Trang Chủ
+                Thu Chi
               </Link>
             )}
             
@@ -182,7 +182,7 @@ export default function Header() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Trang Chủ
+                  Thu Chi
                 </Link>
               )}
               
