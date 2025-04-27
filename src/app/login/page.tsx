@@ -56,7 +56,9 @@ export default function LoginPage() {
         login({
           fullName: data.user.fullName,
           email: data.user.email,
-          role: data.user.role || 'STAFF'
+          role: data.user.role || 'STAFF',
+          phoneNumber: data.user.phoneNumber || '',
+          address: data.user.address || ''
         });
 
         setSuccess('Đăng nhập thành công!');

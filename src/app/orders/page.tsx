@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
+import DateRangePicker from '../components/DateRangePicker';
 
 interface MenuItem {
   ma_mon: string;
@@ -46,9 +47,13 @@ export default function OrdersPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterDate, setFilterDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [filterStatus, setFilterStatus] = useState<string>("");
+  const [dateFilter, setDateFilter] = useState({
+    startDate: '',
+    endDate: ''
+  });
   const [formData, setFormData] = useState({
     ten_khach: "",
     so_dien_thoai: "",
@@ -60,10 +65,84 @@ export default function OrdersPage() {
     trang_thai: "pending" as 'pending' | 'processing' | 'completed' | 'cancelled'
   });
   const [orders, setOrders] = useState<any[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Orders for current page
+  const [paginatedOrders, setPaginatedOrders] = useState<any[]>([]);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Apply filters whenever filter values change
+  useEffect(() => {
+    applyFilters();
+  }, [orders, searchTerm, filterStatus, dateFilter]);
+  
+  // Update paginated orders whenever filtered orders or pagination settings change
+  useEffect(() => {
+    updatePaginatedOrders();
+  }, [filteredOrders, currentPage, pageSize]);
+
+  const updatePaginatedOrders = () => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    setPaginatedOrders(filteredOrders.slice(startIndex, endIndex));
+    
+    // Calculate total pages
+    setTotalPages(Math.max(1, Math.ceil(filteredOrders.length / pageSize)));
+    
+    // Reset to page 1 if current page is out of bounds
+    if (currentPage > Math.ceil(filteredOrders.length / pageSize) && filteredOrders.length > 0) {
+      setCurrentPage(1);
+    }
+  };
+
+  const applyFilters = () => {
+    let result = [...orders];
+
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(
+        order => 
+          (order.ma_don && order.ma_don.toLowerCase().includes(term)) ||
+          (order.ten_khach && order.ten_khach.toLowerCase().includes(term)) ||
+          (order.so_dien_thoai && order.so_dien_thoai.includes(term))
+      );
+    }
+
+    // Apply status filter - updated to handle "all" value
+    if (filterStatus && filterStatus !== "all") {
+      result = result.filter(order => order.trang_thai === filterStatus);
+    }
+
+    // Apply date range filter
+    if (dateFilter.startDate) {
+      const startDate = new Date(dateFilter.startDate);
+      startDate.setHours(0, 0, 0, 0);
+      result = result.filter(order => {
+        const orderDate = new Date(order.ngay_dat);
+        return orderDate >= startDate;
+      });
+    }
+
+    if (dateFilter.endDate) {
+      const endDate = new Date(dateFilter.endDate);
+      endDate.setHours(23, 59, 59, 999);
+      result = result.filter(order => {
+        const orderDate = new Date(order.ngay_dat);
+        return orderDate <= endDate;
+      });
+    }
+
+    setFilteredOrders(result);
+  };
 
   const fetchData = async () => {
     try {
@@ -118,6 +197,7 @@ export default function OrdersPage() {
         }) || [];
         
         setOrders(orders);
+        setFilteredOrders(orders);
       } else {
         toast({
           variant: "destructive",
@@ -259,6 +339,9 @@ export default function OrdersPage() {
   const handleOpenDetail = async (order: any) => {
     try {
       console.log('Chi tiết đơn hàng được chọn:', order);
+      setIsDetailLoading(true);
+      setSelectedOrder({...order}); // Set basic order info first
+      setShowDetailModal(true);
       
       // Lấy chi tiết đơn hàng
       const response = await fetch(`/api/orders/${order.id}`);
@@ -269,7 +352,6 @@ export default function OrdersPage() {
           ...order,
           chi_tiet: data.data.orderDetails
         });
-        setShowDetailModal(true);
       } else {
         toast({
           variant: "destructive",
@@ -284,6 +366,8 @@ export default function OrdersPage() {
         title: "Lỗi",
         description: "Có lỗi xảy ra khi lấy chi tiết đơn hàng",
       });
+    } finally {
+      setIsDetailLoading(false);
     }
   };
 
@@ -375,65 +459,6 @@ export default function OrdersPage() {
     }
   };
 
-  // Filter orders based on search term, date, status and user role
-  const filteredOrders = orders.filter(order => {
-    // Search term filter
-    const searchMatches = !searchTerm.trim() || 
-      order.ma_don?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.ten_khach?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.so_dien_thoai?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.dia_chi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.san_pham?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Date filter
-    const dateMatches = !filterDate || 
-      new Date(order.ngay_dat).toISOString().split("T")[0] === filterDate;
-    
-    // Status filter
-    let statusMatches = true;
-    if (filterStatus) {
-      if (filterStatus === "pending") statusMatches = order.trang_thai === "Chờ xử lý";
-      else if (filterStatus === "processing") statusMatches = order.trang_thai === "Đang xử lý";
-      else if (filterStatus === "completed") statusMatches = order.trang_thai === "Hoàn thành";
-      else if (filterStatus === "cancelled") statusMatches = order.trang_thai === "Đã hủy";
-    }
-    
-    // User role filter - customers can only see their own orders
-    let userRoleMatches = true;
-    if (user && user.role?.toLowerCase() === 'customer') {
-      // Từ hình ảnh, có thể thấy tên hiển thị của khách hàng là "customer"
-      // Nên cần kiểm tra bằng các phương thức khác
-      const customerEmail = user.email?.toLowerCase() || '';
-      const customerName = user.fullName?.toLowerCase() || '';
-      
-      userRoleMatches = false; // Mặc định là không hiển thị
-      
-      // Kiểm tra nếu tên khách hàng có chứa "customer" hoặc match với user.fullName
-      if (order.ten_khach && (
-          order.ten_khach.toLowerCase().includes('customer') ||
-          order.ten_khach.toLowerCase().includes(customerName) ||
-          customerName.includes(order.ten_khach.toLowerCase())
-      )) {
-        userRoleMatches = true;
-      }
-      
-      // Hoặc nếu id_nguoi_tao chứa email hoặc từ "customer"
-      if (order.id_nguoi_tao && (
-          order.id_nguoi_tao.toLowerCase().includes(customerEmail) ||
-          order.id_nguoi_tao.toLowerCase().includes('customer')
-      )) {
-        userRoleMatches = true;
-      }
-      
-      // Hoặc kiểm tra theo email trong id_nguoi_tao
-      if (order.id_nguoi_tao && order.id_nguoi_tao.includes('@')) {
-        userRoleMatches = true;
-      }
-    }
-    
-    return searchMatches && dateMatches && statusMatches && userRoleMatches;
-  });
-
   // Helper function to check if user has permission to update order status
   const canUpdateOrderStatus = (): boolean => {
     if (!user) return false;
@@ -515,43 +540,71 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      {/* Search and Filter Section */}
-      <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl border border-gray-100 mb-8">
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1 md:w-64">
-                <input
-                  type="text"
-                  placeholder={translate('tim_kiem_don_hang')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent"
+      {/* Filters Section */}
+      <div className="bg-white p-6 rounded-xl shadow-sm mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div>
+          <Label className="text-gray-700 font-medium mb-2 block">{translate('tim_kiem_don_hang')}</Label>
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder={translate('tim_kiem_don_hang')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-gray-700 pl-10"
+            />
+            <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+        
+        <div>
+          <Label className="text-gray-700 font-medium mb-2 block">{translate('trang_thai_don_hang')}</Label>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent bg-white text-gray-700">
+              <SelectValue placeholder={translate('tat_ca_trang_thai')} className="text-gray-700" />
+            </SelectTrigger>
+            <SelectContent className="bg-white border-gray-200 text-gray-700">
+              <SelectItem value="all" className="text-gray-700">{translate('tat_ca_trang_thai')}</SelectItem>
+              <SelectItem value="Chờ xử lý" className="text-gray-700">{translate('cho_xu_ly')}</SelectItem>
+              <SelectItem value="Đang xử lý" className="text-gray-700">{translate('dang_xu_ly')}</SelectItem>
+              <SelectItem value="Hoàn thành" className="text-gray-700">{translate('hoan_thanh')}</SelectItem>
+              <SelectItem value="Đã hủy" className="text-gray-700">{translate('da_huy')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="lg:col-span-1 md:col-span-2">
+          <Label className="text-gray-700 font-medium mb-2 block">{translate('ngay_dat_hang')}</Label>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="relative">
+              <div className="relative">
+                <Input 
+                  type="date" 
+                  value={dateFilter.startDate}
+                  onChange={(e) => setDateFilter(prev => ({ ...prev, startDate: e.target.value }))}
+                  className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-gray-700 w-full"
                 />
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
               </div>
-              <div className="flex gap-4">
-                <input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent"
+            </div>
+            <div className="relative">
+              <div className="relative">
+                <Input 
+                  type="date" 
+                  value={dateFilter.endDate}
+                  onChange={(e) => setDateFilter(prev => ({ ...prev, endDate: e.target.value }))}
+                  className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-gray-700 w-full"
                 />
-                <select 
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-gray-700"
-                >
-                  <option value="" className="text-gray-700">{translate('tat_ca_trang_thai')}</option>
-                  <option value="pending" className="text-gray-700">{translate('cho_xu_ly')}</option>
-                  <option value="processing" className="text-gray-700">{translate('dang_xu_ly')}</option>
-                  <option value="completed" className="text-gray-700">{translate('hoan_thanh')}</option>
-                  <option value="cancelled" className="text-gray-700">{translate('da_huy')}</option>
-                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
@@ -583,7 +636,7 @@ export default function OrdersPage() {
                     </div>
                   </td>
                 </tr>
-              ) : filteredOrders.length === 0 ? (
+              ) : paginatedOrders.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8">
                     <div className="flex flex-col items-center gap-4 text-gray-500">
@@ -595,7 +648,7 @@ export default function OrdersPage() {
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map((order, index) => (
+                paginatedOrders.map((order, index) => (
                   <tr key={`${order.ma_don}-${index}`} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-medium text-gray-900">{order.ma_don}</div>
@@ -661,6 +714,87 @@ export default function OrdersPage() {
             </tbody>
           </table>
         </div>
+        
+        {/* Pagination */}
+        {!isLoading && filteredOrders.length > 0 && (
+          <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
+            <div className="text-sm text-gray-500">
+              {translate('hien_thi')} {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredOrders.length)} {translate('cua')} {filteredOrders.length} {translate('don_hang')}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 hover:border-gray-400 px-3 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </Button>
+              
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                let pageNumber;
+                
+                // Always show current page
+                if (totalPages <= 5) {
+                  // If we have 5 or fewer pages, show all
+                  pageNumber = i + 1;
+                } else if (currentPage <= 3) {
+                  // If current page is 1, 2, or 3, show pages 1-5
+                  pageNumber = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  // If current page is among the last 3, show the last 5 pages
+                  pageNumber = totalPages - 4 + i;
+                } else {
+                  // Otherwise show current page and 2 pages on each side
+                  pageNumber = currentPage - 2 + i;
+                }
+                
+                return (
+                  <Button
+                    key={pageNumber}
+                    onClick={() => setCurrentPage(pageNumber)}
+                    className={`rounded-xl px-4 py-2 transition-all text-gray-700 ${
+                      currentPage === pageNumber
+                        ? 'bg-[#3E503C]/10 border border-[#3E503C]/20 font-medium'
+                        : 'bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    {pageNumber}
+                  </Button>
+                );
+              })}
+              
+              <Button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 hover:border-gray-400 px-3 py-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </Button>
+              
+              <Select value={pageSize.toString()} onValueChange={(value) => {
+                setPageSize(Number(value));
+                setCurrentPage(1);
+              }}>
+                <SelectTrigger className="w-[130px] rounded-xl bg-white text-gray-700 border border-gray-300">
+                  <span className="flex items-center gap-2">
+                    <span>{pageSize}</span>
+                    <span className="text-gray-500">{translate('dong_mot_trang')}</span>
+                  </span>
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="5" className="text-gray-700">5 {translate('dong_mot_trang')}</SelectItem>
+                  <SelectItem value="10" className="text-gray-700">10 {translate('dong_mot_trang')}</SelectItem>
+                  <SelectItem value="20" className="text-gray-700">20 {translate('dong_mot_trang')}</SelectItem>
+                  <SelectItem value="50" className="text-gray-700">50 {translate('dong_mot_trang')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Order Detail Modal */}
@@ -670,176 +804,183 @@ export default function OrdersPage() {
             <DialogTitle className="text-2xl font-bold text-gray-700">{translate('chi_tiet_don_hang')} #{selectedOrder?.ma_don}</DialogTitle>
           </DialogHeader>
 
-          <div className="grid gap-6 py-6">
-            {/* Customer and Order Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
-                  {translate('thong_tin_khach_hang')}
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <span className="font-medium">{selectedOrder?.ten_khach}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    <span>{selectedOrder?.so_dien_thoai}</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-gray-700">
-                    <svg className="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span>{selectedOrder?.dia_chi}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
-                  {translate('thong_tin_don_hang')}
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>{translate('ngay_dat')} {new Date(selectedOrder?.ngay_dat).toLocaleDateString('vi-VN')}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>{translate('ngay_giao')} {selectedOrder?.ngay_giao ? new Date(selectedOrder.ngay_giao).toLocaleDateString('vi-VN') : 'Chưa xác định'}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
-                    <span>{translate('phuong_thuc_thanh_toan_label')} {selectedOrder?.phuong_thuc_thanh_toan}</span>
-                  </div>
-                </div>
-              </div>
+          {isDetailLoading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="w-16 h-16 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-gray-600 text-lg">{translate('dang_tai_chi_tiet')}</p>
             </div>
+          ) : (
+            <div className="grid gap-6 py-6">
+              {/* Customer and Order Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
+                    {translate('thong_tin_khach_hang')}
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span className="font-medium">{selectedOrder?.ten_khach}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      <span>{selectedOrder?.so_dien_thoai}</span>
+                    </div>
+                    <div className="flex items-start gap-2 text-gray-700">
+                      <svg className="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>{selectedOrder?.dia_chi}</span>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Order Items */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
-                {translate('danh_sach_mon')}
-              </h3>
-              <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-gray-100 overflow-hidden">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-[#3E503C]/5 border-b border-[#3E503C]/10">
-                      <th className="font-medium text-[#3E503C] py-4 px-6 text-left">STT</th>
-                      <th className="font-medium text-[#3E503C] py-4 px-6 text-left">Tên món</th>
-                      <th className="font-medium text-[#3E503C] py-4 px-6 text-center">Số lượng</th>
-                      <th className="font-medium text-[#3E503C] py-4 px-6 text-right">Đơn giá</th>
-                      <th className="font-medium text-[#3E503C] py-4 px-6 text-right">Thành tiền</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedOrder?.chi_tiet.map((item: any, index: number) => (
-                      <tr key={index} className="border-b border-gray-50 hover:bg-[#3E503C]/5 transition-colors">
-                        <td className="py-4 px-6 text-[#3E503C]">{item.stt}</td>
-                        <td className="py-4 px-6 text-[#3E503C] font-medium">{item.ten_mon}</td>
-                        <td className="py-4 px-6 text-center text-[#3E503C]">{item.so_luong}</td>
-                        <td className="py-4 px-6 text-right text-[#3E503C]">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
+                    {translate('thong_tin_don_hang')}
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>{translate('ngay_dat')} {new Date(selectedOrder?.ngay_dat).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>{translate('ngay_giao')} {selectedOrder?.ngay_giao ? new Date(selectedOrder.ngay_giao).toLocaleDateString('vi-VN') : 'Chưa xác định'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                      <span>{translate('phuong_thuc_thanh_toan_label')} {selectedOrder?.phuong_thuc_thanh_toan}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
+                  {translate('danh_sach_mon')}
+                </h3>
+                <div className="bg-white/50 backdrop-blur-sm rounded-xl border border-gray-100 overflow-hidden">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-[#3E503C]/5 border-b border-[#3E503C]/10">
+                        <th className="font-medium text-[#3E503C] py-4 px-6 text-left">STT</th>
+                        <th className="font-medium text-[#3E503C] py-4 px-6 text-left">Tên món</th>
+                        <th className="font-medium text-[#3E503C] py-4 px-6 text-center">Số lượng</th>
+                        <th className="font-medium text-[#3E503C] py-4 px-6 text-right">Đơn giá</th>
+                        <th className="font-medium text-[#3E503C] py-4 px-6 text-right">Thành tiền</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedOrder?.chi_tiet?.map((item: any, index: number) => (
+                        <tr key={index} className="border-b border-gray-50 hover:bg-[#3E503C]/5 transition-colors">
+                          <td className="py-4 px-6 text-[#3E503C]">{item.stt}</td>
+                          <td className="py-4 px-6 text-[#3E503C] font-medium">{item.ten_mon}</td>
+                          <td className="py-4 px-6 text-center text-[#3E503C]">{item.so_luong}</td>
+                          <td className="py-4 px-6 text-right text-[#3E503C]">
+                            {new Intl.NumberFormat('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND'
+                            }).format(item.don_gia)}
+                          </td>
+                          <td className="py-4 px-6 text-right font-medium text-[#3E503C]">
+                            {new Intl.NumberFormat('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND'
+                            }).format(item.thanh_tien)}
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="bg-[#3E503C]/5">
+                        <td colSpan={4} className="py-4 px-6 text-right font-medium text-[#3E503C]">Tổng cộng:</td>
+                        <td className="py-4 px-6 text-right font-bold text-[#3E503C]">
                           {new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
                             currency: 'VND'
-                          }).format(item.don_gia)}
-                        </td>
-                        <td className="py-4 px-6 text-right font-medium text-[#3E503C]">
-                          {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                          }).format(item.thanh_tien)}
+                          }).format(selectedOrder?.tong_tien)}
                         </td>
                       </tr>
-                    ))}
-                    <tr className="bg-[#3E503C]/5">
-                      <td colSpan={4} className="py-4 px-6 text-right font-medium text-[#3E503C]">Tổng cộng:</td>
-                      <td className="py-4 px-6 text-right font-bold text-[#3E503C]">
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND'
-                        }).format(selectedOrder?.tong_tien)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Order Status */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
-                  {translate('trang_thai_don_hang')}
-                </h3>
-                <div className="flex items-center gap-4">
-                  <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
-                    selectedOrder?.trang_thai === 'Hoàn thành'
-                      ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
-                      : selectedOrder?.trang_thai === 'Đang xử lý'
-                      ? 'bg-[#7F886A]/10 text-[#7F886A] ring-1 ring-[#7F886A]/20'
-                      : selectedOrder?.trang_thai === 'Chờ xử lý'
-                      ? 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20'
-                      : 'bg-red-50 text-red-700 ring-1 ring-red-600/10'
-                  }`}>
-                    {selectedOrder?.trang_thai}
-                  </span>
-                  {canUpdateOrderStatus() && (
-                    <Button
-                      onClick={() => handleStatusChange(getNextStatus(selectedOrder?.trang_thai))}
-                      className="px-4 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all"
-                    >
-                      {translate('cap_nhat_trang_thai')}
-                    </Button>
-                  )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
-                  {translate('trang_thai_thanh_toan')}
-                </h3>
-                <div className="flex items-center gap-4">
-                  <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
-                    selectedOrder?.trang_thai_thanh_toan === 'Đã thanh toán'
-                      ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
-                      : 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20'
-                  }`}>
-                    {selectedOrder?.trang_thai_thanh_toan}
-                  </span>
-                  {canUpdateOrderStatus() && selectedOrder?.trang_thai_thanh_toan !== 'Đã thanh toán' && (
-                    <Button
-                      onClick={() => handleStatusChange(getNextPaymentStatus(selectedOrder?.trang_thai_thanh_toan), true)}
-                      className="px-4 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all"
-                    >
-                      {translate('thanh_toan')}
-                    </Button>
-                  )}
+              {/* Order Status */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
+                    {translate('trang_thai_don_hang')}
+                  </h3>
+                  <div className="flex items-center gap-4">
+                    <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
+                      selectedOrder?.trang_thai === 'Hoàn thành'
+                        ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
+                        : selectedOrder?.trang_thai === 'Đang xử lý'
+                        ? 'bg-[#7F886A]/10 text-[#7F886A] ring-1 ring-[#7F886A]/20'
+                        : selectedOrder?.trang_thai === 'Chờ xử lý'
+                        ? 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20'
+                        : 'bg-red-50 text-red-700 ring-1 ring-red-600/10'
+                    }`}>
+                      {selectedOrder?.trang_thai}
+                    </span>
+                    {canUpdateOrderStatus() && (
+                      <Button
+                        onClick={() => handleStatusChange(getNextStatus(selectedOrder?.trang_thai))}
+                        className="px-4 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all"
+                      >
+                        {translate('cap_nhat_trang_thai')}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
+                    {translate('trang_thai_thanh_toan')}
+                  </h3>
+                  <div className="flex items-center gap-4">
+                    <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-medium ${
+                      selectedOrder?.trang_thai_thanh_toan === 'Đã thanh toán'
+                        ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
+                        : 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20'
+                    }`}>
+                      {selectedOrder?.trang_thai_thanh_toan}
+                    </span>
+                    {canUpdateOrderStatus() && selectedOrder?.trang_thai_thanh_toan !== 'Đã thanh toán' && (
+                      <Button
+                        onClick={() => handleStatusChange(getNextPaymentStatus(selectedOrder?.trang_thai_thanh_toan), true)}
+                        className="px-4 py-2 rounded-xl bg-white hover:bg-[#7F886A]/10 text-gray-700 border border-gray-200 transition-all"
+                      >
+                        {translate('thanh_toan')}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Notes */}
-            {selectedOrder?.ghi_chu && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
-                  {translate('ghi_chu')}
-                </h3>
-                <p className="text-gray-700 bg-[#3E503C]/5 p-4 rounded-xl">{selectedOrder.ghi_chu}</p>
-              </div>
-            )}
-          </div>
+              {/* Notes */}
+              {selectedOrder?.ghi_chu && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-700 border-b border-gray-200 pb-2">
+                    {translate('ghi_chu')}
+                  </h3>
+                  <p className="text-gray-700 bg-[#3E503C]/5 p-4 rounded-xl">{selectedOrder.ghi_chu}</p>
+                </div>
+              )}
+            </div>
+          )}
 
           <DialogFooter>
             <Button

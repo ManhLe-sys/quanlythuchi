@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Transaction {
   id: string;
@@ -19,9 +20,15 @@ interface RecentTransactionsProps {
 
 export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsProps) {
   const { user } = useAuth();
+  const { translate } = useLanguage();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchTransactions = async () => {
     try {
@@ -42,6 +49,7 @@ export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsPro
         });
 
       setTransactions(filteredAndSortedTransactions);
+      setTotalPages(Math.ceil(filteredAndSortedTransactions.length / itemsPerPage));
       setError(null);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Có lỗi xảy ra');
@@ -63,6 +71,18 @@ export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsPro
       fetchTransactions();
     }
   }, [refreshTrigger, user?.fullName]);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Get current transactions for the current page
+  const getCurrentTransactions = () => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return transactions.slice(indexOfFirstItem, indexOfLastItem);
+  };
 
   const TransactionItem = ({ transaction }: { transaction: Transaction }) => (
     <div
@@ -111,16 +131,55 @@ export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsPro
     </div>
   );
 
+  // Pagination component
+  const Pagination = () => {
+    if (totalPages <= 1) return null;
+    
+    return (
+      <div className="flex justify-center mt-6 gap-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-3 py-1 rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-white transition-colors"
+        >
+          {translate('trang_truoc')}
+        </button>
+        <div className="flex items-center gap-1">
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => handlePageChange(i + 1)}
+              className={`w-8 h-8 rounded-lg ${
+                currentPage === i + 1
+                  ? 'bg-[#3E503C] text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-white transition-colors"
+        >
+          {translate('trang_sau')}
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="p-6 glass-card rounded-xl">
-      <h2 className="text-xl font-semibold mb-6 text-[#3E503C]">Giao Dịch Gần Đây</h2>
+      {/* <h2 className="text-xl font-semibold mb-6 text-[#3E503C]">Giao Dịch Gần Đây</h2> */}
       
       <div className="space-y-4">
         {transactions.length === 0 && !isLoading ? (
-          <p className="text-center text-gray-500">Chưa có giao dịch nào</p>
+          <p className="text-center text-gray-500">{translate('chua_co_giao_dich')}</p>
         ) : (
           <>
-            {transactions.map((transaction) => (
+            {getCurrentTransactions().map((transaction) => (
               <TransactionItem key={transaction.id} transaction={transaction} />
             ))}
             {isLoading && (
@@ -128,6 +187,7 @@ export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsPro
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
             )}
+            <Pagination />
           </>
         )}
       </div>

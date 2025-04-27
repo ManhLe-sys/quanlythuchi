@@ -70,7 +70,9 @@ export async function POST(req: Request) {
       const userData = {
         email: user.get('Email'),
         fullName: user.get('Họ và tên'),
-        role: user.get('Vai trò') || 'STAFF'
+        role: user.get('Vai trò') || 'STAFF',
+        phoneNumber: user.get('Số điện thoại') || '',
+        address: user.get('Địa chỉ') || ''
       };
 
       // Log for debugging
@@ -80,7 +82,9 @@ export async function POST(req: Request) {
         { 
           email: userData.email,
           fullName: userData.fullName,
-          role: userData.role
+          role: userData.role,
+          phoneNumber: userData.phoneNumber,
+          address: userData.address
         },
         process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: '1d' }

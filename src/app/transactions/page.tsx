@@ -36,6 +36,11 @@ export default function TransactionsPage() {
     recordedBy: user?.fullName || ''
   });
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
   const fetchTransactions = async () => {
     try {
       setIsLoading(true);
@@ -80,6 +85,8 @@ export default function TransactionsPage() {
       }
 
       setTransactions(filteredTransactions);
+      setTotalPages(Math.ceil(filteredTransactions.length / itemsPerPage));
+      setCurrentPage(1); // Reset to first page when filters change
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Có lỗi xảy ra');
@@ -97,6 +104,57 @@ export default function TransactionsPage() {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Get current transactions for the current page
+  const getCurrentTransactions = () => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return transactions.slice(indexOfFirstItem, indexOfLastItem);
+  };
+
+  // Pagination component
+  const Pagination = () => {
+    if (totalPages <= 1) return null;
+    
+    return (
+      <div className="flex justify-center mt-6 mb-4 gap-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-3 py-1 rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-white transition-colors"
+        >
+          {translate('trang_truoc')}
+        </button>
+        <div className="flex items-center gap-1">
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => handlePageChange(i + 1)}
+              className={`w-8 h-8 rounded-lg ${
+                currentPage === i + 1
+                  ? 'bg-[#3E503C] text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 rounded-lg text-gray-700 border border-gray-200 hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-white transition-colors"
+        >
+          {translate('trang_sau')}
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -250,7 +308,7 @@ export default function TransactionsPage() {
                   </td>
                 </tr>
               ) : (
-                transactions.map((transaction) => (
+                getCurrentTransactions().map((transaction) => (
                   <tr key={transaction.id} className="hover:bg-blue-50/50 transition-colors duration-200">
                     <td className="px-6 py-4 text-sm font-medium">{transaction.date}</td>
                     <td className="px-6 py-4">
@@ -285,6 +343,9 @@ export default function TransactionsPage() {
               )}
             </tbody>
           </table>
+          {!isLoading && !error && transactions.length > 0 && (
+            <Pagination />
+          )}
         </div>
       </div>
 

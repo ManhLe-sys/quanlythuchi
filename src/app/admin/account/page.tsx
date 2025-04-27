@@ -25,12 +25,16 @@ interface User {
   fullName: string;
   email: string;
   role: 'admin' | 'STAFF' | 'customer';
+  phoneNumber?: string;
+  address?: string;
 }
 
 interface NewUser {
   name: string;
   email: string;
   role: 'admin' | 'STAFF' | 'customer';
+  phoneNumber: string;
+  address: string;
 }
 
 export default function AccountManagementPage() {
@@ -50,7 +54,9 @@ export default function AccountManagementPage() {
   const [newUser, setNewUser] = useState<NewUser>({
     name: '',
     email: '',
-    role: 'customer'
+    role: 'customer',
+    phoneNumber: '',
+    address: ''
   });
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -129,6 +135,8 @@ export default function AccountManagementPage() {
           fullName: newUser.name,
           email: newUser.email,
           role: newUser.role,
+          phoneNumber: newUser.phoneNumber,
+          address: newUser.address
         }),
       });
 
@@ -148,7 +156,9 @@ export default function AccountManagementPage() {
       setNewUser({
         name: '',
         email: '',
-        role: 'customer'
+        role: 'customer',
+        phoneNumber: '',
+        address: ''
       });
       setIsAddDialogOpen(false);
       
@@ -170,13 +180,13 @@ export default function AccountManagementPage() {
     
     try {
       setIsActionLoading(true);
-      const response = await fetch('/api/users/updateUser', {
+      const response = await fetch('/api/users/updateRole', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: selectedUser.id,
+          email: selectedUser.email,
           role: currentRole,
         }),
       });
@@ -228,7 +238,7 @@ export default function AccountManagementPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: selectedUser.id,
+          email: selectedUser.email,
           password: newPassword,
         }),
       });
@@ -359,7 +369,7 @@ export default function AccountManagementPage() {
             <p className="text-lg font-medium text-gray-700">{error}</p>
             <Button
               onClick={fetchUsers}
-              className="mt-4 px-4 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors"
+              className="mt-4 px-4 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors text-gray-700"
             >
               Thử lại
             </Button>
@@ -382,6 +392,8 @@ export default function AccountManagementPage() {
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Tên</th>
                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Email</th>
                     <th className="px-6 py-3 text-center text-sm font-medium text-gray-700">Vai trò</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Số điện thoại</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Địa chỉ</th>
                     <th className="px-6 py-3 text-center text-sm font-medium text-gray-700">Thao tác</th>
                   </tr>
                 </thead>
@@ -405,11 +417,17 @@ export default function AccountManagementPage() {
                           {getRoleDisplay(user.role)}
                         </span>
                       </td>
+                      <td className="py-4 px-6">
+                        <div className="text-gray-600">{user.phoneNumber || '—'}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-gray-600">{user.address || '—'}</div>
+                      </td>
                       <td className="py-4 px-6 text-center">
                         <div className="flex justify-center gap-2">
                           <button
                             onClick={() => handleOpenChangeRole(user)}
-                            className="text-yellow-500 hover:text-yellow-700 bg-yellow-50 p-2 rounded-full"
+                            className="text-yellow-500 hover:text-yellow-700 bg-yellow-50 p-2 rounded-full text-gray-700"
                             title="Đổi vai trò"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -418,7 +436,7 @@ export default function AccountManagementPage() {
                           </button>
                           <button
                             onClick={() => handleOpenResetPassword(user)}
-                            className="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-full"
+                            className="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-full text-gray-700"
                             title="Đặt lại mật khẩu"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -445,7 +463,7 @@ export default function AccountManagementPage() {
                     size="sm"
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="rounded-lg px-4 py-2"
+                    className="rounded-lg px-4 py-2 text-gray-700"
                   >
                     Trước
                   </Button>
@@ -454,7 +472,7 @@ export default function AccountManagementPage() {
                     size="sm"
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
-                    className="rounded-lg px-4 py-2"
+                    className="rounded-lg px-4 py-2 text-gray-700"
                   >
                     Sau
                   </Button>
@@ -504,6 +522,25 @@ export default function AccountManagementPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label className="text-gray-700 font-medium">Số điện thoại</Label>
+              <Input
+                type="tel"
+                value={newUser.phoneNumber}
+                onChange={(e) => setNewUser({ ...newUser, phoneNumber: e.target.value })}
+                placeholder="Nhập số điện thoại"
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-700 font-medium">Địa chỉ</Label>
+              <Input
+                value={newUser.address}
+                onChange={(e) => setNewUser({ ...newUser, address: e.target.value })}
+                placeholder="Nhập địa chỉ"
+                className="rounded-xl"
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button 
@@ -516,7 +553,7 @@ export default function AccountManagementPage() {
             <Button 
               onClick={addUser}
               disabled={isActionLoading}
-              className="rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg"
+              className="rounded-xl bg-[#3E503C] hover:bg-[#7F886A] text-white transition-all shadow-lg text-gray-700"
             >
               {isActionLoading ? 'Đang xử lý...' : 'Thêm người dùng'}
             </Button>
@@ -563,7 +600,7 @@ export default function AccountManagementPage() {
             <Button 
               onClick={changeRole}
               disabled={isActionLoading}
-              className="rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white transition-all shadow-lg"
+              className="rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white transition-all shadow-lg text-gray-700"
             >
               {isActionLoading ? 'Đang xử lý...' : 'Cập nhật vai trò'}
             </Button>
@@ -621,7 +658,7 @@ export default function AccountManagementPage() {
             <Button 
               onClick={resetPassword}
               disabled={isActionLoading}
-              className="rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition-all shadow-lg"
+              className="rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition-all shadow-lg text-gray-700"
             >
               {isActionLoading ? 'Đang xử lý...' : 'Đặt lại mật khẩu'}
             </Button>

@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { fullName, email, password } = body;
+    const { fullName, email, password, phoneNumber, address } = body;
 
     console.log('Received registration request:', { fullName, email });
 
@@ -79,11 +79,13 @@ export async function POST(req: Request) {
       'Họ và tên': fullName,
       'Email': email,
       'Mật khẩu': hashedPassword,
-      'Vai trò': 'STAFF',
+      'Vai trò': 'customer',
       'Ngày tạo': new Date().toISOString(),
       'Thời gian đăng ký': new Date().toLocaleString('vi-VN', { 
         timeZone: 'Asia/Ho_Chi_Minh'
-      })
+      }),
+      'Số điện thoại': phoneNumber || '',
+      'Địa chỉ': address || '',
     };
 
     console.log('Attempting to add row with data:', { ...rowData, 'Mật khẩu': '***' });

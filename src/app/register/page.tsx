@@ -11,6 +11,8 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    phoneNumber: '',
+    address: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +44,8 @@ export default function RegisterPage() {
           fullName: formData.fullName,
           email: formData.email,
           password: formData.password,
+          phoneNumber: formData.phoneNumber,
+          address: formData.address,
         }),
       });
 
@@ -111,6 +115,34 @@ export default function RegisterPage() {
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                 placeholder="example@email.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Số điện thoại
+              </label>
+              <input
+                type="tel"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                placeholder="0123456789"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Địa chỉ
+              </label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                placeholder="123 Đường ABC, Quận XYZ, TP. HCM"
               />
             </div>
 
