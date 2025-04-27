@@ -65,14 +65,29 @@ export default function AccountManagementPage() {
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/users/getUsers');
+      // Get user data from localStorage
+      const userData = localStorage.getItem('user');
+      const userObj = userData ? JSON.parse(userData) : null;
+      const userRole = userObj?.role || '';
+
+      const response = await fetch('/api/users/getUsers', {
+        headers: {
+          'x-user-role': userRole,
+          'Content-Type': 'application/json'
+        }
+      });
+
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        const errorData = await response.json();
+        console.error('API Error:', errorData);
+        throw new Error(errorData.error || 'Failed to fetch users');
       }
+      
       const data = await response.json();
       setUsers(data.users);
       setError(null);
     } catch (err) {
+      console.error('Fetch Error:', err);
       setError(err instanceof Error ? err.message : 'Đã xảy ra lỗi khi tải dữ liệu');
       toast({
         title: "Lỗi",
@@ -126,10 +141,17 @@ export default function AccountManagementPage() {
 
     try {
       setIsActionLoading(true);
+      
+      // Get user data from localStorage
+      const userData = localStorage.getItem('user');
+      const userObj = userData ? JSON.parse(userData) : null;
+      const userRole = userObj?.role || '';
+      
       const response = await fetch('/api/users/createUser', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-user-role': userRole
         },
         body: JSON.stringify({
           fullName: newUser.name,
@@ -180,10 +202,17 @@ export default function AccountManagementPage() {
     
     try {
       setIsActionLoading(true);
+      
+      // Get user data from localStorage
+      const userData = localStorage.getItem('user');
+      const userObj = userData ? JSON.parse(userData) : null;
+      const userRole = userObj?.role || '';
+      
       const response = await fetch('/api/users/updateRole', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-user-role': userRole
         },
         body: JSON.stringify({
           email: selectedUser.email,
@@ -220,26 +249,33 @@ export default function AccountManagementPage() {
   const resetPassword = async () => {
     if (!selectedUser) return;
     
-    if (!newPassword || newPassword.length < 6) {
-      setPasswordError('Mật khẩu phải có ít nhất 6 ký tự');
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Mật khẩu không khớp');
       return;
     }
     
-    if (newPassword !== confirmPassword) {
-      setPasswordError('Mật khẩu xác nhận không khớp');
+    if (newPassword.length < 6) {
+      setPasswordError('Mật khẩu phải có ít nhất 6 ký tự');
       return;
     }
     
     try {
       setIsActionLoading(true);
+      
+      // Get user data from localStorage
+      const userData = localStorage.getItem('user');
+      const userObj = userData ? JSON.parse(userData) : null;
+      const userRole = userObj?.role || '';
+      
       const response = await fetch('/api/users/resetPassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-user-role': userRole
         },
         body: JSON.stringify({
           email: selectedUser.email,
-          password: newPassword,
+          newPassword,
         }),
       });
 
@@ -251,7 +287,7 @@ export default function AccountManagementPage() {
 
       toast({
         title: "Thành công",
-        description: "Đã đặt lại mật khẩu",
+        description: "Đã đặt lại mật khẩu cho người dùng",
         variant: "default"
       });
 

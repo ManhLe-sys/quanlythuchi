@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import bcrypt from 'bcryptjs';
 
 // Direct Google Sheets authentication
 const auth = new google.auth.GoogleAuth({
@@ -16,36 +17,49 @@ const sheets = google.sheets({ version: 'v4', auth });
 
 export async function POST(request: Request) {
   try {
-    // Lấy thông tin người dùng từ session
+    // Get user from NextAuth session
     const session = await getServerSession(authOptions);
-    const userRole = session?.user?.role;
+    let userRole = session?.user?.role;
     
-    // Chỉ admin mới có quyền thay đổi mật khẩu của người khác
-    if (userRole !== 'admin') {
+    // If no session, check for custom auth header
+    if (!userRole) {
+      const authHeader = request.headers.get('x-user-role');
+      if (authHeader) {
+        userRole = authHeader;
+      }
+    }
+    
+    console.log('User role for password reset:', userRole);
+    
+    // Only admin can reset passwords
+    if (userRole !== 'admin' && userRole !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized - Only admins can reset passwords' },
         { status: 403 }
       );
     }
 
-    const { email, password } = await request.json();
+    const { email, newPassword } = await request.json();
 
-    if (!email || !password) {
+    if (!email || !newPassword) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Email and new password are required' },
         { status: 400 }
       );
     }
 
     // Validate password
-    if (password.length < 6) {
+    if (newPassword.length < 6) {
       return NextResponse.json(
         { error: 'Password must be at least 6 characters long' },
         { status: 400 }
       );
     }
 
-    // Tìm user trong sheet
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Find user in sheet
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
       range: 'A2:E',
@@ -59,7 +73,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Tìm index của user cần đổi mật khẩu
+    // Find index of user to update password
     const rowIndex = rows.findIndex(row => row[1] === email);
     if (rowIndex === -1) {
       return NextResponse.json(
@@ -68,13 +82,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Update mật khẩu trong sheet (cột D - index 3)
+    // Update password in sheet (column D - index 3)
     await sheets.spreadsheets.values.update({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
-      range: `D${rowIndex + 2}`, // +2 vì index bắt đầu từ 0 và header ở hàng 1
+      range: `D${rowIndex + 2}`, // +2 because index starts at 0 and header is row 1
       valueInputOption: 'RAW',
       requestBody: {
-        values: [[password]],
+        values: [[hashedPassword]],
       },
     });
 

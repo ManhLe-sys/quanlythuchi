@@ -99,6 +99,7 @@ export default function AdminPage() {
     description: '',
     status: 'active',
     imageUrl: '',
+    quantity: 0
   });
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -192,6 +193,7 @@ export default function AdminPage() {
         description: '',
         status: 'active',
         imageUrl: '',
+        quantity: 0
       });
       
       toast({
@@ -421,8 +423,22 @@ export default function AdminPage() {
     }
   };
 
+  const openEditDialog = (item: MenuItem) => {
+    setSelectedMenuItem(item);
+    setEditItem({
+      name: item.name || '',
+      price: item.price || 0,
+      category: item.category || '',
+      description: item.description || '',
+      status: item.status || 'active',
+      imageUrl: item.imageUrl || '',
+      quantity: item.quantity || 0
+    });
+    setIsEditDialogOpen(true);
+  };
+
   const handleDeleteMenuItem = async (item: MenuItem) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa món này không?')) {
+    if (!confirm('Bạn có chắc chắn muốn ngừng bán món này không?')) {
       return;
     }
 
@@ -436,21 +452,25 @@ export default function AdminPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete menu item');
+        throw new Error('Failed to deactivate menu item');
       }
 
       const data = await response.json();
-      setMenuItems(menuItems.filter(i => i.id !== data.deletedId));
+      setMenuItems(menuItems.map(i => 
+        i.id === data.deletedId 
+          ? { ...i, status: 'inactive' } 
+          : i
+      ));
       toast({
         title: "Thành công",
-        description: "Đã xóa món thành công",
+        description: "Đã ngừng bán món thành công",
       });
     } catch (err) {
-      console.error('Error deleting menu item:', err);
+      console.error('Error deactivating menu item:', err);
       toast({
         variant: "destructive",
         title: "Lỗi",
-        description: "Không thể xóa món. Vui lòng thử lại sau.",
+        description: "Không thể ngừng bán món. Vui lòng thử lại sau.",
       });
     }
   };
@@ -576,7 +596,7 @@ export default function AdminPage() {
                 </svg>
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-800">Quản Lý Thực Đơn</h2>
+                <h2 className="text-xl font-bold text-gray-800">Quản Lý Sản Phẩm</h2>
                 <p className="text-gray-600">Thêm, sửa và quản lý các món trong thực đơn</p>
               </div>
             </div>
@@ -739,10 +759,10 @@ export default function AdminPage() {
                   currentUsers.map((user) => (
                     <TableRow key={user.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                       <TableCell className="py-4 px-6">
-                        <div className="font-medium text-gray-900">{user.fullName}</div>
+                        <div className="font-medium text-gray-700">{user.fullName}</div>
                       </TableCell>
                       <TableCell className="py-4 px-6">
-                        <div className="text-gray-600">{user.email}</div>
+                        <div className="text-gray-700">{user.email}</div>
                       </TableCell>
                       <TableCell className="py-4 px-6">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
@@ -764,7 +784,7 @@ export default function AdminPage() {
                                     setIsChangeRoleDialogOpen(true);
                                   }}
                             variant="outline"
-                            className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
+                            className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-gray-700 border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
                                 >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -777,7 +797,7 @@ export default function AdminPage() {
                                     setIsChangePasswordDialogOpen(true);
                                   }}
                             variant="outline"
-                            className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
+                            className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-gray-700 border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
                                 >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -789,7 +809,7 @@ export default function AdminPage() {
                               setUserToDelete(user);
                               setIsDeleteDialogOpen(true);
                             }}
-                            className="rounded-xl bg-white hover:bg-[#FF6F3D]/10 text-[#FF6F3D] border border-[#FF6F3D]/20 hover:border-[#FF6F3D]/30 px-4 py-2 transition-all flex items-center gap-2"
+                            className="rounded-xl bg-white hover:bg-[#FF6F3D]/10 text-gray-700 border border-[#FF6F3D]/20 hover:border-[#FF6F3D]/30 px-4 py-2 transition-all flex items-center gap-2"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -997,10 +1017,10 @@ export default function AdminPage() {
                   filteredMenuItems.map((item) => (
                     <TableRow key={item.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                       <TableCell className="py-4 px-6">
-                        <div className="font-medium text-gray-900">{item.name}</div>
+                        <div className="font-medium text-gray-700">{item.name}</div>
                       </TableCell>
                       <TableCell className="py-4 px-6">
-                        <div className="text-gray-600">
+                        <div className="text-gray-700">
                           {new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
                             currency: 'VND'
@@ -1008,10 +1028,10 @@ export default function AdminPage() {
                         </div>
                       </TableCell>
                       <TableCell className="py-4 px-6">
-                        <div className="text-gray-600">{item.category}</div>
+                        <div className="text-gray-700">{item.category}</div>
                       </TableCell>
                       <TableCell className="py-4 px-6">
-                        <div className="text-gray-600">{item.quantity || 0}</div>
+                        <div className="text-gray-700">{item.quantity || 0}</div>
                       </TableCell>
                       <TableCell className="py-4 px-6">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
@@ -1025,21 +1045,9 @@ export default function AdminPage() {
                       <TableCell className="py-4 px-6">
                         <div className="flex justify-end gap-2">
                                 <Button 
-                                  onClick={() => {
-                                    setSelectedMenuItem(item);
-                                    setEditItem({
-                                      name: item.name,
-                                      price: item.price,
-                                      category: item.category,
-                                      description: item.description || '',
-                                      status: item.status || 'active',
-                                      imageUrl: item.imageUrl || '',
-                                      quantity: item.quantity || 0
-                                    });
-                                    setIsEditDialogOpen(true);
-                                  }}
+                                  onClick={() => openEditDialog(item)}
                                   variant="outline"
-                                  className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-[#3E503C] border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
+                                  className="rounded-xl bg-white hover:bg-[#3E503C]/10 text-gray-700 border border-[#3E503C]/20 hover:border-[#3E503C]/30 px-4 py-2 transition-all flex items-center gap-2"
                                 >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -1048,12 +1056,12 @@ export default function AdminPage() {
                                 </Button>
                                 <Button 
                                   onClick={() => handleDeleteMenuItem(item)}
-                            className="rounded-xl bg-white hover:bg-[#FF6F3D]/10 text-[#FF6F3D] border border-[#FF6F3D]/20 hover:border-[#FF6F3D]/30 px-4 py-2 transition-all flex items-center gap-2"
+                            className="rounded-xl bg-white hover:bg-[#FF6F3D]/10 text-gray-700 border border-[#FF6F3D]/20 hover:border-[#FF6F3D]/30 px-4 py-2 transition-all flex items-center gap-2"
                                 >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                   </svg>
-                                  Xóa
+                                  Ngừng bán
                                 </Button>
                               </div>
                             </TableCell>

@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import bcrypt from 'bcryptjs';
 
 // Direct Google Sheets authentication
 const auth = new google.auth.GoogleAuth({
@@ -16,19 +17,32 @@ const sheets = google.sheets({ version: 'v4', auth });
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession();
-
-    if (!session) {
+    // Get user from NextAuth session
+    const session = await getServerSession(authOptions);
+    let userRole = session?.user?.role;
+    
+    // If no session, check for custom auth header
+    if (!userRole) {
+      const authHeader = request.headers.get('x-user-role');
+      if (authHeader) {
+        userRole = authHeader;
+      }
+    }
+    
+    console.log('User role for user creation:', userRole);
+    
+    // Only admin can create users (especially other admins)
+    if (userRole !== 'admin' && userRole !== 'ADMIN') {
       return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
+        { error: 'Unauthorized - Only admins can create users' },
+        { status: 403 }
       );
     }
 
     // Get the request body
-    const { name, email, password, role, phoneNumber, address } = await request.json();
+    const { fullName, email, role, phoneNumber, address } = await request.json();
 
-    if (!name || !email || !password) {
+    if (!fullName || !email) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -37,41 +51,42 @@ export async function POST(request: Request) {
 
     // Validate role
     const validRole = role || 'customer';
-    if (!['admin', 'STAFF', 'customer'].includes(validRole)) {
+    if (!['admin', 'ADMIN', 'STAFF', 'staff', 'customer'].includes(validRole)) {
       return NextResponse.json(
         { error: 'Invalid role' },
         { status: 400 }
       );
     }
 
-    // Kiểm tra email đã tồn tại chưa
+    // Check if email already exists
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
-      range: 'A2:E',
+      range: 'B2:B', // Just check email column
     });
 
     const rows = response.data.values || [];
-    const existingUser = rows.find(row => row[1] === email);
-    if (existingUser) {
+    const emailExists = rows.some(row => row[0] === email);
+    if (emailExists) {
       return NextResponse.json(
         { error: 'Email already exists' },
         { status: 400 }
       );
     }
 
-    // Generate default password (can be changed later)
+    // Generate default password and hash it
     const defaultPassword = 'password123';
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
     
     // Create timestamp
-    const registrationTime = new Date().toISOString();
+    const registrationTime = new Date().toLocaleString('vi-VN');
 
     // Create a new user
     const values = [
       [
-        name,
+        fullName,
         email,
         registrationTime,
-        defaultPassword,
+        hashedPassword,
         validRole,
         phoneNumber || "",
         address || "",
@@ -93,7 +108,7 @@ export async function POST(request: Request) {
       success: true, 
       message: 'User created successfully',
       data: {
-        name,
+        fullName,
         email,
         role: validRole,
         phoneNumber: phoneNumber || '',

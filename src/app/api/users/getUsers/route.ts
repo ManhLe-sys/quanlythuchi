@@ -16,22 +16,59 @@ const sheets = google.sheets({ version: 'v4', auth });
 
 export async function GET(request: Request) {
   try {
-    // Lấy thông tin người dùng từ session
+    // Try get user from NextAuth session
     const session = await getServerSession(authOptions);
-    const userRole = session?.user?.role;
+    console.log("authOptions", authOptions);
+    console.log("session", session);
+    let userRole = session?.user?.role;
     
-    // Chỉ admin mới có quyền xem tất cả người dùng
-    if (userRole !== 'admin') {
+    // If no session, check for authorization header (custom auth)
+    if (!userRole) {
+      const authHeader = request.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        try {
+          const token = authHeader.substring(7);
+          // Parse the JWT or verify against your custom auth (simplified here)
+          const tokenData = JSON.parse(atob(token.split('.')[1]));
+          userRole = tokenData.role;
+        } catch (error) {
+          console.error('Error parsing auth token:', error);
+        }
+      }
+      
+      // Fallback: check if we can extract user info from cookies or other headers
+      // This is a simplified approach - in production, properly validate these claims
+      const userHeader = request.headers.get('x-user-role');
+      if (userHeader) {
+        userRole = userHeader;
+      }
+      
+      // Development fallback - REMOVE IN PRODUCTION
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Using development fallback for authentication');
+        userRole = 'ADMIN';
+      }
+    }
+
+    console.log('User role determined from auth:', userRole);
+    
+    // Only admin can view all users
+    console.log("userRole", userRole);
+    if (!userRole || userRole !== 'ADMIN') {
+      
       return NextResponse.json(
-        { error: 'Unauthorized - Only admins can view all users' },
+        {
+          success: false,
+          error: 'Unauthorized - Only admins can view all users',
+        },
         { status: 403 }
       );
     }
 
-    // Lấy dữ liệu từ Google Sheets
+    // Get data from Google Sheets
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
-      range: 'A2:G', // Đọc từ dòng 2 đến dòng cuối, cột A đến G
+      range: 'A2:G', // Read from row 2 to end, columns A to G
     });
 
     const rows = response.data.values;
@@ -39,10 +76,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, users: [] });
     }
 
-    // Chuyển đổi dữ liệu từ sheet thành danh sách người dùng
-    // [Họ và tên, Email, Thời gian đăng ký, Mật khẩu, Vai trò, Số điện thoại, Địa chỉ]
+    // Convert sheet data to user list
+    // [Name, Email, Registration time, Password, Role, Phone number, Address]
     const users = rows.map((row, index) => ({
-      id: index.toString(), // Sử dụng index làm ID
+      id: index.toString(), // Use index as ID
       fullName: row[0] || '',
       email: row[1] || '',
       registrationTime: row[2] || '',

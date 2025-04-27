@@ -163,46 +163,49 @@ export default function TransactionsPage() {
       {/* Header with gradient background */}
       <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
-         <div className="relative flex items-center justify-between">
+         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">{translate('lich_su_giao_dich')}</h1>
             <p className="text-white/80">
               {translate('xem_quan_ly_giao_dich')}
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={() => {
                 setTransactionType("income");
                 setShowAddModal(true);
               }}
-              className="px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
+              className="px-5 md:px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              {translate('them_thu_nhap_btn')}
+              <span className="whitespace-nowrap">{translate('them_thu_nhap_btn')}</span>
             </button>
             <button
               onClick={() => {
                 setTransactionType("expense");
                 setShowAddModal(true);
               }}
-              className="px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
+              className="px-5 md:px-6 py-3 bg-white text-gray-700 rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              {translate('them_chi_tieu_btn')}
+              <span className="whitespace-nowrap">{translate('them_chi_tieu_btn')}</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Filters Section */}
-      <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 mb-8 border border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="md:col-span-2">
+      <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-4 md:p-6 mb-8 border border-gray-100">
+        <h2 className="font-medium text-gray-700 mb-3 md:hidden">Bộ lọc</h2>
+        
+        <div className="space-y-4">
+          {/* DateRangePicker fullwidth on mobile, in its own row */}
+          <div>
             <DateRangePicker
               startDate={filters.startDate}
               endDate={filters.endDate}
@@ -210,35 +213,40 @@ export default function TransactionsPage() {
               onEndDateChange={(date) => handleFilterChange('endDate', date)}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">{translate('loai')}</label>
-            <select 
-              value={filters.type}
-              onChange={(e) => handleFilterChange('type', e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
-            >
-              <option value="">{translate('tat_ca')}</option>
-              <option value="income">{translate('thu_nhap')}</option>
-              <option value="expense">{translate('chi_tieu')}</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">{translate('nguoi_ghi')}</label>
-            <select 
-              value={filters.recordedBy}
-              onChange={(e) => handleFilterChange('recordedBy', e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
-            >
-              <option value="">{translate('tat_ca')}</option>
-              <option value={user?.fullName}>{user?.fullName}</option>
-            </select>
+          
+          {/* Type and RecordedBy in one row on desktop, stacked on mobile */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{translate('loai')}</label>
+              <select 
+                value={filters.type}
+                onChange={(e) => handleFilterChange('type', e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
+              >
+                <option value="">{translate('tat_ca')}</option>
+                <option value="income">{translate('thu_nhap')}</option>
+                <option value="expense">{translate('chi_tieu')}</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{translate('nguoi_ghi')}</label>
+              <select 
+                value={filters.recordedBy}
+                onChange={(e) => handleFilterChange('recordedBy', e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200"
+              >
+                <option value="">{translate('tat_ca')}</option>
+                <option value={user?.fullName}>{user?.fullName}</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Transactions Table */}
+      {/* Transactions Table (Desktop) and Cards (Mobile) */}
       <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl overflow-hidden border border-gray-100">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View - Hidden on Mobile */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50/50">
@@ -343,10 +351,106 @@ export default function TransactionsPage() {
               )}
             </tbody>
           </table>
-          {!isLoading && !error && transactions.length > 0 && (
-            <Pagination />
+        </div>
+      
+        {/* Mobile Card View - Hidden on Desktop */}
+        <div className="md:hidden">
+          {isLoading ? (
+            <div className="px-6 py-8 text-center">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-gray-700">{translate('dang_tai_du_lieu')}</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="px-6 py-8 text-center">
+              <div className="flex flex-col items-center gap-4 text-red-600">
+                <div className="h-24 w-24 bg-red-50 rounded-full flex items-center justify-center">
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <p className="font-medium">{error}</p>
+              </div>
+            </div>
+          ) : transactions.length === 0 ? (
+            <div className="px-6 py-8 text-center">
+              <div className="flex flex-col items-center gap-4">
+                <div className="h-24 w-24 text-gray-400 bg-gray-50 rounded-full flex items-center justify-center">
+                  <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <p className="text-gray-700">{translate('chua_co_giao_dich')}</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setTransactionType("income");
+                      setShowAddModal(true);
+                    }}
+                    className="px-4 py-2 text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    {translate('them_thu_nhap_btn')}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setTransactionType("expense");
+                      setShowAddModal(true);
+                    }}
+                    className="px-4 py-2 text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    {translate('them_chi_tieu_btn')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {getCurrentTransactions().map((transaction) => (
+                <div key={transaction.id} className="p-4 hover:bg-blue-50/30 transition-colors duration-200">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-3 py-1 text-xs font-medium rounded-full inline-flex items-center justify-center ${
+                        transaction.type === 'Thu' 
+                          ? 'text-green-800 bg-green-100'
+                          : 'text-red-800 bg-red-100'
+                      }`}>
+                        {transaction.type === 'Thu' ? translate('thu_nhap') : translate('chi_tieu')}
+                      </span>
+                      <span className="text-sm text-gray-500">{transaction.date}</span>
+                    </div>
+                    <div className={`text-base font-medium ${
+                      transaction.type === 'Thu' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+                        style: 'currency',
+                        currency: language === 'vi' ? 'VND' : 'USD'
+                      }).format(transaction.amount)}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 text-sm">
+                    <div className="font-medium text-gray-900">{transaction.description}</div>
+                    <div className="flex justify-between">
+                      <div className="text-gray-600">{translate('danh_muc')}: {transaction.category}</div>
+                      <button className="p-1.5 text-[#3E503C] hover:text-[#7F886A] hover:bg-[#3E503C]/10 rounded-lg transition-colors duration-200">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="text-gray-500 text-xs">{translate('nguoi_ghi')}: {transaction.recordedBy}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
+      
+        {!isLoading && !error && transactions.length > 0 && (
+          <div className="px-4 py-3">
+            <Pagination />
+          </div>
+        )}
       </div>
 
       {/* Add Transaction Modal */}

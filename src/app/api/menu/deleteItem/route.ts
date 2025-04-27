@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     // Get all menu items
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
-      range: 'Menu!A:H',
+      range: 'Menu!A:I',
     });
 
     const rows = response.data.values;
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find the row index of the item to delete
+    // Find the row index of the item to delete/deactivate
     const rowIndex = rows.findIndex(row => row[0] === id);
     if (rowIndex === -1) {
       return NextResponse.json(
@@ -46,33 +46,31 @@ export async function POST(request: Request) {
       );
     }
 
-    // Delete the row
-    await sheets.spreadsheets.batchUpdate({
+    // Instead of deleting, update the status to 'inactive'
+    const row = rows[rowIndex];
+    // Create a new row with the status changed to 'inactive'
+    const updatedRow = [...row];
+    // Status is in column G (index 6)
+    updatedRow[6] = 'inactive';
+
+    // Update the row with the new status
+    await sheets.spreadsheets.values.update({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
+      range: `Menu!A${rowIndex + 1}:I${rowIndex + 1}`,
+      valueInputOption: 'RAW',
       requestBody: {
-        requests: [
-          {
-            deleteDimension: {
-              range: {
-                sheetId: 0, // Assuming Menu sheet is the first sheet
-                dimension: 'ROWS',
-                startIndex: rowIndex,
-                endIndex: rowIndex + 1,
-              },
-            },
-          },
-        ],
+        values: [updatedRow],
       },
     });
 
     return NextResponse.json({ 
-      message: 'Xóa món thành công',
+      message: 'Đã ngừng bán món thành công',
       deletedId: id
     });
   } catch (error) {
-    console.error('Error deleting menu item:', error);
+    console.error('Error deactivating menu item:', error);
     return NextResponse.json(
-      { error: 'Không thể xóa món' },
+      { error: 'Không thể ngừng bán món' },
       { status: 500 }
     );
   }

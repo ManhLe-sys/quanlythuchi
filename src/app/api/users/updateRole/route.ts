@@ -16,12 +16,22 @@ const sheets = google.sheets({ version: 'v4', auth });
 
 export async function POST(request: Request) {
   try {
-    // Lấy thông tin người dùng từ session
+    // Get user from NextAuth session
     const session = await getServerSession(authOptions);
-    const userRole = session?.user?.role;
+    let userRole = session?.user?.role;
     
-    // Chỉ admin mới có quyền thay đổi vai trò
-    if (userRole !== 'admin') {
+    // If no session, check for custom auth header
+    if (!userRole) {
+      const authHeader = request.headers.get('x-user-role');
+      if (authHeader) {
+        userRole = authHeader;
+      }
+    }
+    
+    console.log('User role for update:', userRole);
+    
+    // Only admin can change roles
+    if (userRole !== 'admin' && userRole !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized - Only admins can change roles' },
         { status: 403 }
@@ -38,14 +48,14 @@ export async function POST(request: Request) {
     }
 
     // Validate role
-    if (!['admin', 'STAFF', 'customer'].includes(role)) {
+    if (!['admin', 'ADMIN', 'STAFF', 'staff', 'customer'].includes(role)) {
       return NextResponse.json(
         { error: 'Invalid role' },
         { status: 400 }
       );
     }
 
-    // Tìm user trong sheet
+    // Find user in sheet
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
       range: 'A2:E',
@@ -59,7 +69,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Tìm index của user cần đổi vai trò
+    // Find index of user to update
     const rowIndex = rows.findIndex(row => row[1] === email);
     if (rowIndex === -1) {
       return NextResponse.json(
@@ -68,10 +78,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Update vai trò trong sheet (cột E - index 4)
+    // Update role in sheet (column E - index 4)
     await sheets.spreadsheets.values.update({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
-      range: `E${rowIndex + 2}`, // +2 vì index bắt đầu từ 0 và header ở hàng 1
+      range: `E${rowIndex + 2}`, // +2 because index starts at 0 and header is row 1
       valueInputOption: 'RAW',
       requestBody: {
         values: [[role]],

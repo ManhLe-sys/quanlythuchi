@@ -112,7 +112,7 @@ export default function AdminMenuPage() {
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Quản Lý Thực Đơn</h1>
+            <h1 className="text-4xl font-bold text-white mb-2">Quản Lý Sản Phẩm</h1>
             <p className="text-white/80">
               Quản lý danh sách món và giá trong thực đơn
             </p>

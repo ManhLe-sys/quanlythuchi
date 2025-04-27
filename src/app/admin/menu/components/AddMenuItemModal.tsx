@@ -32,7 +32,7 @@ export default function AddMenuItemModal({
 }: AddMenuItemModalProps) {
   const [formData, setFormData] = useState({
     name: '',
-    category: categories[0],
+    category: categories && categories.length > 0 ? categories[0] : '',
     price: '',
     description: '',
     isAvailable: true,
@@ -54,7 +54,7 @@ export default function AddMenuItemModal({
     } else {
       setFormData({
         name: '',
-        category: categories[0],
+        category: categories && categories.length > 0 ? categories[0] : '',
         price: '',
         description: '',
         isAvailable: true,
@@ -214,7 +214,7 @@ export default function AddMenuItemModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-800"
+            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-800 rounded-xl border border-gray-200 hover:bg-gray-50"
           >
             Hủy
           </button>
