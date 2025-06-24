@@ -24,6 +24,7 @@ interface PomodoroSettingsProps {
 export default function PomodoroSettings({
   settings,
   setSettings,
+  
 }: PomodoroSettingsProps) {
   const [tempSettings, setTempSettings] = useState(settings);
   const [isDirty, setIsDirty] = useState(false);
