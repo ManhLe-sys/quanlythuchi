@@ -28,8 +28,8 @@ export default function Header() {
     }
     
     if (role === 'customer') {
-      // Customers only see home and products
-      return ['home', 'products'].includes(menuItem);
+      // Customers see home, products, and pomodoro
+      return ['home', 'products', 'pomodoro'].includes(menuItem);
     }
     
     return true; // Default fallback
@@ -135,6 +135,17 @@ export default function Header() {
                 }`}
               >
                 {translate('quan_ly')}
+              </Link>
+            )}
+
+            {shouldShowMenuItem('pomodoro') && (
+              <Link 
+                href="/pomodoro" 
+                className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
+                  pathname === '/pomodoro' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                }`}
+              >
+                Pomodoro
               </Link>
             )}
           </nav>
@@ -291,6 +302,18 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {translate('quan_ly')}
+                </Link>
+              )}
+
+              {shouldShowMenuItem('pomodoro') && (
+                <Link 
+                  href="/pomodoro" 
+                  className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
+                    pathname === '/pomodoro' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Pomodoro
                 </Link>
               )}
 
