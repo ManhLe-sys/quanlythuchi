@@ -51,6 +51,7 @@ export async function POST(req: Request) {
     console.log('Email:', email);
     console.log('Input password:', password);
     console.log('Stored hashed password:', storedPassword);
+    console.log('User role from sheet:', user.get('Vai trò'));
 
     if (!storedPassword) {
       console.error('No password found in database for user:', email);
@@ -65,18 +66,25 @@ export async function POST(req: Request) {
     console.log('Password match result:', passwordMatch);
 
     if (passwordMatch) {
-      // Lấy thông tin user từ sheet
+      // Lấy thông tin user từ sheet với vai trò chính xác
       const userData = {
         email: user.get('Email'),
         fullName: user.get('Họ và tên'),
-        role: user.get('Vai trò') || 'STAFF'
+        role: user.get('Vai trò') || 'STAFF',
+        phoneNumber: user.get('Số điện thoại') || '',
+        address: user.get('Địa chỉ') || ''
       };
+
+      // Log for debugging
+      console.log('User data being returned:', userData);
 
       const token = jwt.sign(
         { 
           email: userData.email,
           fullName: userData.fullName,
-          role: userData.role
+          role: userData.role,
+          phoneNumber: userData.phoneNumber,
+          address: userData.address
         },
         process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: '1d' }
@@ -103,4 +111,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-} 
+}

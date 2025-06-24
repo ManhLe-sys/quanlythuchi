@@ -56,7 +56,9 @@ export default function LoginPage() {
         login({
           fullName: data.user.fullName,
           email: data.user.email,
-          role: data.user.role || 'STAFF'
+          role: data.user.role || 'STAFF',
+          phoneNumber: data.user.phoneNumber || '',
+          address: data.user.address || ''
         });
 
         setSuccess('Đăng nhập thành công!');
@@ -91,14 +93,14 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm">{error}</p>
+            <div className="mb-6 p-4 bg-[#FF6F3D]/10 border border-[#FF6F3D]/20 rounded-lg">
+              <p className="text-[#FF6F3D] text-sm">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-600 text-sm">{success}</p>
+            <div className="mb-6 p-4 bg-[#3E503C]/10 border border-[#3E503C]/20 rounded-lg">
+              <p className="text-[#3E503C] text-sm">{success}</p>
             </div>
           )}
 

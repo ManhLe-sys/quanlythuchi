@@ -15,7 +15,7 @@ export async function GET() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEETS_SHEET_ID,
-      range: 'Menu!A2:H', // Updated range to include all columns
+      range: 'Menu!A2:I', // Updated range to include quantity column
     });
 
     const rows = response.data.values;
@@ -31,7 +31,8 @@ export async function GET() {
       // Skip row[4] as it's a duplicate category
       description: row[5] || '', // Mô tả (F)
       status: row[6] || 'active', // Trạng thái (G)
-      imageUrl: row[7] || '' // URL hình ảnh (H)
+      imageUrl: row[7] || '', // URL hình ảnh (H)
+      quantity: Number(row[8] || 0) // Số lượng (I)
     }));
 
     return NextResponse.json({ items });

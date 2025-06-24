@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ProtectedRoute from './ProtectedRoute';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface AddIncomeModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ interface FormData {
 
 export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncomeModalProps) {
   const { user } = useAuth();
+  const { translate } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
@@ -37,7 +39,7 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
 
     // Validate form
     if (!formData.date || !formData.category || !formData.amount || !formData.description) {
-      setError('Vui lòng điền đầy đủ thông tin');
+      setError(translate('vui_long_dien_day_du'));
       setIsLoading(false);
       return;
     }
@@ -60,7 +62,7 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Có lỗi xảy ra khi thêm khoản thu');
+        throw new Error(data.error || translate('loi_them_khoan_thu'));
       }
 
       onSuccess();
@@ -73,7 +75,7 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
         notes: ''
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra');
+      setError(err instanceof Error ? err.message : translate('co_loi_xay_ra'));
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +85,7 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
 
   return (
     <ProtectedRoute>
-      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999]">
+      <div className="fixed inset-0 bg-gray-500/30 backdrop-blur-sm flex items-center justify-center z-[9999]">
         <div className="bg-white rounded-3xl p-8 max-w-2xl w-full mx-4 shadow-2xl transform transition-all relative">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-3">
@@ -92,7 +94,7 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Thêm Khoản Thu</h2>
+              <h2 className="text-2xl font-bold text-gray-700">{translate('them_khoan_thu')}</h2>
             </div>
             <button
               onClick={onClose}
@@ -106,7 +108,7 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ngày</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{translate('ngay')}</label>
                 <input
                   type="date"
                   name="date"
@@ -117,7 +119,7 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Loại Thu Nhập</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{translate('danh_muc')}</label>
                 <select
                   name="category"
                   value={formData.category}
@@ -125,16 +127,16 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
                   required
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
                 >
-                  <option value="">Chọn loại thu nhập</option>
-                  <option value="SALARY">Lương</option>
-                  <option value="BONUS">Thưởng</option>
-                  <option value="INVESTMENT">Đầu tư</option>
-                  <option value="OTHER">Khác</option>
+                  <option value="">{translate('loai')}</option>
+                  <option value="SALARY">{translate('salary')}</option>
+                  <option value="BONUS">{translate('bonus')}</option>
+                  <option value="INVESTMENT">{translate('investment')}</option>
+                  <option value="OTHER">{translate('other')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Số Tiền</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{translate('so_tien')}</label>
               <div className="relative">
                 <span className="absolute left-4 top-2.5 text-gray-500">₫</span>
                 <input
@@ -150,7 +152,7 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Mô Tả</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{translate('mo_ta')}</label>
               <input
                 type="text"
                 name="description"
@@ -158,18 +160,18 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 required
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                placeholder="Nhập mô tả chi tiết"
+                placeholder={translate('description_placeholder')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Ghi Chú</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{translate('ghi_chu')}</label>
               <textarea
                 name="notes"
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                 rows={3}
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-700"
-                placeholder="Nhập ghi chú (nếu có)"
+                placeholder={translate('notes_placeholder')}
               />
             </div>
             {error && (
@@ -183,27 +185,27 @@ export default function AddIncomeModal({ isOpen, onClose, onSuccess }: AddIncome
                 onClick={onClose}
                 className="px-6 py-2.5 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors duration-200"
               >
-                Hủy
+                {translate('huy')}
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-6 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 flex items-center space-x-2"
+                className="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 flex items-center space-x-2"
               >
                 {isLoading ? (
                   <>
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-5 w-5 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>Đang xử lý...</span>
+                    <span>{translate('processing')}</span>
                   </>
                 ) : (
                   <>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>Lưu</span>
+                    <span>{translate('luu')}</span>
                   </>
                 )}
               </button>

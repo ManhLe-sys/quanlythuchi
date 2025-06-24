@@ -12,6 +12,7 @@ interface MenuItem {
   isAvailable: boolean;
   createdAt: string;
   updatedAt: string;
+  quantity?: number;
 }
 
 interface AddMenuItemModalProps {
@@ -31,10 +32,11 @@ export default function AddMenuItemModal({
 }: AddMenuItemModalProps) {
   const [formData, setFormData] = useState({
     name: '',
-    category: categories[0],
+    category: categories && categories.length > 0 ? categories[0] : '',
     price: '',
     description: '',
-    isAvailable: true
+    isAvailable: true,
+    quantity: ''
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,15 +48,17 @@ export default function AddMenuItemModal({
         category: editingItem.category,
         price: editingItem.price.toString(),
         description: editingItem.description || '',
-        isAvailable: editingItem.isAvailable
+        isAvailable: editingItem.isAvailable,
+        quantity: editingItem.quantity?.toString() || ''
       });
     } else {
       setFormData({
         name: '',
-        category: categories[0],
+        category: categories && categories.length > 0 ? categories[0] : '',
         price: '',
         description: '',
-        isAvailable: true
+        isAvailable: true,
+        quantity: ''
       });
     }
   }, [editingItem, categories]);
@@ -172,6 +176,21 @@ export default function AddMenuItemModal({
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Số lượng *
+          </label>
+          <input
+            type="number"
+            required
+            min="0"
+            value={formData.quantity}
+            onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+            className="w-full px-4 py-2.5 rounded-xl"
+            placeholder="Nhập số lượng..."
+          />
+        </div>
+
         <div className="flex items-center">
           <input
             type="checkbox"
@@ -195,14 +214,14 @@ export default function AddMenuItemModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-800"
+            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-800 rounded-xl border border-gray-200 hover:bg-gray-50"
           >
             Hủy
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+            className="px-6 py-2 text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
           >
             {isSubmitting ? 'Đang lưu...' : editingItem ? 'Cập nhật' : 'Thêm món'}
           </button>

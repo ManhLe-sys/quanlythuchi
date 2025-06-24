@@ -11,6 +11,8 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    phoneNumber: '',
+    address: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +44,8 @@ export default function RegisterPage() {
           fullName: formData.fullName,
           email: formData.email,
           password: formData.password,
+          phoneNumber: formData.phoneNumber,
+          address: formData.address,
         }),
       });
 
@@ -63,22 +67,22 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#F3ECDB] via-[#F3ECDB]/80 to-[#F3ECDB] flex items-center justify-center p-4">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#3E503C]/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#7F886A]/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
       </div>
 
       <div className="w-full max-w-md">
         <div className="glass-card p-8 rounded-3xl shadow-xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold gradient-text mb-2">Đăng Ký</h1>
-            <p className="text-gray-600">Tạo tài khoản mới để bắt đầu</p>
+            <p className="text-[#3E503C]/70">Tạo tài khoản mới để bắt đầu</p>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+            <div className="mb-4 p-3 bg-[#FF6F3D]/10 text-[#FF6F3D] rounded-lg">
               {error}
             </div>
           )}
@@ -111,6 +115,34 @@ export default function RegisterPage() {
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                 placeholder="example@email.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Số điện thoại
+              </label>
+              <input
+                type="tel"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                placeholder="0123456789"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Địa chỉ
+              </label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                placeholder="123 Đường ABC, Quận XYZ, TP. HCM"
               />
             </div>
 
