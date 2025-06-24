@@ -28,8 +28,8 @@ export default function Header() {
     }
     
     if (role === 'customer') {
-      // Customers see home, products, and pomodoro
-      return ['home', 'products', 'pomodoro'].includes(menuItem);
+      // Customers see home, products, pomodoro, and schedule
+      return ['home', 'products', 'pomodoro', 'schedule'].includes(menuItem);
     }
     
     return true; // Default fallback
@@ -146,6 +146,17 @@ export default function Header() {
                 }`}
               >
                 Pomodoro
+              </Link>
+            )}
+
+            {shouldShowMenuItem('schedule') && (
+              <Link 
+                href="/schedule" 
+                className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
+                  pathname === '/schedule' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                }`}
+              >
+                {translate('lich_lam_viec')}
               </Link>
             )}
           </nav>
@@ -314,6 +325,18 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Pomodoro
+                </Link>
+              )}
+
+              {shouldShowMenuItem('schedule') && (
+                <Link 
+                  href="/schedule" 
+                  className={`px-4 py-3 rounded-xl text-gray-700 font-medium transition-all ${
+                    pathname === '/schedule' ? 'bg-[#3E503C]/10 text-[#3E503C]' : 'hover:bg-gray-100'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {translate('lich_lam_viec')}
                 </Link>
               )}
 

@@ -27,6 +27,7 @@ const SPREADSHEET_ID = process.env.GOOGLE_SHEET_ID;
 const SHEET_NAME = 'Users';
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -43,8 +44,8 @@ export const authOptions: NextAuthOptions = {
           // Xác thực với Google Sheets API
           const auth = new google.auth.GoogleAuth({
             credentials: {
-              client_email: process.env.GOOGLE_CLIENT_EMAIL,
-              private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+              client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
+              private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(/\\n/g, '\n'),
             },
             scopes: ['https://www.googleapis.com/auth/spreadsheets'],
           });

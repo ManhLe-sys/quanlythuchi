@@ -35,6 +35,7 @@ const translations: Record<Language, Record<string, string>> = {
     'san_pham': 'Sản Phẩm',
     'don_hang': 'Đơn Hàng',
     'quan_ly': 'Quản Lý',
+    'lich_lam_viec': 'Lịch làm việc',
     
     // User menu
     'dang_nhap': 'Đăng Nhập',
@@ -236,6 +237,7 @@ const translations: Record<Language, Record<string, string>> = {
     'san_pham': 'Products',
     'don_hang': 'Orders',
     'quan_ly': 'Admin',
+    'lich_lam_viec': 'Schedule',
     
     // User menu
     'dang_nhap': 'Login',
