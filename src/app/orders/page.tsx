@@ -515,9 +515,9 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 text-gray-700">
+    <div className="container mx-auto px-4 py-8">
       {/* Header with gradient background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-4 sm:p-8 mb-6 md:mb-8 shadow-lg">
+      <div className="relative overflow-hidden bg-gradient-to-r from-slate-800 to-slate-900 rounded-3xl p-4 sm:p-8 mb-6 md:mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
           <div>
@@ -529,7 +529,7 @@ export default function OrdersPage() {
           <div>
             <button
               onClick={handleOpenAddModal}
-              className="w-full sm:w-auto px-4 md:px-6 py-2 rounded-xl font-medium bg-white text-gray-700 hover:bg-gray-50 shadow-lg transition-all duration-200 flex items-center justify-center sm:justify-start gap-2 border border-gray-200"
+              className="w-full sm:w-auto px-4 md:px-6 py-2 rounded-xl font-medium bg-slate-700/50 backdrop-blur-xl text-white hover:bg-slate-600/50 transition-all duration-200 flex items-center justify-center sm:justify-start gap-2 border border-white/20"
             >
               <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -541,314 +541,276 @@ export default function OrdersPage() {
       </div>
 
       {/* Filters Section */}
-      <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        <div>
-          <Label className="text-gray-700 font-medium mb-2 block">{translate('tim_kiem_don_hang')}</Label>
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder={translate('tim_kiem_don_hang')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-gray-700 pl-10"
-            />
-            <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-        </div>
-        
-        <div>
-          <Label className="text-gray-700 font-medium mb-2 block">{translate('trang_thai_don_hang')}</Label>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent bg-white text-gray-700">
-              <SelectValue placeholder={translate('tat_ca_trang_thai')} className="text-gray-700" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-gray-200 text-gray-700">
-              <SelectItem value="all" className="text-gray-700">{translate('tat_ca_trang_thai')}</SelectItem>
-              <SelectItem value="Chờ xử lý" className="text-gray-700">{translate('cho_xu_ly')}</SelectItem>
-              <SelectItem value="Đang xử lý" className="text-gray-700">{translate('dang_xu_ly')}</SelectItem>
-              <SelectItem value="Hoàn thành" className="text-gray-700">{translate('hoan_thanh')}</SelectItem>
-              <SelectItem value="Đã hủy" className="text-gray-700">{translate('da_huy')}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="md:col-span-2 lg:col-span-1">
-          <Label className="text-gray-700 font-medium mb-2 block">{translate('ngay_dat_hang')}</Label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-4 md:p-6 mb-8 shadow-lg">
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+        <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div>
+            <Label className="text-white font-medium mb-2 block">{translate('tim_kiem_don_hang')}</Label>
             <div className="relative">
-              <Input 
-                type="date" 
-                value={dateFilter.startDate}
-                onChange={(e) => setDateFilter(prev => ({ ...prev, startDate: e.target.value }))}
-                className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-gray-700 w-full"
+              <Input
+                type="text"
+                placeholder={translate('tim_kiem_don_hang')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-xl bg-slate-700/50 backdrop-blur-xl text-white border border-white/20 focus:ring-2 focus:ring-white focus:border-transparent placeholder-white/60 pl-10"
               />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
+              <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </div>
-            <div className="relative">
-              <Input 
-                type="date" 
-                value={dateFilter.endDate}
-                onChange={(e) => setDateFilter(prev => ({ ...prev, endDate: e.target.value }))}
-                className="rounded-xl border-gray-200 focus:ring-2 focus:ring-[#3E503C] focus:border-transparent text-gray-700 w-full"
+          </div>
+          
+          <div>
+            <Label className="text-white font-medium mb-2 block">{translate('trang_thai_don_hang')}</Label>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-full rounded-xl bg-slate-700/50 backdrop-blur-xl text-white border border-white/20 focus:ring-2 focus:ring-white focus:border-transparent">
+                <SelectValue placeholder={translate('tat_ca_trang_thai')} />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-white/20 text-white">
+                <SelectItem value="all">{translate('tat_ca_trang_thai')}</SelectItem>
+                <SelectItem value="Chờ xử lý">{translate('cho_xu_ly')}</SelectItem>
+                <SelectItem value="Đang xử lý">{translate('dang_xu_ly')}</SelectItem>
+                <SelectItem value="Hoàn thành">{translate('hoan_thanh')}</SelectItem>
+                <SelectItem value="Đã hủy">{translate('da_huy')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-white font-medium mb-2 block">{translate('khoang_thoi_gian')}</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                type="date"
+                value={dateFilter.startDate}
+                onChange={(e) => setDateFilter({ ...dateFilter, startDate: e.target.value })}
+                className="rounded-xl bg-slate-700/50 backdrop-blur-xl text-white border border-white/20 focus:ring-2 focus:ring-white focus:border-transparent"
               />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
+              <Input
+                type="date"
+                value={dateFilter.endDate}
+                onChange={(e) => setDateFilter({ ...dateFilter, endDate: e.target.value })}
+                className="rounded-xl bg-slate-700/50 backdrop-blur-xl text-white border border-white/20 focus:ring-2 focus:ring-white focus:border-transparent"
+              />
             </div>
           </div>
         </div>
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl border border-gray-100">
-        <div className="lg:block hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-[#3E503C]/5 border-b border-[#3E503C]/10">
-                  <th className="font-medium text-gray-700 py-4 px-6 text-left">{translate('ma_don_hang')}</th>
-                  <th className="font-medium text-gray-700 py-4 px-6 text-left">{translate('ten_khach_hang')}</th>
-                  <th className="font-medium text-gray-700 py-4 px-6 text-left">{translate('ngay_dat_hang')}</th>
-                  <th className="font-medium text-gray-700 py-4 px-6 text-right">{translate('tong_tien')}</th>
-                  <th className="font-medium text-gray-700 py-4 px-6 text-center">{translate('trang_thai_don_hang')}</th>
-                  <th className="font-medium text-gray-700 py-4 px-6 text-center">{translate('trang_thai_thanh_toan')}</th>
-                  <th className="font-medium text-gray-700 py-4 px-6 text-right">{translate('thao_tac')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={7} className="text-center py-8">
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="w-10 h-10 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-gray-600">{translate('dang_tai_du_lieu')}</p>
-                      </div>
-                    </td>
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-lg">
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+        <div className="relative">
+          {/* Desktop Table */}
+          <div className="lg:block hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="font-medium text-white py-4 px-6 text-left">{translate('ma_don_hang')}</th>
+                    <th className="font-medium text-white py-4 px-6 text-left">{translate('ten_khach_hang')}</th>
+                    <th className="font-medium text-white py-4 px-6 text-left">{translate('ngay_dat_hang')}</th>
+                    <th className="font-medium text-white py-4 px-6 text-right">{translate('tong_tien')}</th>
+                    <th className="font-medium text-white py-4 px-6 text-center">{translate('trang_thai_don_hang')}</th>
+                    <th className="font-medium text-white py-4 px-6 text-center">{translate('trang_thai_thanh_toan')}</th>
+                    <th className="font-medium text-white py-4 px-6 text-right">{translate('thao_tac')}</th>
                   </tr>
-                ) : paginatedOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="text-center py-8">
-                      <div className="flex flex-col items-center gap-4 text-gray-500">
-                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        <p>{translate('khong_tim_thay_don_hang')}</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedOrders.map((order, index) => (
-                    <tr key={`${order.ma_don}-${index}`} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                      <td className="py-4 px-6">
-                        <div className="font-medium text-gray-900">{order.ma_don}</div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="font-medium text-gray-900">{order.ten_khach}</div>
-                        <div className="text-sm text-gray-600">{order.so_dien_thoai}</div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="text-gray-600">{new Date(order.ngay_dat).toLocaleDateString('vi-VN')}</div>
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <div className="font-medium text-gray-900">
-                          {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                          }).format(order.tong_tien)}
-                        </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex justify-center">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                            order.trang_thai === 'Hoàn thành'
-                              ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10'
-                              : order.trang_thai === 'Đang xử lý'
-                              ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/10'
-                              : order.trang_thai === 'Chờ xử lý'
-                              ? 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/10'
-                              : 'bg-red-50 text-red-700 ring-1 ring-red-600/10'
-                          }`}>
-                            {order.trang_thai}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex justify-center">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                            order.trang_thai_thanh_toan === 'Đã thanh toán'
-                              ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10'
-                              : 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/10'
-                          }`}>
-                            {order.trang_thai_thanh_toan}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => handleOpenDetail(order)}
-                            className="rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 hover:border-gray-400 px-4 py-2 transition-all flex items-center gap-2"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            {translate('chi_tiet_don_hang')}
-                          </button>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8">
+                        <div className="flex flex-col items-center gap-4">
+                          <div className="w-10 h-10 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+                          <p className="text-white/80">{translate('dang_tai_du_lieu')}</p>
                         </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : paginatedOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8">
+                        <div className="flex flex-col items-center gap-4 text-white/80">
+                          <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          <p>{translate('khong_tim_thay_don_hang')}</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) :
+                    paginatedOrders.map((order, index) => (
+                      <tr key={`${order.ma_don}-${index}`} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                        <td className="py-4 px-6">
+                          <div className="font-medium text-white">{order.ma_don}</div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="font-medium text-white">{order.ten_khach}</div>
+                          <div className="text-sm text-white/60">{order.so_dien_thoai}</div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="text-white/80">{new Date(order.ngay_dat).toLocaleDateString('vi-VN')}</div>
+                        </td>
+                        <td className="py-4 px-6 text-right">
+                          <div className="font-medium text-white">
+                            {new Intl.NumberFormat('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND'
+                            }).format(order.tong_tien)}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex justify-center">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                              order.trang_thai === 'Hoàn thành'
+                                ? 'bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20'
+                                : order.trang_thai === 'Đang xử lý'
+                                ? 'bg-blue-400/10 text-blue-400 ring-1 ring-blue-400/20'
+                                : order.trang_thai === 'Chờ xử lý'
+                                ? 'bg-amber-400/10 text-amber-400 ring-1 ring-amber-400/20'
+                                : 'bg-rose-400/10 text-rose-400 ring-1 ring-rose-400/20'
+                            }`}>
+                              {order.trang_thai}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex justify-center">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                              order.trang_thai_thanh_toan === 'Đã thanh toán'
+                                ? 'bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20'
+                                : 'bg-white/10 text-white/80 ring-1 ring-white/20'
+                            }`}>
+                              {order.trang_thai_thanh_toan}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => handleOpenDetail(order)}
+                              className="rounded-xl bg-slate-700/50 backdrop-blur-xl text-white hover:bg-slate-600/50 border border-white/20 px-4 py-2 transition-all flex items-center gap-2"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                              {translate('chi_tiet_don_hang')}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
 
-        {/* Mobile view as cards */}
-        <div className="lg:hidden block p-4">
-          {isLoading ? (
-            <div className="flex flex-col items-center gap-4 py-8">
-              <div className="w-10 h-10 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-gray-600">{translate('dang_tai_du_lieu')}</p>
-            </div>
-          ) : paginatedOrders.length === 0 ? (
-            <div className="flex flex-col items-center gap-4 text-gray-500 py-8">
-              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              <p>{translate('khong_tim_thay_don_hang')}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {paginatedOrders.map((order, index) => (
-                <div key={`${order.ma_don}-${index}`} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <div className="font-medium text-gray-900">{order.ma_don}</div>
-                      <div className="text-gray-600 text-sm">{new Date(order.ngay_dat).toLocaleDateString('vi-VN')}</div>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <div className="font-medium text-gray-900">
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency', 
-                          currency: 'VND'
-                        }).format(order.tong_tien)}
+          {/* Mobile view as cards */}
+          <div className="lg:hidden block p-4">
+            {isLoading ? (
+              <div className="flex flex-col items-center gap-4 py-8">
+                <div className="w-10 h-10 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-white/80">{translate('dang_tai_du_lieu')}</p>
+              </div>
+            ) : paginatedOrders.length === 0 ? (
+              <div className="flex flex-col items-center gap-4 text-white/80 py-8">
+                <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <p>{translate('khong_tim_thay_don_hang')}</p>
+              </div>
+            ) :
+              <div className="grid grid-cols-1 gap-4">
+                {paginatedOrders.map((order, index) => (
+                  <div key={`${order.ma_don}-${index}`} className="relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl p-4 shadow-lg">
+                    <div className="absolute inset-0 bg-white/5 backdrop-blur-xl"></div>
+                    <div className="relative">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <div className="font-medium text-white">{order.ma_don}</div>
+                          <div className="text-white/60 text-sm">{new Date(order.ngay_dat).toLocaleDateString('vi-VN')}</div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <div className="font-medium text-white">
+                            {new Intl.NumberFormat('vi-VN', {
+                              style: 'currency', 
+                              currency: 'VND'
+                            }).format(order.tong_tien)}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mb-4">
+                        <div className="font-medium text-white">{order.ten_khach}</div>
+                        <div className="text-sm text-white/60">{order.so_dien_thoai}</div>
+                      </div>
+                      
+                      <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                          order.trang_thai === 'Hoàn thành'
+                            ? 'bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20'
+                            : order.trang_thai === 'Đang xử lý'
+                            ? 'bg-blue-400/10 text-blue-400 ring-1 ring-blue-400/20'
+                            : order.trang_thai === 'Chờ xử lý'
+                            ? 'bg-amber-400/10 text-amber-400 ring-1 ring-amber-400/20'
+                            : 'bg-rose-400/10 text-rose-400 ring-1 ring-rose-400/20'
+                        }`}>
+                          {order.trang_thai}
+                        </span>
+                        
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                          order.trang_thai_thanh_toan === 'Đã thanh toán'
+                            ? 'bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20'
+                            : 'bg-white/10 text-white/80 ring-1 ring-white/20'
+                        }`}>
+                          {order.trang_thai_thanh_toan}
+                        </span>
+                      </div>
+                      
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => handleOpenDetail(order)}
+                          className="rounded-xl bg-slate-700/50 backdrop-blur-xl text-white hover:bg-slate-600/50 border border-white/20 px-4 py-2 transition-all flex items-center gap-2 w-full justify-center"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          {translate('chi_tiet_don_hang')}
+                        </button>
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="mb-4">
-                    <div className="font-medium text-gray-900">{order.ten_khach}</div>
-                    <div className="text-sm text-gray-600">{order.so_dien_thoai}</div>
-                  </div>
-                  
-                  <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      order.trang_thai === 'Hoàn thành'
-                        ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10'
-                        : order.trang_thai === 'Đang xử lý'
-                        ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/10'
-                        : order.trang_thai === 'Chờ xử lý'
-                        ? 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/10'
-                        : 'bg-red-50 text-red-700 ring-1 ring-red-600/10'
-                    }`}>
-                      {order.trang_thai}
-                    </span>
-                    
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      order.trang_thai_thanh_toan === 'Đã thanh toán'
-                        ? 'bg-green-50 text-green-700 ring-1 ring-green-600/10'
-                        : 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/10'
-                    }`}>
-                      {order.trang_thai_thanh_toan}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => handleOpenDetail(order)}
-                      className="rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 hover:border-gray-400 px-4 py-2 transition-all flex items-center gap-2 w-full justify-center"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      {translate('chi_tiet_don_hang')}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            }
+          </div>
         </div>
       </div>
 
       {/* Pagination */}
       {!isLoading && filteredOrders.length > 0 && (
-        <div className="bg-white shadow-sm rounded-xl mt-6 border border-gray-100">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
-            <div className="text-sm text-gray-500 text-center sm:text-left">
+        <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl mt-6 shadow-lg">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+          <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
+            <div className="text-sm text-white/60 text-center sm:text-left">
               <span className="hidden sm:inline">{translate('hien_thi')}</span> {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredOrders.length)} {translate('cua')} {filteredOrders.length} {translate('don_hang')}
             </div>
             <div className="flex flex-wrap justify-center sm:justify-end items-center gap-2">
               <Button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 hover:border-gray-400 p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-xl bg-slate-700/50 backdrop-blur-xl text-white hover:bg-slate-600/50 border border-white/20 p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                 </svg>
               </Button>
               
-              <div className="flex flex-wrap justify-center gap-1 md:gap-2">
-                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                  let pageNumber;
-                  
-                  // Always show current page
-                  if (totalPages <= 5) {
-                    // If we have 5 or fewer pages, show all
-                    pageNumber = i + 1;
-                  } else if (currentPage <= 3) {
-                    // If current page is 1, 2, or 3, show pages 1-5
-                    pageNumber = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    // If current page is among the last 3, show the last 5 pages
-                    pageNumber = totalPages - 4 + i;
-                  } else {
-                    // Otherwise show current page and 2 pages on each side
-                    pageNumber = currentPage - 2 + i;
-                  }
-                  
-                  return (
-                    <Button
-                      key={pageNumber}
-                      onClick={() => setCurrentPage(pageNumber)}
-                      className={`rounded-xl p-2 md:px-3 transition-all text-gray-700 text-sm ${
-                        currentPage === pageNumber
-                          ? 'bg-[#3E503C]/10 border border-[#3E503C]/20 font-medium'
-                          : 'bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      {pageNumber}
-                    </Button>
-                  );
-                })}
-              </div>
-              
               <Button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 hover:border-gray-400 p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-xl bg-slate-700/50 backdrop-blur-xl text-white hover:bg-slate-600/50 border border-white/20 p-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -860,17 +822,17 @@ export default function OrdersPage() {
                   setPageSize(Number(value));
                   setCurrentPage(1);
                 }}>
-                  <SelectTrigger className="w-full sm:w-[130px] rounded-xl bg-white text-gray-700 border border-gray-300">
+                  <SelectTrigger className="w-full sm:w-[130px] rounded-xl bg-slate-700/50 backdrop-blur-xl text-white border border-white/20">
                     <span className="flex items-center gap-2">
                       <span>{pageSize}</span>
-                      <span className="text-gray-500 text-xs md:text-sm">{translate('dong_mot_trang')}</span>
+                      <span className="text-white/60 text-xs md:text-sm">{translate('dong_mot_trang')}</span>
                     </span>
                   </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="5" className="text-gray-700">5 {translate('dong_mot_trang')}</SelectItem>
-                    <SelectItem value="10" className="text-gray-700">10 {translate('dong_mot_trang')}</SelectItem>
-                    <SelectItem value="20" className="text-gray-700">20 {translate('dong_mot_trang')}</SelectItem>
-                    <SelectItem value="50" className="text-gray-700">50 {translate('dong_mot_trang')}</SelectItem>
+                  <SelectContent className="bg-slate-800 border-white/20">
+                    <SelectItem value="5">5 {translate('dong_mot_trang')}</SelectItem>
+                    <SelectItem value="10">10 {translate('dong_mot_trang')}</SelectItem>
+                    <SelectItem value="20">20 {translate('dong_mot_trang')}</SelectItem>
+                    <SelectItem value="50">50 {translate('dong_mot_trang')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1050,12 +1012,12 @@ export default function OrdersPage() {
                   <div className="flex flex-wrap items-center gap-3">
                     <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-medium ${
                       selectedOrder?.trang_thai === 'Hoàn thành'
-                        ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
+                        ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-emerald-400/20'
                         : selectedOrder?.trang_thai === 'Đang xử lý'
-                        ? 'bg-[#7F886A]/10 text-[#7F886A] ring-1 ring-[#7F886A]/20'
+                        ? 'bg-[#7F886A]/10 text-[#7F886A] ring-1 ring-blue-400/20'
                         : selectedOrder?.trang_thai === 'Chờ xử lý'
-                        ? 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20'
-                        : 'bg-red-50 text-red-700 ring-1 ring-red-600/10'
+                        ? 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-amber-400/20'
+                        : 'bg-red-50 text-red-700 ring-1 ring-rose-400/20'
                     }`}>
                       {selectedOrder?.trang_thai}
                     </span>
@@ -1077,8 +1039,8 @@ export default function OrdersPage() {
                   <div className="flex flex-wrap items-center gap-3">
                     <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-medium ${
                       selectedOrder?.trang_thai_thanh_toan === 'Đã thanh toán'
-                        ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-[#3E503C]/20'
-                        : 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-[#FF6F3D]/20'
+                        ? 'bg-[#3E503C]/10 text-[#3E503C] ring-1 ring-emerald-400/20'
+                        : 'bg-[#FF6F3D]/10 text-[#FF6F3D] ring-1 ring-amber-400/20'
                     }`}>
                       {selectedOrder?.trang_thai_thanh_toan}
                     </span>

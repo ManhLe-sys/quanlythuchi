@@ -1,10 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 interface MenuItem {
   id: string;
@@ -20,10 +25,16 @@ interface MenuItem {
 export default function AdminMenuPage() {
   const { user } = useAuth();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const { toast } = useToast();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editItem, setEditItem] = useState<MenuItem>({} as MenuItem);
 
   const categories = [
     "Đồ uống",
@@ -32,6 +43,15 @@ export default function AdminMenuPage() {
     "Tráng miệng",
     "Khác"
   ];
+
+  const filteredItems = useMemo(() => {
+    return menuItems.filter(item => {
+      const matchesCategory = selectedCategory === "" || item.category === selectedCategory;
+      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.category.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [menuItems, selectedCategory, searchQuery]);
 
   const fetchMenuItems = async () => {
     try {
@@ -105,21 +125,110 @@ export default function AdminMenuPage() {
     }
   };
 
+  const handleEdit = (item: MenuItem) => {
+    setEditItem(item);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = (item: MenuItem) => {
+    setEditItem(item);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/menu/updateItem`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          id: editItem.id, 
+          name: editItem.name,
+          price: editItem.price,
+          category: editItem.category,
+          quantity: editItem.quantity,
+          status: editItem.status
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Không thể cập nhật món ăn');
+      }
+
+      toast({
+        title: "Thành công",
+        description: "Đã cập nhật món ăn",
+        variant: "default"
+      });
+
+      // Refresh the menu items
+      fetchMenuItems();
+      setIsEditDialogOpen(false);
+    } catch (err) {
+      toast({
+        title: "Lỗi",
+        description: "Không thể cập nhật món ăn",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/menu/deleteItem`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          id: editItem.id 
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Không thể xóa món ăn');
+      }
+
+      toast({
+        title: "Thành công",
+        description: "Đã xóa món ăn",
+        variant: "default"
+      });
+
+      // Refresh the menu items
+      fetchMenuItems();
+      setIsDeleteDialogOpen(false);
+    } catch (err) {
+      toast({
+        title: "Lỗi",
+        description: "Không thể xóa món ăn",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8 text-gray-700">
+    <div className="container mx-auto px-4 py-8 min-h-screen bg-slate-900 text-slate-200">
       {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
-        <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+      <div className="relative overflow-hidden bg-gradient-to-r from-slate-800 to-slate-900 rounded-3xl p-8 mb-8 shadow-lg border border-slate-700/50">
+        <div className="absolute inset-0 bg-slate-800/50 backdrop-blur-xl"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Quản Lý Sản Phẩm</h1>
-            <p className="text-white/80">
+            <h1 className="text-4xl font-bold text-slate-100 mb-2">Quản Lý Thực Đơn</h1>
+            <p className="text-slate-400">
               Quản lý danh sách món và giá trong thực đơn
             </p>
           </div>
           <div>
             <Link href="/admin/menu/add">
-              <Button className="px-6 py-3 bg-white text-[#3E503C] rounded-xl hover:bg-[#3E503C]/10 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 font-medium">
+              <Button className="px-6 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2 font-medium">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -131,14 +240,14 @@ export default function AdminMenuPage() {
       </div>
 
       {/* Filters */}
-      <div className="mb-8">
+      <div className="bg-slate-800/50 backdrop-blur-xl shadow-lg rounded-3xl border border-slate-700/50 p-6 mb-8">
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setSelectedCategory("")}
             className={`px-4 py-2 rounded-xl font-medium transition-all ${
               selectedCategory === ""
-                ? 'bg-[#3E503C] text-white shadow-md'
-                : 'bg-white text-gray-600 hover:bg-gray-100'
+                ? 'bg-emerald-500 text-white shadow-lg hover:bg-emerald-600'
+                : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
             }`}
           >
             Tất cả danh mục
@@ -149,8 +258,8 @@ export default function AdminMenuPage() {
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-xl font-medium transition-all ${
                 selectedCategory === category
-                  ? 'bg-[#3E503C] text-white shadow-md'
-                  : 'bg-white text-gray-600 hover:bg-gray-100'
+                  ? 'bg-emerald-500 text-white shadow-lg hover:bg-emerald-600'
+                  : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
               }`}
             >
               {category}
@@ -159,119 +268,251 @@ export default function AdminMenuPage() {
         </div>
       </div>
 
-      {/* Menu Items Table */}
-      <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3E503C]"></div>
-          </div>
-        ) : error ? (
-          <div className="text-center p-8">
-            <div className="text-red-500 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+      {/* Menu Items Grid */}
+      <div className="bg-slate-800/50 backdrop-blur-xl shadow-lg rounded-3xl border border-slate-700/50">
+        <div className="p-6 border-b border-slate-700/50">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="relative flex-1 md:w-64">
+              <input
+                type="text"
+                placeholder="Tìm kiếm món ăn..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 w-full rounded-xl bg-slate-900/50 border-slate-600 text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
             </div>
-            <p className="text-lg font-medium text-gray-700">{error}</p>
-            <button
-              onClick={fetchMenuItems}
-              className="mt-4 px-4 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors"
-            >
-              Thử lại
-            </button>
           </div>
-        ) : menuItems.length === 0 ? (
-          <div className="text-center p-8">
-            <div className="text-gray-400 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
-            </div>
-            <p className="text-lg font-medium text-gray-700">Không có món nào</p>
-            <Link href="/admin/menu/add">
-              <Button className="mt-4 px-4 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors">
-                Thêm món mới
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Tên món</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">Danh mục</th>
-                  <th className="px-6 py-3 text-right text-sm font-medium text-gray-700">Giá</th>
-                  <th className="px-6 py-3 text-center text-sm font-medium text-gray-700">Tồn kho</th>
-                  <th className="px-6 py-3 text-center text-sm font-medium text-gray-700">Trạng thái</th>
-                  <th className="px-6 py-3 text-center text-sm font-medium text-gray-700">Thao tác</th>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-700/50">
+                <th className="px-6 py-3 text-left text-sm font-medium text-slate-300">Tên món</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-slate-300">Danh mục</th>
+                <th className="px-6 py-3 text-right text-sm font-medium text-slate-300">Giá</th>
+                <th className="px-6 py-3 text-center text-sm font-medium text-slate-300">Tồn kho</th>
+                <th className="px-6 py-3 text-center text-sm font-medium text-slate-300">Trạng thái</th>
+                <th className="px-6 py-3 text-center text-sm font-medium text-slate-300">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-slate-400">Đang tải dữ liệu...</p>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {menuItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
+              ) : error ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8">
+                    <div className="flex flex-col items-center gap-4 text-rose-400">
+                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p>{error}</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredItems.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8">
+                    <div className="flex flex-col items-center gap-4 text-slate-400">
+                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                      <p>Không tìm thấy món ăn nào</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredItems.map((item) => (
+                  <tr key={item.id} className="border-b border-slate-700/50 hover:bg-slate-700/50 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-gray-100">
-                          <img 
-                            src={item.imageUrl || '/placeholder-food.jpg'} 
-                            alt={item.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-800">{item.name}</div>
-                          <div className="text-xs text-gray-500 line-clamp-1">{item.description}</div>
-                        </div>
+                      <div className="font-medium text-slate-200">{item.name}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-slate-300">{item.category}</div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="text-slate-300">
+                        {new Intl.NumberFormat('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND'
+                        }).format(item.price)}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-700">{item.category}</td>
-                    <td className="px-6 py-4 text-right text-[#3E503C] font-medium">
-                      {new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND'
-                      }).format(item.price)}
+                    <td className="px-6 py-4 text-center">
+                      <div className="text-slate-300">{item.quantity || 0}</div>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        item.quantity > 10 
-                          ? 'bg-green-100 text-green-800' 
-                          : item.quantity > 0 
-                            ? 'bg-yellow-100 text-yellow-800' 
-                            : 'bg-red-100 text-red-800'
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                        item.status === 'active'
+                          ? 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20'
+                          : 'bg-slate-500/10 text-slate-400 ring-1 ring-slate-500/20'
                       }`}>
-                        {item.quantity}
+                        {item.status === 'active' ? 'Đang bán' : 'Ngừng bán'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => handleToggleStatus(item.id, item.status)}
-                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          item.status === 'active' ? 'bg-green-500' : 'bg-gray-200'
-                        }`}
-                      >
-                        <span className="sr-only">Toggle status</span>
-                        <span
-                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            item.status === 'active' ? 'translate-x-5' : 'translate-x-0'
-                          }`}
-                        />
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <Link href={`/admin/menu/edit/${item.id}`} className="text-blue-500 hover:text-blue-700 mx-1">
-                        <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </Link>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center gap-2">
+                        <Button
+                          onClick={() => handleEdit(item)}
+                          className="px-3 py-1 bg-slate-700 text-slate-200 rounded-lg hover:bg-slate-600 transition-colors"
+                        >
+                          Sửa
+                        </Button>
+                        <Button
+                          onClick={() => handleDelete(item)}
+                          className="px-3 py-1 bg-rose-500/10 text-rose-400 rounded-lg hover:bg-rose-500/20 transition-colors"
+                        >
+                          Xóa
+                        </Button>
+                      </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-700/50">
+          <div className="text-sm text-slate-400">
+            Trang {currentPage} / {Math.ceil(filteredItems.length / itemsPerPage)}
           </div>
-        )}
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 text-sm rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 disabled:opacity-50 disabled:hover:bg-slate-700"
+            >
+              Trang trước
+            </Button>
+            <Button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredItems.length / itemsPerPage)))}
+              disabled={currentPage === Math.ceil(filteredItems.length / itemsPerPage)}
+              className="px-3 py-1 text-sm rounded-lg bg-slate-700 text-slate-200 hover:bg-slate-600 disabled:opacity-50 disabled:hover:bg-slate-700"
+            >
+              Trang sau
+            </Button>
+          </div>
+        </div>
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="bg-slate-800/50 backdrop-blur-xl rounded-3xl border-slate-700/50 shadow-xl text-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-slate-100">Chỉnh sửa món ăn</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-slate-300">Tên món</Label>
+              <Input
+                id="name"
+                value={editItem.name}
+                onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
+                className="rounded-xl bg-slate-900/50 hover:bg-slate-800/50 border-slate-600 text-slate-200"
+                placeholder="Nhập tên món"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="price" className="text-slate-300">Giá</Label>
+              <Input
+                id="price"
+                type="number"
+                value={editItem.price}
+                onChange={(e) => setEditItem({ ...editItem, price: Number(e.target.value) })}
+                className="rounded-xl bg-slate-900/50 hover:bg-slate-800/50 border-slate-600 text-slate-200"
+                placeholder="Nhập giá"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="category" className="text-slate-300">Danh mục</Label>
+              <Input
+                id="category"
+                value={editItem.category}
+                onChange={(e) => setEditItem({ ...editItem, category: e.target.value })}
+                className="rounded-xl bg-slate-900/50 hover:bg-slate-800/50 border-slate-600 text-slate-200"
+                placeholder="Nhập danh mục"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="quantity" className="text-slate-300">Số lượng</Label>
+              <Input
+                id="quantity"
+                type="number"
+                value={editItem.quantity}
+                onChange={(e) => setEditItem({ ...editItem, quantity: Number(e.target.value) })}
+                className="rounded-xl bg-slate-900/50 hover:bg-slate-800/50 border-slate-600 text-slate-200"
+                placeholder="Nhập số lượng"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="status" className="text-slate-300">Trạng thái</Label>
+              <Select value={editItem.status} onValueChange={(value: any) => setEditItem({ ...editItem, status: value })}>
+                <SelectTrigger className="w-full rounded-xl bg-slate-900/50 text-slate-200 border-slate-600 hover:bg-slate-800/50">
+                  <SelectValue placeholder="Chọn trạng thái" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-600 text-slate-200">
+                  <SelectItem value="active" className="text-slate-200 hover:bg-slate-700">Đang bán</SelectItem>
+                  <SelectItem value="inactive" className="text-slate-200 hover:bg-slate-700">Ngừng bán</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+              className="rounded-xl bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600"
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleSaveEdit}
+              disabled={isLoading}
+              className="rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-lg"
+            >
+              {isLoading ? 'Đang xử lý...' : 'Lưu'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="bg-slate-800/50 backdrop-blur-xl rounded-3xl border-slate-700/50 shadow-xl text-slate-200">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-bold text-slate-100">Xác nhận xóa</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-300">
+              Bạn có chắc chắn muốn xóa món ăn này? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600">
+              Hủy
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isLoading}
+              className="rounded-xl bg-rose-500 text-white hover:bg-rose-600"
+            >
+              {isLoading ? 'Đang xử lý...' : 'Xóa'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 } 

@@ -567,15 +567,15 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 text-gray-700">
+    <div className="container mx-auto px-4 py-8">
       {/* Header with gradient background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
+      <div className="relative overflow-hidden bg-gradient-to-r from-slate-800 to-slate-900 rounded-3xl p-8 mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">{translate('bao_cao')}</h1>
             <p className="text-white/80">
-              Thống kê chi tiết thu chi theo thời gian và danh mục
+              {translate('thong_ke_chi_tiet')}
             </p>
           </div>
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
@@ -583,7 +583,7 @@ export default function ReportsPage() {
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value as "day" | "week" | "month" | "year")}
-                className="w-full md:w-auto pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#3E503C] focus:border-transparent transition-all duration-200 cursor-pointer appearance-none text-gray-700 font-medium shadow-sm hover:shadow-md"
+                className="w-full md:w-auto pl-10 pr-10 py-2.5 bg-slate-800/50 backdrop-blur-xl text-white border border-white/20 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 cursor-pointer appearance-none font-medium shadow-lg hover:shadow-xl"
               >
                 <option value="day">{translate('ngay')}</option>
                 <option value="week">{translate('tuan')}</option>
@@ -591,12 +591,12 @@ export default function ReportsPage() {
                 <option value="year">{translate('nam')}</option>
               </select>
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
@@ -614,26 +614,26 @@ export default function ReportsPage() {
             <div className="flex gap-2">
               <button 
                 onClick={exportToPdf}
-                className="px-4 py-2.5 bg-white rounded-xl text-gray-700 font-medium shadow-sm hover:shadow-md flex items-center justify-center gap-2 border border-gray-200 hover:bg-gray-50 transition-all"
+                className="px-4 py-2.5 bg-slate-800/50 backdrop-blur-xl rounded-xl text-white font-medium shadow-lg hover:shadow-xl flex items-center justify-center gap-2 border border-white/20 hover:bg-slate-700/50 transition-all duration-200"
               >
-                <svg className="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className="w-5 h-5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M14 3v4a2 2 0 002 2h4" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 15h6" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 12v6" />
                 </svg>
-                <span className="text-gray-700">PDF</span>
+                <span>PDF</span>
               </button>
               <button 
                 onClick={exportToExcel}
-                className="px-4 py-2.5 bg-white rounded-xl text-gray-700 font-medium shadow-sm hover:shadow-md flex items-center justify-center gap-2 border border-gray-200 hover:bg-gray-50 transition-all"
+                className="px-4 py-2.5 bg-slate-800/50 backdrop-blur-xl rounded-xl text-white font-medium shadow-lg hover:shadow-xl flex items-center justify-center gap-2 border border-white/20 hover:bg-slate-700/50 transition-all duration-200"
               >
-                <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M14 3v4a2 2 0 002 2h4" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M10 12L8 16M14 12l2 4M10 16l4 0" />
                 </svg>
-                <span className="text-gray-700">Excel</span>
+                <span>Excel</span>
               </button>
             </div>
           </div>
@@ -641,19 +641,19 @@ export default function ReportsPage() {
       </div>
 
       {/* Tab navigation */}
-      <div className="flex mb-6 gap-4 border-b border-gray-100 pb-2">
+      <div className="flex mb-6 gap-4 border-b border-slate-200 pb-2">
         <button
           onClick={() => setActiveReport("transactions")}
-          className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
-            activeReport === "transactions" ? 'bg-[#3E503C]/10 text-[#3E503C] font-semibold' : 'hover:bg-gray-100'
+          className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
+            activeReport === "transactions" ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
           {translate('bao_cao_thu_chi')}
         </button>
         <button
           onClick={() => setActiveReport("orders")}
-          className={`px-4 py-2 rounded-xl text-gray-700 font-medium transition-all ${
-            activeReport === "orders" ? 'bg-[#3E503C]/10 text-[#3E503C] font-semibold' : 'hover:bg-gray-100'
+          className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
+            activeReport === "orders" ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
           {translate('bao_cao_don_hang')}
@@ -667,19 +667,20 @@ export default function ReportsPage() {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               {/* Thu Nhập Card */}
-              <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <div className="flex items-center justify-between">
+              <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg rounded-3xl p-6">
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+                <div className="relative flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">{translate('tong_thu_nhap')}</p>
-                    <p className="text-2xl font-bold text-green-600 mt-1">
+                    <p className="text-sm font-medium text-white/80">{translate('tong_thu_nhap')}</p>
+                    <p className="text-2xl font-bold text-white mt-1 drop-shadow-lg">
                       {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                         style: 'currency',
                         currency: language === 'vi' ? 'VND' : 'USD'
                       }).format(summary.totalIncome)}
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-green-100 rounded-2xl flex items-center justify-center">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="h-12 w-12 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                     </svg>
                   </div>
@@ -687,19 +688,20 @@ export default function ReportsPage() {
               </div>
 
               {/* Chi Tiêu Card */}
-              <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <div className="flex items-center justify-between">
+              <div className="relative overflow-hidden bg-gradient-to-br from-rose-500 to-rose-600 shadow-lg rounded-3xl p-6">
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+                <div className="relative flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">{translate('tong_chi_tieu')}</p>
-                    <p className="text-2xl font-bold text-red-600 mt-1">
+                    <p className="text-sm font-medium text-white/80">{translate('tong_chi_tieu')}</p>
+                    <p className="text-2xl font-bold text-white mt-1 drop-shadow-lg">
                       {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                         style: 'currency',
                         currency: language === 'vi' ? 'VND' : 'USD'
                       }).format(summary.totalExpense)}
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-red-100 rounded-2xl flex items-center justify-center">
-                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="h-12 w-12 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
                     </svg>
                   </div>
@@ -707,19 +709,22 @@ export default function ReportsPage() {
               </div>
 
               {/* Số Dư Card */}
-              <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <div className="flex items-center justify-between">
+              <div className="relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800 shadow-lg rounded-3xl p-6">
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+                <div className="relative flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">{translate('so_du')}</p>
-                    <p className={`text-2xl font-bold mt-1 ${summary.balance >= 0 ? 'text-[#3E503C]' : 'text-[#FF6F3D]'}`}>
+                    <p className="text-sm font-medium text-white/80">{translate('so_du')}</p>
+                    <p className={`text-2xl font-bold mt-1 drop-shadow-lg ${
+                      summary.balance >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                    }`}>
                       {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                         style: 'currency',
                         currency: language === 'vi' ? 'VND' : 'USD'
                       }).format(summary.balance)}
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-[#3E503C]/10 rounded-2xl flex items-center justify-center">
-                    <svg className="w-6 h-6 text-[#3E503C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="h-12 w-12 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                     </svg>
                   </div>
@@ -730,68 +735,167 @@ export default function ReportsPage() {
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               {/* Time-based Chart */}
-              <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold mb-6">{translate('bieu_do_thu_chi_thoi_gian')}</h3>
-                <div className="h-[400px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={timeChartData()}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                      <XAxis dataKey="date" stroke="#6B7280" />
-                      <YAxis stroke="#6B7280" />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          borderRadius: '12px',
-                          border: '1px solid #E5E7EB',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                        }}
-                        formatter={(value: any) => new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
-                          style: 'currency',
-                          currency: language === 'vi' ? 'VND' : 'USD'
-                        }).format(Number(value))}
-                      />
-                      <Legend />
-                      <Line type="monotone" dataKey="Thu" stroke="#10B981" strokeWidth={2} dot={{ fill: '#10B981' }} />
-                      <Line type="monotone" dataKey="Chi" stroke="#EF4444" strokeWidth={2} dot={{ fill: '#EF4444' }} />
-                    </LineChart>
-                  </ResponsiveContainer>
+              <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg rounded-3xl p-6">
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+                <div className="relative">
+                  <h3 className="text-lg font-semibold text-white mb-6">{translate('bieu_do_thu_chi_thoi_gian')}</h3>
+                  <div className="h-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={timeChartData()}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                        <XAxis dataKey="date" stroke="rgba(255,255,255,0.6)" />
+                        <YAxis stroke="rgba(255,255,255,0.6)" />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)',
+                            color: 'white'
+                          }}
+                          formatter={(value: any) => new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+                            style: 'currency',
+                            currency: language === 'vi' ? 'VND' : 'USD'
+                          }).format(Number(value))}
+                          labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
+                        />
+                        <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.6)' }} />
+                        <Line 
+                          type="monotone" 
+                          dataKey="Thu" 
+                          stroke="#34D399" 
+                          strokeWidth={3}
+                          dot={{ fill: '#34D399', strokeWidth: 2 }}
+                          activeDot={{ r: 8, strokeWidth: 2 }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="Chi" 
+                          stroke="#FB7185" 
+                          strokeWidth={3}
+                          dot={{ fill: '#FB7185', strokeWidth: 2 }}
+                          activeDot={{ r: 8, strokeWidth: 2 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
 
               {/* Category-based Chart */}
-              <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold mb-6">{translate('bieu_do_chi_tieu_danh_muc')}</h3>
-                <div className="h-[400px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={categoryChartData()}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={150}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                      >
-                        {categoryChartData().map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          borderRadius: '12px',
-                          border: '1px solid #E5E7EB',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                        }}
-                        formatter={(value: any) => new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
-                          style: 'currency',
-                          currency: language === 'vi' ? 'VND' : 'USD'
-                        }).format(Number(value))}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+              <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg rounded-3xl p-6">
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+                <div className="relative">
+                  <h3 className="text-lg font-semibold text-white mb-6">{translate('bieu_do_chi_tieu_danh_muc')}</h3>
+                  <div className="h-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={categoryChartData()}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={150}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        >
+                          {categoryChartData().map((entry, index) => (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={[
+                                '#34D399', // emerald-400
+                                '#FB7185', // rose-400
+                                '#60A5FA', // blue-400
+                                '#A78BFA', // violet-400
+                                '#F472B6', // pink-400
+                                '#FBBF24', // amber-400
+                                '#34D399'  // emerald-400 (fallback)
+                              ][index % 7]} 
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)',
+                            color: 'white'
+                          }}
+                          formatter={(value: any) => new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+                            style: 'currency',
+                            currency: language === 'vi' ? 'VND' : 'USD'
+                          }).format(Number(value))}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Transactions Table */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg rounded-3xl p-6">
+              <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+              <div className="relative">
+                <h3 className="text-lg font-semibold text-white mb-6">{translate('giao_dich_gan_day')}</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-white/10">
+                    <thead>
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                          {translate('ngay')}
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                          {translate('loai')}
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                          {translate('danh_muc')}
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                          {translate('mo_ta')}
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                          {translate('so_tien')}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {summary.transactions.slice(0, 10).map((transaction, index) => (
+                        <tr key={transaction.id} className="hover:bg-white/5 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            {new Date(transaction.date).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              transaction.type === 'Thu' 
+                                ? 'bg-emerald-400/10 text-emerald-400' 
+                                : 'bg-rose-400/10 text-rose-400'
+                            }`}>
+                              {transaction.type}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            {transaction.category}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            {transaction.description}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span className={`font-medium ${
+                              transaction.type === 'Thu' ? 'text-emerald-400' : 'text-rose-400'
+                            }`}>
+                              {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+                                style: 'currency',
+                                currency: language === 'vi' ? 'VND' : 'USD'
+                              }).format(transaction.amount)}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -801,16 +905,17 @@ export default function ReportsPage() {
             {/* Orders Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {/* Total Orders Card */}
-              <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <div className="flex items-center justify-between">
+              <div className="relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800 shadow-lg rounded-3xl p-6">
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+                <div className="relative flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">{translate('tong_so_don_hang')}</p>
-                    <p className="text-2xl font-bold text-[#3E503C] mt-1">
+                    <p className="text-sm font-medium text-white/80">{translate('tong_so_don_hang')}</p>
+                    <p className="text-2xl font-bold text-white mt-1 drop-shadow-lg">
                       {summary.totalOrders}
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-[#3E503C]/10 rounded-2xl flex items-center justify-center">
-                    <svg className="w-6 h-6 text-[#3E503C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="h-12 w-12 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                   </div>
@@ -818,19 +923,20 @@ export default function ReportsPage() {
               </div>
 
               {/* Total Order Value Card */}
-              <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <div className="flex items-center justify-between">
+              <div className="relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800 shadow-lg rounded-3xl p-6">
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+                <div className="relative flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">{translate('tong_gia_tri_don_hang')}</p>
-                    <p className="text-2xl font-bold text-[#3E503C] mt-1">
+                    <p className="text-sm font-medium text-white/80">{translate('tong_gia_tri_don_hang')}</p>
+                    <p className="text-2xl font-bold text-white mt-1 drop-shadow-lg">
                       {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
                         style: 'currency',
                         currency: language === 'vi' ? 'VND' : 'USD'
                       }).format(summary.totalOrderValue)}
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-[#3E503C]/10 rounded-2xl flex items-center justify-center">
-                    <svg className="w-6 h-6 text-[#3E503C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="h-12 w-12 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
@@ -841,166 +947,192 @@ export default function ReportsPage() {
             {/* Orders Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               {/* Orders by Date Chart */}
-              <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold mb-6">{translate('doanh_thu_thoi_gian')}</h3>
-                <div className="h-[400px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={ordersByDateData()}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                      <XAxis dataKey="date" stroke="#6B7280" />
-                      <YAxis stroke="#6B7280" />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          borderRadius: '12px',
-                          border: '1px solid #E5E7EB',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                        }}
-                        formatter={(value: any) => new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
-                          style: 'currency',
-                          currency: language === 'vi' ? 'VND' : 'USD'
-                        }).format(Number(value))}
-                      />
-                      <Bar dataKey="value" fill="#3E503C" />
-                    </BarChart>
-                  </ResponsiveContainer>
+              <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg rounded-3xl p-6">
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+                <div className="relative">
+                  <h3 className="text-lg font-semibold text-white mb-6">{translate('doanh_thu_thoi_gian')}</h3>
+                  <div className="h-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={ordersByDateData()}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                        <XAxis dataKey="date" stroke="rgba(255,255,255,0.6)" />
+                        <YAxis stroke="rgba(255,255,255,0.6)" />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)',
+                            color: 'white'
+                          }}
+                          formatter={(value: any) => new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+                            style: 'currency',
+                            currency: language === 'vi' ? 'VND' : 'USD'
+                          }).format(Number(value))}
+                          labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
+                        />
+                        <Bar 
+                          dataKey="value" 
+                          fill="#34D399"
+                          radius={[4, 4, 0, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
 
-              {/* Top Products Chart - REPLACED */}
-              <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold mb-6">{translate('phan_tich_trang_thai')}</h3>
-                <div className="h-[400px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={ordersByStatusData()}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={150}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                      >
-                        {ordersByStatusData().map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={
-                            entry.name === translate('hoan_thanh') ? '#10B981' : 
-                            entry.name === translate('dang_xu_ly') ? '#FFBB28' : 
-                            entry.name === translate('cho_xu_ly') ? '#0088FE' : 
-                            entry.name === translate('da_huy') ? '#FF8042' : 
-                            COLORS[index % COLORS.length]
-                          } />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                          borderRadius: '12px',
-                          border: '1px solid #E5E7EB',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                        }}
-                        formatter={(value: number) => [`${value} ${translate('don_hang_text')}`, translate('so_luong')]}
-                      />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
+              {/* Orders by Status Chart */}
+              <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg rounded-3xl p-6">
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+                <div className="relative">
+                  <h3 className="text-lg font-semibold text-white mb-6">{translate('phan_tich_trang_thai')}</h3>
+                  <div className="h-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={ordersByStatusData()}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={150}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        >
+                          {ordersByStatusData().map((entry, index) => (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={
+                                entry.name === translate('hoan_thanh') ? '#34D399' : // emerald-400
+                                entry.name === translate('dang_xu_ly') ? '#FBBF24' : // amber-400
+                                entry.name === translate('cho_xu_ly') ? '#60A5FA' : // blue-400
+                                entry.name === translate('da_huy') ? '#FB7185' : // rose-400
+                                '#A78BFA' // violet-400 (fallback)
+                              }
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)',
+                            color: 'white'
+                          }}
+                          formatter={(value: number) => [`${value} ${translate('don_hang_text')}`, translate('so_luong')]}
+                        />
+                        <Legend 
+                          wrapperStyle={{ color: 'rgba(255,255,255,0.6)' }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Recent Orders Table */}
-            <div className="bg-white/80 backdrop-blur-xl shadow-lg rounded-3xl p-6 border border-gray-100 mb-8">
-              <h3 className="text-lg font-semibold mb-6">Đơn Hàng Gần Đây</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Mã Đơn
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ngày Đặt
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tổng Tiền
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Trạng Thái
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Thanh Toán
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {summary.orders.slice(0, 10).map((order) => (
-                      <tr key={order.ma_don}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {order.ma_don}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(order.ngay_dat).toLocaleDateString('vi-VN')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
-                            style: 'currency',
-                            currency: language === 'vi' ? 'VND' : 'USD'
-                          }).format(order.tong_tien)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            order.trang_thai === 'Hoàn thành' ? 'bg-green-100 text-green-800' : 
-                            order.trang_thai === 'Đang xử lý' ? 'bg-yellow-100 text-yellow-800' : 
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {order.trang_thai}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            order.trang_thai_thanh_toan === 'Đã thanh toán' ? 'bg-green-100 text-green-800' : 
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {order.trang_thai_thanh_toan}
-                          </span>
-                        </td>
+            <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 shadow-lg rounded-3xl p-6">
+              <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+              <div className="relative">
+                <h3 className="text-lg font-semibold text-white mb-6">{translate('don_hang_gan_day')}</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-white/10">
+                    <thead>
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                          {translate('ma_don')}
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                          {translate('ngay_dat')}
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                          {translate('tong_tien')}
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                          {translate('trang_thai')}
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                          {translate('thanh_toan')}
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {summary.orders.slice(0, 10).map((order) => (
+                        <tr key={order.ma_don} className="hover:bg-white/5 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            {order.ma_don}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            {new Date(order.ngay_dat).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span className="text-emerald-400 font-medium">
+                              {new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+                                style: 'currency',
+                                currency: language === 'vi' ? 'VND' : 'USD'
+                              }).format(order.tong_tien)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              order.trang_thai === 'Hoàn thành' ? 'bg-emerald-400/10 text-emerald-400' :
+                              order.trang_thai === 'Đang xử lý' ? 'bg-amber-400/10 text-amber-400' :
+                              order.trang_thai === 'Chờ xử lý' ? 'bg-blue-400/10 text-blue-400' :
+                              'bg-rose-400/10 text-rose-400'
+                            }`}>
+                              {order.trang_thai}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              order.trang_thai_thanh_toan === 'Đã thanh toán' ? 'bg-emerald-400/10 text-emerald-400' :
+                              'bg-amber-400/10 text-amber-400'
+                            }`}>
+                              {order.trang_thai_thanh_toan}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </>
         )}
       </div>
 
+      {/* Loading State */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-xl">
             <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-4 border-[#3E503C] border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-gray-600">Đang tải dữ liệu...</p>
+              <div className="h-24 w-24 rounded-full border-4 border-t-emerald-400 border-r-transparent border-b-rose-400 border-l-transparent animate-spin"></div>
+              <p className="text-white font-medium">{translate('dang_tai')}</p>
             </div>
           </div>
         </div>
       )}
 
+      {/* Error State */}
       {error && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl">
-            <div className="flex flex-col items-center gap-4 text-red-600">
-              <div className="h-24 w-24 bg-red-50 rounded-full flex items-center justify-center">
-                <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-xl">
+            <div className="flex flex-col items-center gap-4">
+              <div className="h-24 w-24 bg-rose-400/10 rounded-full flex items-center justify-center">
+                <svg className="w-12 h-12 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="font-medium">{error}</p>
+              <p className="text-white font-medium">{error}</p>
               <button
                 onClick={() => setError(null)}
-                className="px-4 py-2 bg-[#3E503C] text-white rounded-xl hover:bg-[#7F886A] transition-colors"
+                className="px-4 py-2 bg-white/10 backdrop-blur-xl text-white rounded-xl hover:bg-white/20 transition-colors"
               >
-                Đóng
+                {translate('dong')}
               </button>
             </div>
           </div>

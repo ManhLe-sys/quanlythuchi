@@ -39,7 +39,9 @@ const initializeSheet = async () => {
         'description',
         'location',
         'created_by',
-        'last_updated_at'
+        'last_updated_at',
+        'status',
+        'tag'
       ]
     });
   }
@@ -68,7 +70,9 @@ export async function GET(request: NextRequest) {
         description: row.get('description') || '',
         location: row.get('location') || '',
         created_by: row.get('created_by') || 'system',
-        last_updated_at: row.get('last_updated_at') || new Date().toISOString()
+        last_updated_at: row.get('last_updated_at') || new Date().toISOString(),
+        status: row.get('status') || 'pending',
+        tag: row.get('tag') || ''
       };
 
       // Only return events with valid required fields
@@ -115,11 +119,15 @@ export async function POST(request: NextRequest) {
       description: body.description || '',
       location: body.location || '',
       created_by: body.created_by || 'system',
-      last_updated_at: new Date().toISOString()
+      last_updated_at: new Date().toISOString(),
+      status: body.status || 'pending',
+      tag: Array.isArray(body.tags) ? body.tags.join(',') : ''
     };
 
     // Add the new row
-    await sheet.addRow(newEvent);
+    const row = await sheet.addRow(newEvent);
+    // Ensure the row is saved
+    await row.save();
 
     return NextResponse.json(newEvent);
   } catch (error) {
@@ -154,19 +162,25 @@ export async function PUT(request: NextRequest) {
     rowToUpdate.set('description', body.description || '');
     rowToUpdate.set('location', body.location || '');
     rowToUpdate.set('last_updated_at', new Date().toISOString());
+    rowToUpdate.set('status', body.status);
+    rowToUpdate.set('tag', Array.isArray(body.tags) ? body.tags.join(',') : '');
 
+    // Ensure changes are saved
     await rowToUpdate.save();
 
+    // Get the updated values directly from what we set
     const updatedEvent = {
-      id: rowToUpdate.get('id'),
-      date: rowToUpdate.get('date'),
-      start_time: rowToUpdate.get('start_time'),
-      end_time: rowToUpdate.get('end_time'),
-      title: rowToUpdate.get('title'),
-      description: rowToUpdate.get('description'),
-      location: rowToUpdate.get('location'),
+      id: body.id,
+      date: body.date,
+      start_time: body.start_time,
+      end_time: body.end_time,
+      title: body.title,
+      description: body.description || '',
+      location: body.location || '',
       created_by: rowToUpdate.get('created_by'),
-      last_updated_at: rowToUpdate.get('last_updated_at')
+      last_updated_at: new Date().toISOString(),
+      status: body.status,
+      tag: Array.isArray(body.tags) ? body.tags.join(',') : ''
     };
 
     return NextResponse.json(updatedEvent);

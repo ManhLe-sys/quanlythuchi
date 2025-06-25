@@ -44,6 +44,8 @@ interface Event {
   location?: string;
   created_by?: string;
   last_updated_at?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  tag?: string;
 }
 
 interface EditEventData {
@@ -54,6 +56,8 @@ interface EditEventData {
   start_time: string;
   end_time: string;
   location: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  tag?: string;
 }
 
 type EventType = 'work' | 'meeting' | 'important' | 'normal';
@@ -123,16 +127,69 @@ const getWeekdayLabel = (date: Date): string => {
   return WEEKDAY_LABELS[fullDay] || fullDay;
 };
 
-export default function ScheduleCalendar() {
+interface ScheduleCalendarProps {
+  selectedDate: Date;
+  onDateChange: (date: Date) => void;
+}
+
+const getStatusColor = (status: Event['status']) => {
+  switch (status) {
+    case 'pending':
+      return 'text-amber-300 border-amber-400/30';
+    case 'in_progress':
+      return 'text-blue-300 border-blue-400/30';
+    case 'completed':
+      return 'text-emerald-300 border-emerald-400/30';
+    case 'cancelled':
+      return 'text-rose-300 border-rose-400/30';
+    default:
+      return 'text-slate-300 border-slate-400/30';
+  }
+};
+
+const getStatusBg = (status: Event['status']) => {
+  switch (status) {
+    case 'pending':
+      return 'bg-amber-400/10';
+    case 'in_progress':
+      return 'bg-blue-400/10';
+    case 'completed':
+      return 'bg-emerald-400/10';
+    case 'cancelled':
+      return 'bg-rose-400/10';
+    default:
+      return 'bg-slate-400/10';
+  }
+};
+
+const getStatusLabel = (status: Event['status']) => {
+  switch (status) {
+    case 'pending':
+      return 'Chờ xử lý';
+    case 'in_progress':
+      return 'Đang thực hiện';
+    case 'completed':
+      return 'Hoàn thành';
+    case 'cancelled':
+      return 'Đã hủy';
+    default:
+      return 'Không xác định';
+  }
+};
+
+export default function ScheduleCalendar({ selectedDate: propSelectedDate, onDateChange }: ScheduleCalendarProps) {
   const { toast } = useToast();
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [currentDate, setCurrentDate] = useState(propSelectedDate);
   const [events, setEvents] = useState<Event[]>([]);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'month' | 'week' | 'day'>('month');
   const [isLoading, setIsLoading] = useState(true);
   const [editingEvent, setEditingEvent] = useState<EditEventData | null>(null);
   const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCurrentDate(propSelectedDate);
+  }, [propSelectedDate]);
 
   const fetchEvents = async () => {
     try {
@@ -171,13 +228,13 @@ export default function ScheduleCalendar() {
   }, []);
 
   const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
+    onDateChange(date);
     setIsAddEventModalOpen(true);
-    setEditingEvent(null); // Reset editing state when adding new event
+    setEditingEvent(null);
   };
 
   const handleEditEvent = (event: Event) => {
-    setSelectedDate(parseISO(event.date));
+    onDateChange(parseISO(event.date));
     setEditingEvent({
       id: event.id,
       title: event.title,
@@ -185,7 +242,9 @@ export default function ScheduleCalendar() {
       date: event.date,
       start_time: event.start_time,
       end_time: event.end_time,
-      location: event.location || ''
+      location: event.location || '',
+      status: event.status,
+      tag: event.tag
     });
     setIsAddEventModalOpen(true);
   };
@@ -206,7 +265,8 @@ export default function ScheduleCalendar() {
         description: 'Đã xóa sự kiện',
       });
 
-      await fetchEvents();
+      fetchEvents();
+      setDeleteEventId(null);
     } catch (error) {
       console.error('Error deleting event:', error);
       toast({
@@ -215,507 +275,406 @@ export default function ScheduleCalendar() {
         variant: 'destructive',
       });
     }
-    setDeleteEventId(null);
   };
 
   const getEventType = (event: Event): EventType => {
-    const eventText = (event.title + ' ' + (event.description || '')).toLowerCase();
-    if (eventText.includes('meeting') || eventText.includes('cuộc họp')) {
-      return 'meeting';
-    } else if (eventText.includes('important') || eventText.includes('quan trọng')) {
-      return 'important';
-    } else if (eventText.includes('work') || eventText.includes('công việc')) {
-      return 'work';
-    }
+    const title = event.title.toLowerCase();
+    if (title.includes('họp') || title.includes('meeting')) return 'meeting';
+    if (title.includes('work') || title.includes('task')) return 'work';
+    if (title.includes('urgent') || title.includes('important')) return 'important';
     return 'normal';
   };
 
-  const renderEventInCalendar = (event: Event, isInline: boolean = false) => {
-    const eventType = getEventType(event);
+  const renderEventInCalendar = (event: Event | undefined, isInline: boolean = false) => {
+    if (!event) return null;
+    
+    const eventDate = parseISO(event.date);
+    const isSelected = isSameDay(eventDate, propSelectedDate);
+    const statusColor = getStatusColor(event.status);
+    const statusBg = getStatusBg(event.status);
 
     return (
-      <div
+      <motion.div
         key={event.id}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 10 }}
         className={`
-          relative group
-          text-xs p-1.5 rounded-md ${isInline ? '' : 'truncate'} shadow-sm
-          transition-all duration-200 hover:scale-105 cursor-pointer
-          ${COLOR_SCHEME.event[eventType].bg}
-          ${COLOR_SCHEME.event[eventType].text}
-          ${COLOR_SCHEME.event[eventType].hover}
+          group relative cursor-pointer
+          backdrop-blur-sm bg-white/5
+          border border-white/10 hover:border-white/20
+          transition-all duration-200 ease-out
+          ${isInline ? 'mb-1 last:mb-0' : 'mb-2'}
+          overflow-hidden
         `}
         onClick={(e) => {
           e.stopPropagation();
           handleEditEvent(event);
         }}
       >
-        <div className="font-medium truncate">{event.title}</div>
-        <div className="text-xs opacity-75 flex items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
-          {event.start_time} - {event.end_time}
-        </div>
-        {event.location && (
-          <div className="text-xs opacity-75 flex items-center gap-1 truncate">
-            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-            {event.location}
-          </div>
-        )}
-        {event.description && isInline && (
-          <div className="text-xs opacity-75 mt-1">{event.description}</div>
-        )}
+        {/* Status Indicator */}
+        <div className={`absolute left-0 top-0 bottom-0 w-1 ${statusBg}`} />
         
-        {/* Edit/Delete buttons */}
-        <div className="absolute top-1 right-1 hidden group-hover:flex gap-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEditEvent(event);
-            }}
-            className="p-1 rounded-full hover:bg-blue-200 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-            </svg>
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setDeleteEventId(event.id);
-            }}
-            className="p-1 rounded-full hover:bg-red-200 transition-colors text-red-600"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 6h18" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            </svg>
-          </button>
+        <div className="px-4 py-3">
+          <div className="flex items-start justify-between gap-2">
+            {/* Main Content */}
+            <div className="flex-1 min-w-0">
+              {/* Title */}
+              <h4 className="text-[13px] font-medium text-white/90 mb-1.5 line-clamp-1">
+                {event.title}
+              </h4>
+              
+              {/* Info Row */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Status */}
+                <div className={`shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-md ${statusBg} ${statusColor}`}>
+                  {getStatusLabel(event.status)}
+                </div>
+
+                {/* Tags */}
+                {event.tag && event.tag.split(',').map((tag: string, index: number) => (
+                  <span 
+                    key={index}
+                    className="text-[10px] px-1.5 py-0.5 rounded-md bg-white/5 text-white/60 font-medium"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-start gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditEvent(event);
+                }}
+                className="p-1 rounded-md hover:bg-white/10 text-white/70 hover:text-white/90 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                </svg>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteEventId(event.id);
+                }}
+                className="p-1 rounded-md hover:bg-rose-500/20 text-white/70 hover:text-rose-300 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
   const getEventsByDate = (date: Date): Event[] => {
-    if (!events || !Array.isArray(events)) return [];
-    return events.filter(event => {
-      try {
-        return event && event.date && isSameDay(parseISO(event.date), date);
-      } catch (error) {
-        console.error('Error parsing date:', error);
-        return false;
-      }
-    });
+    return events.filter(event => isSameDay(parseISO(event.date), date));
   };
 
   const renderMonthView = () => {
-    const monthStart = startOfMonth(currentDate);
-    const monthEnd = endOfMonth(monthStart);
-    const startDate = startOfWeek(monthStart, { locale: vi });
-    const endDate = endOfWeek(monthEnd, { locale: vi });
+    const start = startOfMonth(currentDate);
+    const end = endOfMonth(currentDate);
+    const startWeek = startOfWeek(start, { weekStartsOn: 1 });
+    const endWeek = endOfWeek(end, { weekStartsOn: 1 });
+    const days = eachDayOfInterval({ start: startWeek, end: endWeek });
 
-    const daysInMonth = eachDayOfInterval({ start: startDate, end: endDate });
-    const rows: React.ReactElement[] = [];
-    let days: React.ReactElement[] = [];
+    return (
+      <div className="grid grid-cols-7 gap-px bg-slate-700/20">
+        {/* Weekday headers */}
+        {days.slice(0, 7).map((day, index) => (
+          <div
+            key={index}
+            className="p-2 text-center text-sm font-medium text-slate-300 bg-slate-800/30"
+          >
+            {getWeekdayLabel(day)}
+          </div>
+        ))}
 
-    // Render header
-    const header = (
-      <div className="grid grid-cols-7 bg-gradient-to-r from-blue-50 to-blue-100">
-        {[...Array(7)].map((_, i) => {
-          const day = addDays(startDate, i);
-          const dayLabel = getWeekdayLabel(day);
+        {/* Calendar days */}
+        {days.map((day, dayIdx) => {
+          const dayEvents = getEventsByDate(day);
+          const isToday = isSameDay(day, new Date());
+          const isSelected = isSameDay(day, propSelectedDate);
+          const isCurrentMonth = isSameMonth(day, currentDate);
+
           return (
             <div
-              key={i}
+              key={day.toISOString()}
+              onClick={() => handleDateClick(day)}
               className={`
-                py-3 text-center font-semibold border-b border-blue-200
-                ${dayLabel === 'CN' ? 'text-red-600' : 'text-gray-700'}
+                min-h-[120px] p-2 transition-all duration-200 cursor-pointer
+                ${isCurrentMonth ? 'bg-slate-800/30' : 'bg-slate-800/50'}
+                ${isSelected ? 'ring-2 ring-emerald-500/50 bg-emerald-500/10' : ''}
+                hover:bg-slate-700/50
               `}
             >
-              <div className="text-lg">{dayLabel}</div>
+              <div className="flex items-center justify-between mb-2">
+                <span
+                  className={`
+                    text-sm font-medium rounded-full w-7 h-7 flex items-center justify-center
+                    ${isToday ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300'}
+                    ${!isCurrentMonth && 'opacity-50'}
+                  `}
+                >
+                  {format(day, 'd')}
+                </span>
+                {dayEvents.length > 0 && (
+                  <span className="text-xs px-2 py-1 rounded-full bg-slate-700/50 text-slate-300">
+                    {dayEvents.length}
+                  </span>
+                )}
+              </div>
+              <div className="space-y-1">
+                {dayEvents.slice(0, 3).map(event => renderEventInCalendar(event, true))}
+                {dayEvents.length > 3 && (
+                  <div className="text-xs text-slate-400 mt-1">
+                    +{dayEvents.length - 3} more
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
     );
-
-    // Render calendar days
-    daysInMonth.forEach((date, i) => {
-      const dayEvents = getEventsByDate(date);
-      const isCurrentMonth = isSameMonth(date, monthStart);
-      const isToday = isSameDay(date, new Date());
-      const isSelected = selectedDate && isSameDay(date, selectedDate);
-
-      days.push(
-        <motion.div
-          key={date.toString()}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className={`
-            min-h-[120px] p-2 border relative cursor-pointer transition-all duration-200
-            ${isCurrentMonth ? 'bg-white' : COLOR_SCHEME.primary.light.bg}
-            ${isToday ? `ring-2 ring-blue-400 ring-opacity-50` : ''}
-            ${isSelected ? 'ring-2 ring-blue-600' : ''}
-            ${COLOR_SCHEME.primary.light.hover}
-            group
-          `}
-          onClick={() => handleDateClick(date)}
-        >
-          <div className="flex items-center justify-between mb-1">
-            <div
-              className={`
-                flex items-center justify-center w-8 h-8 rounded-full font-medium
-                ${isToday ? `${COLOR_SCHEME.primary.bg} text-white` : ''}
-                ${isSelected ? `${COLOR_SCHEME.primary.bg} text-white` : ''}
-                ${!isToday && !isSelected ? COLOR_SCHEME.text.primary : ''}
-                transition-all duration-200 group-hover:scale-110
-              `}
-            >
-              {format(date, 'd')}
-            </div>
-            {dayEvents.length > 0 && (
-              <span className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
-                {dayEvents.length}
-              </span>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            {dayEvents.map((event) => renderEventInCalendar(event))}
-          </div>
-        </motion.div>
-      );
-
-      if ((i + 1) % 7 === 0) {
-        rows.push(
-          <div key={date.toString()} className="grid grid-cols-7 divide-x divide-blue-100">
-            {days}
-          </div>
-        );
-        days = [];
-      }
-    });
-
-    return (
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-blue-200">
-        {header}
-        <div className="divide-y divide-blue-100">
-          {rows}
-        </div>
-      </div>
-    );
   };
 
   const handleTimeSlotClick = (date: Date, hour: number) => {
-    setSelectedDate(date);
+    onDateChange(date);
     setIsAddEventModalOpen(true);
     setEditingEvent(null);
   };
 
   const renderWeekView = () => {
-    const weekStart = startOfWeek(currentDate, { locale: vi });
-    const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+    const startOfCurrentWeek = startOfWeek(currentDate, { weekStartsOn: 1 });
+    const days = Array.from({ length: 7 }, (_, i) => addDays(startOfCurrentWeek, i));
+    const hours = Array.from({ length: 24 }, (_, i) => i);
 
     return (
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-blue-200">
-        {/* Header */}
-        <div className="grid grid-cols-8 bg-gradient-to-r from-blue-50 to-blue-100">
-          <div className="py-3 text-center font-semibold text-sm border-b border-blue-200">
-            Giờ
-          </div>
-          {days.map((day) => {
-            const dayLabel = getWeekdayLabel(day);
-            return (
-              <div
-                key={day.toString()}
-                className={`
-                  py-3 text-center font-semibold border-b border-blue-200
-                  ${isSameDay(day, new Date()) ? 'bg-blue-100' : ''}
-                `}
-              >
-                <div className={`text-lg ${dayLabel === 'CN' ? 'text-red-600' : 'text-gray-700'}`}>
-                  {dayLabel}
-                </div>
-                <div className={`text-sm ${isSameDay(day, new Date()) ? 'text-blue-600' : 'text-gray-500'}`}>
-                  {format(day, 'dd/MM')}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <div className="overflow-x-auto">
+        <div className="min-w-[800px]">
+          {/* Header */}
+          <div className="grid grid-cols-8 gap-px bg-slate-700/20">
+            <div className="p-2 text-center text-sm font-medium text-slate-300 bg-slate-800/30">
+              Time
+            </div>
+            {days.map(day => {
+              const isToday = isSameDay(day, new Date());
+              const isSelected = isSameDay(day, propSelectedDate);
 
-        {/* Time grid */}
-        <div className="grid grid-cols-8 divide-x divide-blue-100">
-          {/* Time labels */}
-          <div className="divide-y divide-blue-100">
-            {[...Array(24)].map((_, i) => (
-              <div key={i} className="h-12 text-xs text-gray-500 text-right pr-2 pt-1">
-                {`${i.toString().padStart(2, '0')}:00`}
-              </div>
+              return (
+                <div
+                  key={day.toISOString()}
+                  className={`
+                    p-2 text-center transition-all duration-200
+                    ${isSelected ? 'bg-emerald-500/20' : 'bg-slate-800/30'}
+                  `}
+                >
+                  <div className={`text-sm font-medium ${isSelected ? 'text-emerald-400' : 'text-slate-300'}`}>
+                    {getWeekdayLabel(day)}
+                  </div>
+                  <div className={`text-xs mt-1 ${isToday ? 'text-emerald-400' : 'text-slate-400'}`}>
+                    {format(day, 'dd/MM')}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Time slots */}
+          <div className="grid grid-cols-8 gap-px bg-slate-700/20">
+            {hours.map(hour => (
+              <React.Fragment key={hour}>
+                <div className="p-2 text-xs text-slate-400 bg-slate-800/30">
+                  {`${hour.toString().padStart(2, '0')}:00`}
+                </div>
+                {days.map(day => {
+                  const dayEvents = getEventsByDate(day).filter(event => {
+                    const eventHour = parseInt(event.start_time.split(':')[0]);
+                    return eventHour === hour;
+                  });
+
+                  return (
+                    <div
+                      key={`${day.toISOString()}-${hour}`}
+                      onClick={() => handleTimeSlotClick(day, hour)}
+                      className="p-2 min-h-[60px] bg-slate-800/30 hover:bg-slate-700/50 transition-all duration-200 cursor-pointer"
+                    >
+                      {dayEvents.map(event => renderEventInCalendar(event))}
+                    </div>
+                  );
+                })}
+              </React.Fragment>
             ))}
           </div>
-
-          {/* Events for each day */}
-          {days.map((day) => (
-            <div key={day.toString()} className="relative">
-              <div className="absolute inset-0 divide-y divide-blue-100">
-                {[...Array(24)].map((_, i) => (
-                  <div 
-                    key={i} 
-                    className="h-12 hover:bg-blue-50 transition-colors cursor-pointer"
-                    onClick={() => handleTimeSlotClick(day, i)}
-                  ></div>
-                ))}
-              </div>
-
-              {getEventsByDate(day).map((event) => {
-                const startHour = parseInt(event.start_time.split(':')[0]);
-                const startMinute = parseInt(event.start_time.split(':')[1]);
-                const endHour = parseInt(event.end_time.split(':')[0]);
-                const endMinute = parseInt(event.end_time.split(':')[1]);
-                const top = startHour * 48 + startMinute * 0.8;
-                const height = (endHour - startHour) * 48 + (endMinute - startMinute) * 0.8;
-
-                return (
-                  <motion.div
-                    key={event.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    style={{ top: `${top}px`, height: `${height}px` }}
-                    className="absolute left-0 right-0 mx-1 z-10"
-                  >
-                    {renderEventInCalendar(event, true)}
-                  </motion.div>
-                );
-              })}
-            </div>
-          ))}
         </div>
       </div>
     );
   };
 
   const renderDayView = () => {
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+
     return (
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-blue-200">
-        {/* Header */}
-        <div className="grid grid-cols-1 bg-gradient-to-r from-blue-50 to-blue-100">
-          <div className="py-3 text-center font-semibold border-b border-blue-200">
-            <div className={`text-2xl ${getWeekdayLabel(currentDate) === 'CN' ? 'text-red-600' : 'text-gray-700'}`}>
-              {getWeekdayLabel(currentDate)}
-            </div>
-            <div className="text-sm text-blue-600">{format(currentDate, 'dd/MM/yyyy')}</div>
-          </div>
-        </div>
+      <div className="space-y-1">
+        {hours.map(hour => {
+          const hourEvents = events.filter(event => {
+            const eventDate = parseISO(event.date);
+            const eventHour = parseInt(event.start_time.split(':')[0]);
+            return isSameDay(eventDate, propSelectedDate) && eventHour === hour;
+          });
 
-        {/* Time grid */}
-        <div className="grid grid-cols-8">
-          {/* Time labels */}
-          <div className="divide-y divide-blue-100">
-            {[...Array(24)].map((_, i) => (
-              <div key={i} className="h-12 text-xs text-gray-500 text-right pr-2 pt-1">
-                {`${i.toString().padStart(2, '0')}:00`}
+          return (
+            <div
+              key={hour}
+              className="grid grid-cols-[100px,1fr] gap-4 group"
+              onClick={() => handleTimeSlotClick(propSelectedDate, hour)}
+            >
+              <div className="p-2 text-sm text-slate-400 text-right">
+                {`${hour.toString().padStart(2, '0')}:00`}
               </div>
-            ))}
-          </div>
-
-          {/* Events */}
-          <div className="col-span-7 relative">
-            <div className="absolute inset-0 divide-y divide-blue-100">
-              {[...Array(24)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className="h-12 hover:bg-blue-50 transition-colors cursor-pointer"
-                  onClick={() => handleTimeSlotClick(currentDate, i)}
-                ></div>
-              ))}
-            </div>
-
-            {getEventsByDate(currentDate).map((event) => {
-              const startHour = parseInt(event.start_time.split(':')[0]);
-              const startMinute = parseInt(event.start_time.split(':')[1]);
-              const endHour = parseInt(event.end_time.split(':')[0]);
-              const endMinute = parseInt(event.end_time.split(':')[1]);
-              const top = startHour * 48 + startMinute * 0.8;
-              const height = (endHour - startHour) * 48 + (endMinute - startMinute) * 0.8;
-
-              return (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  style={{ top: `${top}px`, height: `${height}px` }}
-                  className="absolute left-0 right-0 mx-1"
-                >
-                  {renderEventInCalendar(event, true)}
-                </motion.div>
-              );
-            })}
-
-            {/* Current time indicator */}
-            {isSameDay(currentDate, new Date()) && (
-              <div
-                className="absolute left-0 right-0 flex items-center"
-                style={{
-                  top: `${new Date().getHours() * 48 + new Date().getMinutes() * 0.8}px`,
-                  zIndex: 10
-                }}
-              >
-                <div className="w-2 h-2 rounded-full bg-red-500 ml-1"></div>
-                <div className="flex-1 h-px bg-red-500 ml-1"></div>
+              <div className="p-2 min-h-[60px] bg-slate-800/30 group-hover:bg-slate-700/50 transition-all duration-200 rounded-lg cursor-pointer">
+                {hourEvents.map(event => renderEventInCalendar(event))}
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          );
+        })}
       </div>
     );
   };
 
   const handlePrevious = () => {
-    setCurrentDate(prev => 
-      currentView === 'month' 
-        ? subMonths(prev, 1)
-        : subDays(prev, 7)
-    );
+    switch (currentView) {
+      case 'month':
+        setCurrentDate(prev => subMonths(prev, 1));
+        break;
+      case 'week':
+        setCurrentDate(prev => subDays(prev, 7));
+        break;
+      case 'day':
+        setCurrentDate(prev => subDays(prev, 1));
+        break;
+    }
   };
 
   const handleNext = () => {
-    setCurrentDate(prev => 
-      currentView === 'month' 
-        ? addMonths(prev, 1)
-        : addDays(prev, 7)
-    );
+    switch (currentView) {
+      case 'month':
+        setCurrentDate(prev => addMonths(prev, 1));
+        break;
+      case 'week':
+        setCurrentDate(prev => addDays(prev, 7));
+        break;
+      case 'day':
+        setCurrentDate(prev => addDays(prev, 1));
+        break;
+    }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Lịch làm việc</h1>
-        <p className="text-gray-600">Quản lý và theo dõi lịch trình công việc của bạn một cách hiệu quả</p>
-      </div>
-
-      {/* Controls */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+    <div className="space-y-4">
+      {/* View Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <button
-            onClick={handlePrevious}
-            className={`
-              p-2 rounded-lg transition-all duration-200
-              ${COLOR_SCHEME.primary.light.bg} ${COLOR_SCHEME.primary.text}
-              hover:bg-blue-100 active:bg-blue-200
-              flex items-center justify-center
-            `}
-            aria-label="Previous"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6"/>
-            </svg>
-          </button>
+          {VIEW_OPTIONS.map(option => (
+            <Button
+              key={option.id}
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentView(option.id as 'month' | 'week' | 'day')}
+              className={`
+                transition-all duration-200 border-slate-700
+                ${currentView === option.id
+                  ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
+                  : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
+                }
+              `}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
 
-          <button
-            onClick={() => setCurrentDate(new Date())}
-            className={`
-              px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200
-              ${isSameDay(currentDate, new Date())
-                ? `${COLOR_SCHEME.primary.bg} text-white hover:bg-blue-700 active:bg-blue-800`
-                : `${COLOR_SCHEME.primary.light.bg} ${COLOR_SCHEME.primary.text} hover:bg-blue-100 active:bg-blue-200`
-              }
-              flex items-center gap-2
-            `}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handlePrevious}
+            className="bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 text-slate-300"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <path d="M15 18l-6-6 6-6"/>
             </svg>
-            Hôm nay
-          </button>
-
-          <button
-            onClick={handleNext}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setCurrentDate(new Date())}
             className={`
-              p-2 rounded-lg transition-all duration-200
-              ${COLOR_SCHEME.primary.light.bg} ${COLOR_SCHEME.primary.text}
-              hover:bg-blue-100 active:bg-blue-200
-              flex items-center justify-center
+              transition-all duration-200 border-slate-700
+              ${isSameDay(currentDate, new Date())
+                ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
+                : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
+              }
             `}
-            aria-label="Next"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            Today
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleNext}
+            className="bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 text-slate-300"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18l6-6-6-6"/>
             </svg>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <h2 className={`text-xl font-semibold ${COLOR_SCHEME.primary.textDark}`}>
-            {format(currentDate, currentView === 'month' ? 'MMMM yyyy' : 'dd MMMM yyyy', { locale: vi })}
-          </h2>
-
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
-            {VIEW_OPTIONS.map((option) => (
-              <button
-                key={option.id}
-                onClick={() => setCurrentView(option.id as 'month' | 'week' | 'day')}
-                className={`
-                  px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200
-                  ${currentView === option.id
-                    ? `${COLOR_SCHEME.primary.bg} text-white shadow-sm`
-                    : `text-gray-600 hover:text-gray-900 hover:bg-white/60`
-                  }
-                `}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+          </Button>
         </div>
       </div>
 
-      {/* Calendar */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      {/* Calendar Content */}
+      <div className="bg-slate-800/30 rounded-lg overflow-hidden border border-slate-700/50">
         {currentView === 'month' && renderMonthView()}
         {currentView === 'week' && renderWeekView()}
         {currentView === 'day' && renderDayView()}
       </div>
 
       {/* Add/Edit Event Modal */}
-      {selectedDate && (
-        <AddEventModal
-          isOpen={isAddEventModalOpen}
-          onClose={() => {
-            setIsAddEventModalOpen(false);
-            setSelectedDate(null);
-            setEditingEvent(null);
-          }}
-          selectedDate={selectedDate}
-          onEventAdded={fetchEvents}
-          editingEvent={editingEvent}
-        />
-      )}
+      <AddEventModal
+        isOpen={isAddEventModalOpen}
+        onClose={() => {
+          setIsAddEventModalOpen(false);
+          setEditingEvent(null);
+        }}
+        selectedDate={propSelectedDate}
+        editingEvent={editingEvent}
+        onEventAdded={fetchEvents}
+      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteEventId} onOpenChange={() => setDeleteEventId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
           <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa sự kiện này? Hành động này không thể hoàn tác.
+            <AlertDialogTitle className="text-slate-200">Xác nhận xóa</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              Bạn có chắc chắn muốn xóa sự kiện này không? Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogCancel className="bg-slate-700 text-slate-300 hover:bg-slate-600 border-slate-600">
+              Hủy
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteEventId && handleDeleteEvent(deleteEventId)}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 border border-rose-500/30"
             >
               Xóa
             </AlertDialogAction>
