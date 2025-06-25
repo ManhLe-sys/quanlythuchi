@@ -158,11 +158,22 @@ export default function PomodoroTimer({
   const getTypeColor = () => {
     switch (currentSession.type) {
       case 'work':
-        return 'from-rose-500 to-orange-500';
+        return 'from-rose-500 via-orange-400 to-amber-500';
       case 'shortBreak':
-        return 'from-teal-500 to-cyan-500';
+        return 'from-emerald-500 via-teal-400 to-cyan-500';
       case 'longBreak':
-        return 'from-blue-500 to-indigo-500';
+        return 'from-blue-500 via-indigo-400 to-violet-500';
+    }
+  };
+
+  const getTypeText = () => {
+    switch (currentSession.type) {
+      case 'work':
+        return 'Focus Time';
+      case 'shortBreak':
+        return 'Short Break';
+      case 'longBreak':
+        return 'Long Break';
     }
   };
 
@@ -172,7 +183,7 @@ export default function PomodoroTimer({
         {/* Timer Circle */}
         <div className="relative w-72 h-72">
           {/* Background circle */}
-          <div className="absolute inset-0 rounded-full bg-gray-100 dark:bg-gray-700" />
+          <div className="absolute inset-0 rounded-full bg-slate-700/50 backdrop-blur-sm" />
           
           {/* Progress circle */}
           <svg className="absolute inset-0 w-full h-full -rotate-90 transform">
@@ -182,10 +193,11 @@ export default function PomodoroTimer({
               r="45%"
               strokeWidth="8"
               fill="none"
-              className={`stroke-current text-gradient ${getTypeColor()}`}
+              className={`stroke-current bg-gradient-to-r ${getTypeColor()}`}
               style={{
                 strokeDasharray: '283',
                 strokeDashoffset: 283 - (283 * progress) / 100,
+                filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.2))'
               }}
               initial={{ strokeDashoffset: 283 }}
               animate={{ strokeDashoffset: 283 - (283 * progress) / 100 }}
@@ -199,152 +211,110 @@ export default function PomodoroTimer({
               key={currentSession.timeLeft}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="text-6xl font-bold text-gray-900 dark:text-white"
+              transition={{ duration: 0.3 }}
+              className="text-center"
             >
-              {formatTime(currentSession.timeLeft)}
-            </motion.div>
-            <motion.div
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className="text-xl font-medium text-gray-600 dark:text-gray-300"
-            >
-              {currentSession.type.charAt(0).toUpperCase() + currentSession.type.slice(1)}
-              {currentSession.type === 'work' && ` (${currentSession.currentCycle}/${settings.cyclesBeforeLongBreak})`}
+              <h2 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300">
+                {formatTime(currentSession.timeLeft)}
+              </h2>
+              <p className="mt-2 text-lg text-slate-300 font-medium">
+                {getTypeText()}
+              </p>
+              <p className="text-sm text-slate-400">
+                Cycle {currentSession.currentCycle} of {settings.cyclesBeforeLongBreak}
+              </p>
             </motion.div>
           </div>
-
-          {/* Settings Button - Now positioned absolutely */}
-          {!currentSession.isActive && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowSettings(!showSettings)}
-              className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
-            >
-              <Settings2 className={`h-5 w-5 transition-transform ${showSettings ? 'rotate-180' : ''}`} />
-            </Button>
-          )}
-        </div>
-
-        {/* Control Buttons */}
-        <div className="flex justify-center space-x-4 mt-16">
-          <Button
-            onClick={currentSession.isActive ? handlePause : handleStart}
-            variant={currentSession.isActive ? "destructive" : "default"}
-            size="lg"
-            className="w-32 font-medium"
-          >
-            {currentSession.isActive ? (
-              <Pause className="h-5 w-5 mr-2" />
-            ) : (
-              <Play className="h-5 w-5 mr-2" />
-            )}
-            {currentSession.isActive ? 'Pause' : 'Start'}
-          </Button>
-          <Button 
-            onClick={handleReset} 
-            variant="outline"
-            size="lg"
-            className="w-32 font-medium"
-          >
-            <RotateCcw className="h-5 w-5 mr-2" />
-            Reset
-          </Button>
         </div>
       </div>
 
-      {/* Settings Panel with Animation */}
+      {/* Controls */}
+      <div className="flex gap-3">
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={currentSession.isActive ? handlePause : handleStart}
+          className="w-32 bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 backdrop-blur-sm text-slate-300"
+        >
+          {currentSession.isActive ? (
+            <Pause className="mr-2 h-4 w-4" />
+          ) : (
+            <Play className="mr-2 h-4 w-4" />
+          )}
+          {currentSession.isActive ? 'Pause' : 'Start'}
+        </Button>
+
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={handleReset}
+          className="w-32 bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 backdrop-blur-sm text-slate-300"
+        >
+          <RotateCcw className="mr-2 h-4 w-4" />
+          Reset
+        </Button>
+
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={() => setShowSettings(!showSettings)}
+          className="w-32 bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 backdrop-blur-sm text-slate-300"
+        >
+          <Settings2 className="mr-2 h-4 w-4" />
+          Settings
+        </Button>
+      </div>
+
+      {/* Settings Panel */}
       <AnimatePresence>
-        {showSettings && !currentSession.isActive && (
+        {showSettings && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="w-full max-w-sm space-y-4 p-6 rounded-lg bg-gray-50 dark:bg-gray-700/50"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-full overflow-hidden"
           >
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <label className="w-24 text-sm">Work</label>
+            <div className="grid grid-cols-2 gap-4 p-6 rounded-xl bg-slate-800/30 backdrop-blur-xl border border-slate-700/50">
+              <div className="space-y-2">
+                <label className="text-sm text-slate-400">Work Duration (min)</label>
                 <Input
                   type="number"
-                  min="1"
                   value={settings.workDuration}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 1;
-                    setSettings(prev => ({
-                      ...prev,
-                      workDuration: value
-                    }));
-                    if (currentSession.type === 'work' && !currentSession.isActive) {
-                      setCurrentSession(prev => ({
-                        ...prev,
-                        timeLeft: value * 60
-                      }));
-                    }
-                  }}
-                  className="w-20"
+                  onChange={(e) => setSettings(prev => ({ ...prev, workDuration: parseInt(e.target.value) || 1 }))}
+                  className="bg-slate-900/50 border-slate-700 text-slate-300"
+                  min="1"
                 />
-                <span className="text-sm text-gray-500">min</span>
               </div>
-              <div className="flex items-center gap-4">
-                <label className="w-24 text-sm">Short Break</label>
+              <div className="space-y-2">
+                <label className="text-sm text-slate-400">Short Break (min)</label>
                 <Input
                   type="number"
-                  min="1"
                   value={settings.shortBreakDuration}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 1;
-                    setSettings(prev => ({
-                      ...prev,
-                      shortBreakDuration: value
-                    }));
-                    if (currentSession.type === 'shortBreak' && !currentSession.isActive) {
-                      setCurrentSession(prev => ({
-                        ...prev,
-                        timeLeft: value * 60
-                      }));
-                    }
-                  }}
-                  className="w-20"
+                  onChange={(e) => setSettings(prev => ({ ...prev, shortBreakDuration: parseInt(e.target.value) || 1 }))}
+                  className="bg-slate-900/50 border-slate-700 text-slate-300"
+                  min="1"
                 />
-                <span className="text-sm text-gray-500">min</span>
               </div>
-              <div className="flex items-center gap-4">
-                <label className="w-24 text-sm">Long Break</label>
+              <div className="space-y-2">
+                <label className="text-sm text-slate-400">Long Break (min)</label>
                 <Input
                   type="number"
-                  min="1"
                   value={settings.longBreakDuration}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 1;
-                    setSettings(prev => ({
-                      ...prev,
-                      longBreakDuration: value
-                    }));
-                    if (currentSession.type === 'longBreak' && !currentSession.isActive) {
-                      setCurrentSession(prev => ({
-                        ...prev,
-                        timeLeft: value * 60
-                      }));
-                    }
-                  }}
-                  className="w-20"
+                  onChange={(e) => setSettings(prev => ({ ...prev, longBreakDuration: parseInt(e.target.value) || 1 }))}
+                  className="bg-slate-900/50 border-slate-700 text-slate-300"
+                  min="1"
                 />
-                <span className="text-sm text-gray-500">min</span>
               </div>
-              <div className="flex items-center gap-4">
-                <label className="w-24 text-sm">Cycles</label>
+              <div className="space-y-2">
+                <label className="text-sm text-slate-400">Cycles Before Long Break</label>
                 <Input
                   type="number"
-                  min="1"
                   value={settings.cyclesBeforeLongBreak}
-                  onChange={(e) => setSettings(prev => ({
-                    ...prev,
-                    cyclesBeforeLongBreak: parseInt(e.target.value) || 1
-                  }))}
-                  className="w-20"
+                  onChange={(e) => setSettings(prev => ({ ...prev, cyclesBeforeLongBreak: parseInt(e.target.value) || 1 }))}
+                  className="bg-slate-900/50 border-slate-700 text-slate-300"
+                  min="1"
                 />
-                <span className="text-sm text-gray-500">rounds</span>
               </div>
             </div>
           </motion.div>

@@ -642,29 +642,29 @@ export default function ProductsPage() {
   const categories = [...new Set(products.map(product => product.category))];
 
   return (
-    <div className="container mx-auto px-4 py-8 text-gray-700">
+    <div className="container mx-auto px-4 py-8">
       {/* Fixed Cart Button */}
       <button 
         onClick={() => setIsCartOpen(true)}
-        className="fixed top-24 right-6 z-30 bg-white text-gray-700 p-3 rounded-full shadow-lg hover:bg-gray-50 transition-all group border border-gray-200"
+        className="fixed top-24 right-6 z-30 bg-slate-800/50 backdrop-blur-xl text-white p-3 rounded-full shadow-lg hover:bg-slate-700/50 transition-all group border border-white/20"
       >
         <div className="relative">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           {cart.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-white text-gray-700 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border border-gray-200">
+            <span className="absolute -top-2 -right-2 bg-emerald-400 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border border-white/20">
               {cart.reduce((sum, item) => sum + item.quantity, 0)}
             </span>
           )}
         </div>
-        <span className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 bg-white text-gray-700 px-2 py-1 rounded text-sm font-medium shadow-md invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap border border-gray-200">
-          Giỏ hàng của bạn
+        <span className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 bg-slate-800/50 backdrop-blur-xl text-white px-3 py-1.5 rounded-xl text-sm font-medium shadow-lg invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 whitespace-nowrap border border-white/20">
+          {translate('gio_hang_cua_ban')}
         </span>
       </button>
 
       {/* Header with gradient background */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-[#3E503C] to-[#7F886A] rounded-3xl p-8 mb-8 shadow-lg">
+      <div className="relative overflow-hidden bg-gradient-to-r from-slate-800 to-slate-900 rounded-3xl p-8 mb-8 shadow-lg">
         <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
@@ -679,10 +679,10 @@ export default function ProductsPage() {
               placeholder={`${translate('tim_kiem')}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-5 py-3 pl-12 rounded-xl bg-white/80 backdrop-blur-sm border-transparent focus:border-white focus:ring-2 focus:ring-white transition-all duration-300 shadow-sm"
+              className="w-full px-5 py-3 pl-12 rounded-xl bg-slate-800/50 backdrop-blur-xl text-white border border-white/20 focus:border-white focus:ring-2 focus:ring-white transition-all duration-300 shadow-lg placeholder-white/60"
             />
             <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -691,14 +691,14 @@ export default function ProductsPage() {
       </div>
 
       {/* Category Filters */}
-      <div className="mb-8 overflow-x-auto scrollbar-hide">
+      <div className="relative overflow-x-auto mb-8">
         <div className="flex space-x-2 pb-2 min-w-max">
           <button
             onClick={() => setActiveCategory(null)}
-            className={`px-4 py-2 rounded-xl font-medium transition-all ${
+            className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
               activeCategory === null
-                ? 'bg-white/90 text-[#3E503C] shadow-md'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-slate-800 text-white shadow-lg'
+                : 'bg-slate-800/50 backdrop-blur-xl text-white/80 hover:bg-slate-700/50 border border-white/20'
             }`}
           >
             {translate('tat_ca')}
@@ -707,10 +707,10 @@ export default function ProductsPage() {
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 whitespace-nowrap ${
                 activeCategory === category
-                  ? 'bg-white/90 text-[#3E503C] shadow-md'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                  ? 'bg-slate-800 text-white shadow-lg'
+                  : 'bg-slate-800/50 backdrop-blur-xl text-white/80 hover:bg-slate-700/50 border border-white/20'
               }`}
             >
               {category}
@@ -721,312 +721,243 @@ export default function ProductsPage() {
 
       {/* Shopping Cart Dialog */}
       <Dialog open={isCartOpen} onOpenChange={setIsCartOpen}>
-        <DialogContent className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-xl border-0 max-w-3xl w-full">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-gray-700">
-              {translate('gio_hang') || 'Giỏ Hàng'}
-            </DialogTitle>
-          </DialogHeader>
-          
-          {cart.length === 0 ? (
-            <div className="py-8 text-center">
-              <p className="text-gray-700 mb-4">{translate('gio_hang_trong') || 'Giỏ hàng của bạn đang trống'}</p>
-              <Button 
-                onClick={() => setIsCartOpen(false)} 
-                className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200"
-              >
-                {translate('tiep_tuc_mua_hang') || 'Tiếp tục mua hàng'}
-              </Button>
-            </div>
-          ) : (
-            <>
-              <div className="py-4 max-h-[60vh] overflow-y-auto">
-                {cart.map((item) => {
-                  const product = getProductById(item.productId);
-                  if (!product) return null;
-                  
-                  return (
-                    <div key={item.productId} className="flex items-center space-x-4 py-4 border-b border-gray-100">
-                      <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                        <img 
-                          src={product.imageUrl} 
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-lg font-medium text-gray-700">{product.name}</h4>
-                        <p className="text-gray-700 font-semibold">
-                          {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
-                            style: 'currency',
-                            currency: language === 'en' ? 'USD' : 'VND'
-                          }).format(product.price)}
-                        </p>
-                        <p className="text-sm text-gray-700">
-                          {translate('con_lai') || 'Còn lại'}: {product.quantity} {product.actualAvailable !== undefined && (
-                            product.actualAvailable === 1 ? 
-                            <span className="text-gray-700 font-medium">({translate('chi_con_1') || 'Chỉ còn 1 có sẵn'})</span> : 
-                            `(${product.actualAvailable} ${translate('co_san') || 'có sẵn'})`
-                          )}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                          className="h-8 w-8 rounded-full bg-white text-gray-700 border-gray-300"
-                        >
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
-                          </svg>
-                        </Button>
-                        <Input
-                          type="number"
-                          min="1"
-                          max={product.quantity}
-                          value={item.quantity}
-                          onChange={(e) => updateQuantity(item.productId, parseInt(e.target.value) || 1)}
-                          className="w-14 text-center h-8 rounded-lg text-gray-700"
-                        />
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          className="h-8 w-8 rounded-full bg-white text-gray-700 border-gray-300"
-                          disabled={product.actualAvailable !== undefined 
-                            ? item.quantity >= (product.actualAvailable + item.quantity)
-                            : item.quantity >= product.quantity}
-                        >
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v12M6 12h12" />
-                          </svg>
-                        </Button>
-                      </div>
-                      <div className="text-right min-w-[100px]">
-                        <p className="font-bold text-gray-700">
-                          {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
-                            style: 'currency',
-                            currency: language === 'en' ? 'USD' : 'VND'
-                          }).format(product.price * item.quantity)}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
+        <DialogContent className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-xl border-0 max-w-3xl w-full">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-3xl"></div>
+          <div className="relative">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-white">
+                {translate('gio_hang') || 'Giỏ Hàng'}
+              </DialogTitle>
+            </DialogHeader>
+            
+            {cart.length === 0 ? (
+              <div className="py-8 text-center">
+                <p className="text-white/80 mb-4">{translate('gio_hang_trong') || 'Giỏ hàng của bạn đang trống'}</p>
+                <Button 
+                  onClick={() => setIsCartOpen(false)} 
+                  className="bg-slate-700/50 backdrop-blur-xl text-white hover:bg-slate-600/50 border border-white/20"
+                >
+                  {translate('tiep_tuc_mua_hang') || 'Tiếp tục mua hàng'}
+                </Button>
               </div>
-              
-              <div className="mt-6 space-y-4">
-                <div className="flex justify-between text-lg font-semibold">
-                  <span className="text-gray-700">{translate('tong_cong') || 'Tổng cộng'}:</span>
-                  <span className="text-gray-700">
-                    {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
-                      style: 'currency',
-                      currency: language === 'en' ? 'USD' : 'VND'
-                    }).format(calculateTotal())}
-                  </span>
+            ) : (
+              <>
+                <div className="py-4 max-h-[60vh] overflow-y-auto">
+                  {cart.map((item) => {
+                    const product = getProductById(item.productId);
+                    if (!product) return null;
+                    
+                    return (
+                      <div key={item.productId} className="flex items-center space-x-4 py-4 border-b border-white/10">
+                        <div className="h-16 w-16 rounded-xl overflow-hidden bg-white/10 flex-shrink-0">
+                          <img 
+                            src={product.imageUrl} 
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-medium text-white">{product.name}</h4>
+                          <p className="text-white font-semibold">
+                            {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
+                              style: 'currency',
+                              currency: language === 'en' ? 'USD' : 'VND'
+                            }).format(product.price)}
+                          </p>
+                          <p className="text-sm text-white/80">
+                            {translate('con_lai') || 'Còn lại'}: {product.quantity} {product.actualAvailable !== undefined && (
+                              product.actualAvailable === 1 ? 
+                              <span className="text-emerald-400 font-medium">({translate('chi_con_1') || 'Chỉ còn 1 có sẵn'})</span> : 
+                              `(${product.actualAvailable} ${translate('co_san') || 'có sẵn'})`
+                            )}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                            className="h-8 w-8 rounded-lg bg-slate-700/50 backdrop-blur-xl text-white hover:bg-slate-600/50 border border-white/20"
+                          >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
+                            </svg>
+                          </Button>
+                          <Input
+                            type="number"
+                            min="1"
+                            max={product.quantity}
+                            value={item.quantity}
+                            onChange={(e) => updateQuantity(item.productId, parseInt(e.target.value) || 1)}
+                            className="w-14 text-center h-8 rounded-lg bg-slate-700/50 backdrop-blur-xl text-white border border-white/20"
+                          />
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                            className="h-8 w-8 rounded-lg bg-slate-700/50 backdrop-blur-xl text-white hover:bg-slate-600/50 border border-white/20"
+                            disabled={product.actualAvailable !== undefined 
+                              ? item.quantity >= (product.actualAvailable + item.quantity)
+                              : item.quantity >= product.quantity}
+                          >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v12M6 12h12" />
+                            </svg>
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="flex gap-2">
+                <div className="pt-4 border-t border-white/10">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-lg font-medium text-white">{translate('tong_cong') || 'Tổng cộng'}</span>
+                    <span className="text-xl font-bold text-white">
+                      {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
+                        style: 'currency',
+                        currency: language === 'en' ? 'USD' : 'VND'
+                      }).format(calculateTotal())}
+                    </span>
+                  </div>
                   <Button 
-                    onClick={() => setIsCartOpen(false)} 
-                    variant="outline" 
-                    className="flex-1 bg-white text-gray-700 border-gray-300"
-                  >
-                    {translate('tiep_tuc_mua_hang') || 'Tiếp tục mua hàng'}
-                  </Button>
-                  <Button 
-                    onClick={placeOrder} 
-                    className="flex-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
+                    onClick={handleCheckoutOpen}
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 rounded-xl transition-colors"
                   >
                     {translate('thanh_toan') || 'Thanh toán'}
                   </Button>
                 </div>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Checkout Dialog */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
-        <DialogContent className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-xl border-0 max-w-3xl w-full">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-gray-700">Thông tin đặt hàng</DialogTitle>
-          </DialogHeader>
-          
-          <div className="py-4 max-h-[70vh] overflow-y-auto">
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="fullName" className="text-gray-700">Họ tên</Label>
-                <Input 
-                  id="fullName"
-                  name="fullName"
-                  value={checkoutInfo.fullName}
-                  onChange={handleCheckoutInputChange}
-                  placeholder="Nhập họ tên của bạn"
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="email" className="text-gray-700">Email</Label>
-                <Input 
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={checkoutInfo.email}
-                  onChange={handleCheckoutInputChange}
-                  placeholder="Nhập email của bạn"
-                />
-                <p className="text-xs text-gray-500">Hóa đơn sẽ được gửi vào email này</p>
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="phone" className="text-gray-700">Số điện thoại</Label>
-                <Input 
-                  id="phone"
-                  name="phone"
-                  value={checkoutInfo.phone}
-                  onChange={handleCheckoutInputChange}
-                  placeholder="Nhập số điện thoại của bạn"
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="address" className="text-gray-700">Địa chỉ</Label>
-                <Input 
-                  id="address"
-                  name="address"
-                  value={checkoutInfo.address}
-                  onChange={handleCheckoutInputChange}
-                  placeholder="Nhập địa chỉ nhận hàng của bạn"
-                />
-              </div>
-              
-              <div className="border-t border-gray-100 pt-4 mt-2">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4">Phương thức thanh toán</h3>
-                
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      id="paymentCod"
-                      name="paymentMethod"
-                      value="cod"
-                      checked={checkoutInfo.paymentMethod === 'cod'}
-                      onChange={handleCheckoutInputChange}
-                      className="w-4 h-4"
-                      disabled={orderTotal >= 1000000}
-                    />
-                    <Label htmlFor="paymentCod" className="text-gray-700">Thanh toán khi nhận hàng (COD)</Label>
-                  </div>
-                  
-                  {orderTotal >= 1000000 && (
-                    <p className="text-sm text-red-500 ml-6">
-                      Đơn hàng trên 1 triệu VND phải thanh toán trước qua chuyển khoản
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      id="paymentBanking"
-                      name="paymentMethod"
-                      value="banking"
-                      checked={checkoutInfo.paymentMethod === 'banking'}
-                      onChange={handleCheckoutInputChange}
-                      className="w-4 h-4"
-                    />
-                    <Label htmlFor="paymentBanking" className="text-gray-700">Chuyển khoản ngân hàng</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      id="paymentMomo"
-                      name="paymentMethod"
-                      value="momo"
-                      checked={checkoutInfo.paymentMethod === 'momo'}
-                      onChange={handleCheckoutInputChange}
-                      className="w-4 h-4"
-                    />
-                    <Label htmlFor="paymentMomo" className="text-gray-700">Thanh toán qua MoMo</Label>
-                  </div>
-                  
-                  {checkoutInfo.paymentMethod === 'banking' && (
-                    <div className="ml-6 p-4 bg-gray-50 rounded-lg">
-                      <p className="font-semibold mb-1 text-gray-700">Thông tin chuyển khoản:</p>
-                      <p className="text-gray-700">Ngân hàng: <span className="font-medium">BIDV</span></p>
-                      <p className="text-gray-700">Số tài khoản: <span className="font-medium">1234567890</span></p>
-                      <p className="text-gray-700">Chủ tài khoản: <span className="font-medium">Nguyễn Văn A</span></p>
-                      <p className="mt-2 text-gray-700">Nội dung: <span className="font-medium">DH {userId.slice(-6)}</span></p>
-                      
-                      <div className="mt-4 flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="bankingConfirmation"
-                          name="bankingConfirmation"
-                          checked={checkoutInfo.bankingConfirmation}
-                          onChange={handleCheckoutInputChange}
-                          className="w-4 h-4"
-                        />
-                        <Label htmlFor="bankingConfirmation" className="text-gray-700">
-                          Tôi đã chuyển khoản thành công
-                        </Label>
-                      </div>
-                    </div>
-                  )}
+        <DialogContent className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-xl border-0 max-w-3xl w-full">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-3xl"></div>
+          <div className="relative">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-white">
+                {translate('thong_tin_dat_hang') || 'Thông tin đặt hàng'}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="py-4 max-h-[70vh] overflow-y-auto">
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="fullName" className="text-white">{translate('ho_ten') || 'Họ tên'}</Label>
+                  <Input 
+                    id="fullName"
+                    name="fullName"
+                    value={checkoutInfo.fullName}
+                    onChange={handleCheckoutInputChange}
+                    placeholder={translate('nhap_ho_ten') || "Nhập họ tên của bạn"}
+                    className="bg-slate-700/50 backdrop-blur-xl text-white border border-white/20 placeholder-white/60"
+                  />
                 </div>
-              </div>
-              
-              <div className="border-t border-gray-100 pt-4 mt-2">
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-lg font-medium text-gray-700">Tổng thanh toán:</span>
-                  <span className="text-xl font-bold text-gray-700">
-                    {new Intl.NumberFormat('vi-VN', {
-                      style: 'currency',
-                      currency: 'VND'
-                    }).format(orderTotal)}
-                  </span>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="email" className="text-white">Email</Label>
+                  <Input 
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={checkoutInfo.email}
+                    onChange={handleCheckoutInputChange}
+                    placeholder={translate('nhap_email') || "Nhập email của bạn"}
+                    className="bg-slate-700/50 backdrop-blur-xl text-white border border-white/20 placeholder-white/60"
+                  />
+                  <p className="text-xs text-white/60">{translate('hoa_don_gui_email') || 'Hóa đơn sẽ được gửi vào email này'}</p>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="phone" className="text-white">{translate('so_dien_thoai') || 'Số điện thoại'}</Label>
+                  <Input 
+                    id="phone"
+                    name="phone"
+                    value={checkoutInfo.phone}
+                    onChange={handleCheckoutInputChange}
+                    placeholder={translate('nhap_sdt') || "Nhập số điện thoại của bạn"}
+                    className="bg-slate-700/50 backdrop-blur-xl text-white border border-white/20 placeholder-white/60"
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="address" className="text-white">{translate('dia_chi') || 'Địa chỉ'}</Label>
+                  <Input 
+                    id="address"
+                    name="address"
+                    value={checkoutInfo.address}
+                    onChange={handleCheckoutInputChange}
+                    placeholder={translate('nhap_dia_chi') || "Nhập địa chỉ của bạn"}
+                    className="bg-slate-700/50 backdrop-blur-xl text-white border border-white/20 placeholder-white/60"
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label className="text-white">{translate('phuong_thuc_thanh_toan') || 'Phương thức thanh toán'}</Label>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cod"
+                        checked={checkoutInfo.paymentMethod === 'cod'}
+                        onChange={handleCheckoutInputChange}
+                        className="text-emerald-500 bg-slate-700/50"
+                      />
+                      <span className="text-white">{translate('thanh_toan_khi_nhan_hang') || 'Thanh toán khi nhận hàng'}</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="momo"
+                        checked={checkoutInfo.paymentMethod === 'momo'}
+                        onChange={handleCheckoutInputChange}
+                        className="text-emerald-500 bg-slate-700/50"
+                      />
+                      <span className="text-white">MoMo</span>
+                    </label>
+                  </div>
                 </div>
               </div>
               
               {checkoutError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-600">
-                  {checkoutError}
+                <div className="mt-4 p-4 bg-rose-500/20 backdrop-blur-xl rounded-xl border border-rose-500/40">
+                  <p className="text-rose-300">{checkoutError}</p>
                 </div>
               )}
+              
+              <div className="mt-6 flex justify-between items-center">
+                <div>
+                  <p className="text-lg font-medium text-white">{translate('tong_cong') || 'Tổng cộng'}</p>
+                  <p className="text-2xl font-bold text-white">
+                    {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
+                      style: 'currency',
+                      currency: language === 'en' ? 'USD' : 'VND'
+                    }).format(orderTotal)}
+                  </p>
+                </div>
+                {checkoutInfo.paymentMethod === 'momo' ? (
+                  <MomoPaymentButton 
+                    amount={orderTotal}
+                    orderId={`ORDER_${Date.now()}`}
+                    orderInfo={`Thanh toán đơn hàng`}
+                    onOrderCreated={handleMomoPayment}
+                  />
+                ) : (
+                  <Button
+                    onClick={submitOrder}
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 px-6 rounded-xl transition-colors"
+                  >
+                    {translate('dat_hang') || 'Đặt hàng'}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-          
-          <DialogFooter className="flex space-x-4 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsCheckoutOpen(false);
-                setIsCartOpen(true);
-              }}
-              className="rounded-xl flex-1 bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-            >
-              Quay lại giỏ hàng
-            </Button>
-            
-            {checkoutInfo.paymentMethod === 'momo' ? (
-              <MomoPaymentButton 
-                amount={orderTotal}
-                orderId={`ORDER_${Date.now()}`}
-                orderInfo={`Thanh toán đơn hàng`}
-                className="flex-1"
-                onOrderCreated={handleMomoPayment}
-              />
-            ) : (
-              <Button
-                onClick={submitOrder}
-                className="rounded-xl flex-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 transition-colors"
-              >
-                Xác nhận đặt hàng
-              </Button>
-            )}
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -1034,97 +965,118 @@ export default function ProductsPage() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="bg-white rounded-3xl shadow-md overflow-hidden animate-pulse">
-              <div className="h-40 sm:h-48 bg-gray-200"></div>
-              <div className="p-4 sm:p-5 space-y-3">
-                <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+            <div key={i} className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-lg animate-pulse">
+              <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+              <div className="relative">
+                <div className="h-40 sm:h-48 bg-white/20"></div>
+                <div className="p-4 sm:p-5 space-y-3">
+                  <div className="h-6 bg-white/20 rounded-lg w-3/4"></div>
+                  <div className="h-4 bg-white/20 rounded-lg w-1/2"></div>
+                  <div className="h-6 bg-white/20 rounded-lg w-1/4"></div>
+                </div>
               </div>
             </div>
           ))}
         </div>
       ) : error ? (
-        <div className="bg-red-50 rounded-xl p-6 text-center">
-          <p className="text-red-600">{error}</p>
+        <div className="relative overflow-hidden bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl p-8 text-center shadow-lg">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+          <div className="relative">
+            <svg className="w-16 h-16 text-white/80 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-white font-medium">{error}</p>
+          </div>
         </div>
       ) : filteredProducts.length === 0 ? (
-        <div className="bg-gray-50 rounded-xl p-12 text-center">
-          <div className="mb-4">
-            <svg className="w-16 h-16 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 text-center shadow-lg">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+          <div className="relative">
+            <svg className="w-16 h-16 text-white/80 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
+            <h3 className="text-xl font-medium text-white mb-1">{translate('khong_tim_thay_sp')}</h3>
+            <p className="text-white/80">{translate('thu_tim_kiem_khac')}</p>
           </div>
-          <h3 className="text-xl font-medium text-gray-600 mb-1">{translate('khong_tim_thay_sp')}</h3>
-          <p className="text-gray-500">{translate('thu_tim_kiem_khac')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {filteredProducts.map((product) => (
             <div 
               key={product.id} 
-              className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-xl group h-full flex flex-col"
+              className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-lg group h-full flex flex-col"
             >
-              <div className="h-40 sm:h-48 relative overflow-hidden">
-                <img 
-                  src={product.imageUrl || '/placeholder-product.jpg'} 
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/40 to-transparent h-24 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              </div>
-              <div className="p-4 sm:p-5 flex-1 flex flex-col">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg sm:text-xl font-semibold text-gray-700 line-clamp-2">{product.name}</h3>
-                  <span className="px-2 py-1 bg-white text-gray-700 text-xs font-medium rounded-md ml-2 flex-shrink-0 border border-gray-200">
-                    {product.category}
-                  </span>
+              <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
+              <div className="relative flex flex-col h-full">
+                <div className="h-40 sm:h-48 relative overflow-hidden rounded-t-3xl">
+                  <img 
+                    src={product.imageUrl || '/placeholder-product.jpg'} 
+                    alt={product.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
-                <p className="text-gray-700 text-sm line-clamp-2 mb-3">{product.description}</p>
-                <p className="text-gray-700 text-sm mb-2">
-                  {translate('con_lai') || 'Còn lại'}: {product.quantity} {product.actualAvailable !== undefined && (
-                    product.actualAvailable === 1 ? 
-                    <span className="text-gray-700 font-medium">({translate('chi_con_1') || 'Chỉ còn 1 có sẵn'})</span> : 
-                    `(${product.actualAvailable} ${translate('co_san') || 'có sẵn'})`
-                  )}
-                </p>
-                <div className="flex justify-between items-center mt-auto">
-                  <span className="text-lg sm:text-xl font-bold text-gray-700">
-                    {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
-                      style: 'currency',
-                      currency: language === 'en' ? 'USD' : 'VND'
-                    }).format(product.price)}
-                  </span>
-                  <div className="flex gap-1 sm:gap-2">
-                    <Button
-                      onClick={() => addToCart(product.id)}
-                      disabled={!product.isAvailable || 
-                                product.quantity === 0 || 
-                                (product.actualAvailable !== undefined && product.actualAvailable < 1)}
-                      className="p-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 border border-gray-300 transition-colors text-sm font-medium"
-                      title={!product.isAvailable ? translate('sp_ko_san_sang') || "Sản phẩm không có sẵn" :
-                             product.quantity === 0 ? translate('het_hang') || "Hết hàng" :
-                             (product.actualAvailable !== undefined && product.actualAvailable < 1) ? translate('het_hang') || "Hết hàng" : translate('them_vao_gio') || "Thêm vào giỏ hàng"}
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        addToCart(product.id);
-                        setIsCartOpen(true);
-                      }}
-                      disabled={!product.isAvailable || 
-                                product.quantity === 0 || 
-                                (product.actualAvailable !== undefined && product.actualAvailable < 1)}
-                      className="px-2 py-2 bg-white text-gray-700 rounded-xl hover:bg-gray-50 border border-gray-300 transition-colors text-sm font-medium whitespace-nowrap"
-                      title={!product.isAvailable ? translate('sp_ko_san_sang') || "Sản phẩm không có sẵn" :
-                             product.quantity === 0 ? translate('het_hang') || "Hết hàng" :
-                             (product.actualAvailable !== undefined && product.actualAvailable < 1) ? translate('het_hang') || "Hết hàng" : translate('mua_ngay') || "Mua ngay"}
-                    >
-                      {translate('mua_ngay') || 'Mua ngay'}
-                    </Button>
+                <div className="p-4 sm:p-5 flex flex-col flex-grow">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg sm:text-xl font-semibold text-white line-clamp-2">{product.name}</h3>
+                    <span className="px-2.5 py-1.5 bg-white/10 backdrop-blur-xl text-white/80 text-xs font-medium rounded-lg ml-2 flex-shrink-0 border border-white/20">
+                      {product.category}
+                    </span>
+                  </div>
+                  <p className="text-white/80 text-sm line-clamp-2 mb-3">{product.description}</p>
+                  <p className="text-white/80 text-sm mb-2">
+                    {translate('con_lai') || 'Còn lại'}: {product.quantity} {product.actualAvailable !== undefined && (
+                      product.actualAvailable === 1 ? 
+                      <span className="text-emerald-400 font-medium">({translate('chi_con_1') || 'Chỉ còn 1 có sẵn'})</span> : 
+                      `(${product.actualAvailable} ${translate('co_san') || 'có sẵn'})`
+                    )}
+                  </p>
+                  <div className="mt-auto pt-4 flex items-center justify-between">
+                    <span className="text-lg sm:text-xl font-bold text-white">
+                      {new Intl.NumberFormat(language === 'en' ? 'en-US' : 'vi-VN', {
+                        style: 'currency',
+                        currency: language === 'en' ? 'USD' : 'VND'
+                      }).format(product.price)}
+                    </span>
+                    <div className="flex gap-1 sm:gap-2">
+                      <Button
+                        onClick={() => addToCart(product.id)}
+                        disabled={!product.isAvailable || 
+                                  product.quantity === 0 || 
+                                  (product.actualAvailable !== undefined && product.actualAvailable < 1)}
+                        className={`p-2 rounded-xl transition-colors text-sm font-medium ${
+                          !product.isAvailable || product.quantity === 0 || (product.actualAvailable !== undefined && product.actualAvailable < 1)
+                            ? 'bg-slate-700/50 text-white/50 cursor-not-allowed'
+                            : 'bg-slate-700/50 backdrop-blur-xl text-white hover:bg-slate-600/50 border border-white/20'
+                        }`}
+                        title={!product.isAvailable ? translate('sp_ko_san_sang') || "Sản phẩm không có sẵn" :
+                               product.quantity === 0 ? translate('het_hang') || "Hết hàng" :
+                               (product.actualAvailable !== undefined && product.actualAvailable < 1) ? translate('het_hang') || "Hết hàng" : translate('them_vao_gio') || "Thêm vào giỏ hàng"}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          addToCart(product.id);
+                          setIsCartOpen(true);
+                        }}
+                        disabled={!product.isAvailable || 
+                                  product.quantity === 0 || 
+                                  (product.actualAvailable !== undefined && product.actualAvailable < 1)}
+                        className={`px-3 py-2 rounded-xl transition-colors text-sm font-medium whitespace-nowrap ${
+                          !product.isAvailable || product.quantity === 0 || (product.actualAvailable !== undefined && product.actualAvailable < 1)
+                            ? 'bg-slate-700/50 text-white/50 cursor-not-allowed'
+                            : 'bg-slate-700/50 backdrop-blur-xl text-white hover:bg-slate-600/50 border border-white/20'
+                        }`}
+                        title={!product.isAvailable ? translate('sp_ko_san_sang') || "Sản phẩm không có sẵn" :
+                               product.quantity === 0 ? translate('het_hang') || "Hết hàng" :
+                               (product.actualAvailable !== undefined && product.actualAvailable < 1) ? translate('het_hang') || "Hết hàng" : translate('mua_ngay') || "Mua ngay"}
+                      >
+                        {translate('mua_ngay') || 'Mua ngay'}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -84,50 +84,69 @@ export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsPro
     return transactions.slice(indexOfFirstItem, indexOfLastItem);
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
+
   const TransactionItem = ({ transaction }: { transaction: Transaction }) => (
     <div
       key={transaction.id}
-      className="p-4 bg-white/50 rounded-lg border border-gray-100 hover:shadow-md transition-shadow"
+      className="relative overflow-hidden bg-slate-800/50 backdrop-blur-sm border border-slate-700/30 rounded-3xl p-6 group hover:bg-slate-800/60 transition-all duration-300"
     >
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
+      <div className="relative">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-3">
+              <span className={`px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide ${
+                transaction.type === 'Thu' 
+                  ? 'bg-emerald-400/20 text-emerald-400 ring-1 ring-emerald-400/30'
+                  : 'bg-rose-400/20 text-rose-400 ring-1 ring-rose-400/30'
+              }`}>
+                {transaction.type}
+              </span>
+              <span className="text-sm font-medium text-slate-300">{formatDate(transaction.date)}</span>
+            </div>
+            <h3 className="mt-3 font-semibold text-white text-xl leading-tight drop-shadow-sm">
+              {transaction.description}
+            </h3>
+            <div className="mt-2.5 flex items-center gap-3">
+              <span className="font-medium text-slate-300 bg-slate-700/50 px-3 py-1.5 rounded-full text-sm ring-1 ring-slate-600/50">
+                {transaction.category}
+              </span>
+              {transaction.notes && (
+                <>
+                  <span className="text-slate-600">•</span>
+                  <span className="text-slate-400">{transaction.notes}</span>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="text-right">
+            <div className={`font-bold text-2xl tracking-tight ${
               transaction.type === 'Thu' 
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
+                ? 'text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.3)]' 
+                : 'text-rose-400 drop-shadow-[0_0_15px_rgba(251,113,133,0.3)]'
             }`}>
-              {transaction.type}
-            </span>
-            <span className="text-sm text-gray-500">{transaction.date}</span>
-          </div>
-          <h3 className="mt-1 font-medium text-[#3E503C]">
-            {transaction.description}
-          </h3>
-          <div className="mt-1 text-sm text-gray-500">
-            {transaction.category}
-          </div>
-        </div>
-        <div className="text-right">
-          <div className={`font-semibold ${
-            transaction.type === 'Thu' ? 'text-green-600' : 'text-red-600'
-          }`}>
-            {transaction.type === 'Thu' ? '+' : '-'}
-            {new Intl.NumberFormat('vi-VN', {
-              style: 'currency',
-              currency: 'VND'
-            }).format(Number(transaction.amount))}
-          </div>
-          <div className="mt-1 text-xs text-gray-500">
-            {transaction.recordedBy}
+              {transaction.type === 'Thu' ? '+' : '-'}
+              {new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+              }).format(Number(transaction.amount))}
+            </div>
+            <div className="mt-2 text-sm font-medium text-slate-400">
+              {transaction.recordedBy}
+            </div>
           </div>
         </div>
       </div>
-      {transaction.notes && (
-        <div className="mt-2 text-sm text-gray-500">
-          <span className="font-medium">Ghi chú:</span> {transaction.notes}
-        </div>
-      )}
     </div>
   );
 
@@ -170,23 +189,65 @@ export function RecentTransactions({ refreshTrigger = 0 }: RecentTransactionsPro
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="p-6 glass-card rounded-xl">
+        <div className="flex items-center justify-center h-40">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3E503C]"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 glass-card rounded-xl">
+        <div className="flex flex-col items-center justify-center h-40 text-red-500">
+          <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="mt-2">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 glass-card rounded-xl">
-      {/* <h2 className="text-xl font-semibold mb-6 text-[#3E503C]">Giao Dịch Gần Đây</h2> */}
+    <div className="p-6 glass-card rounded-xl bg-slate-900/50">
+      <div className="flex items-center justify-between mb-8">
+        <div className="relative">
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200 animate-gradient"></div>
+          <h2 className="relative text-3xl font-bold text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+            {translate('giao_dich_gan_day')}
+          </h2>
+          <div className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-blue-500/0 via-blue-500/70 to-blue-500/0"></div>
+        </div>
+        <div className="flex items-center space-x-4 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
+          <div className="flex items-center space-x-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]"></div>
+            <span className="text-sm font-medium text-slate-300">Thu</span>
+          </div>
+          <div className="w-px h-4 bg-slate-700/50"></div>
+          <div className="flex items-center space-x-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.5)]"></div>
+            <span className="text-sm font-medium text-slate-300">Chi</span>
+          </div>
+        </div>
+      </div>
       
       <div className="space-y-4">
-        {transactions.length === 0 && !isLoading ? (
-          <p className="text-center text-gray-500">{translate('chua_co_giao_dich')}</p>
+        {transactions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <p className="mt-4">{translate('chua_co_giao_dich')}</p>
+          </div>
         ) : (
           <>
             {getCurrentTransactions().map((transaction) => (
               <TransactionItem key={transaction.id} transaction={transaction} />
             ))}
-            {isLoading && (
-              <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            )}
             <Pagination />
           </>
         )}
