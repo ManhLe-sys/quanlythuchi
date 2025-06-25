@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,15 @@ interface AddEventModalProps {
   onClose: () => void;
   selectedDate: Date;
   onEventAdded: () => void;
+  editingEvent?: {
+    id: string;
+    title: string;
+    description: string;
+    date: string;
+    start_time: string;
+    end_time: string;
+    location: string;
+  } | null;
 }
 
 const TAG_OPTIONS = [
@@ -24,7 +33,7 @@ const TAG_OPTIONS = [
   { id: 'important', label: 'Quan trọng', color: 'bg-violet-100 text-violet-700 ring-violet-500' },
 ];
 
-export default function AddEventModal({ isOpen, onClose, selectedDate, onEventAdded }: AddEventModalProps) {
+export default function AddEventModal({ isOpen, onClose, selectedDate, onEventAdded, editingEvent }: AddEventModalProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -35,6 +44,28 @@ export default function AddEventModal({ isOpen, onClose, selectedDate, onEventAd
     location: '',
     tags: [] as string[],
   });
+
+  useEffect(() => {
+    if (editingEvent) {
+      setFormData({
+        title: editingEvent.title,
+        description: editingEvent.description || '',
+        start_time: editingEvent.start_time,
+        end_time: editingEvent.end_time,
+        location: editingEvent.location || '',
+        tags: [],
+      });
+    } else {
+      setFormData({
+        title: '',
+        description: '',
+        start_time: '09:00',
+        end_time: '10:00',
+        location: '',
+        tags: [],
+      });
+    }
+  }, [editingEvent]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +88,7 @@ export default function AddEventModal({ isOpen, onClose, selectedDate, onEventAd
     try {
       setIsSubmitting(true);
       const response = await fetch('/api/schedule', {
-        method: 'POST',
+        method: editingEvent ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -65,17 +96,18 @@ export default function AddEventModal({ isOpen, onClose, selectedDate, onEventAd
         body: JSON.stringify({
           ...formData,
           date: format(selectedDate, 'yyyy-MM-dd'),
+          ...(editingEvent && { id: editingEvent.id }),
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create event');
+        throw new Error(errorData.error || 'Failed to save event');
       }
 
       toast({
         title: 'Thành công',
-        description: 'Đã thêm sự kiện mới',
+        description: editingEvent ? 'Đã cập nhật sự kiện' : 'Đã thêm sự kiện mới',
       });
 
       onClose();
@@ -89,10 +121,10 @@ export default function AddEventModal({ isOpen, onClose, selectedDate, onEventAd
         tags: [],
       });
     } catch (error) {
-      console.error('Error creating event:', error);
+      console.error('Error saving event:', error);
       toast({
         title: 'Lỗi',
-        description: 'Không thể thêm sự kiện. Vui lòng thử lại.',
+        description: 'Không thể lưu sự kiện. Vui lòng thử lại.',
         variant: 'destructive',
       });
     } finally {
@@ -133,7 +165,7 @@ export default function AddEventModal({ isOpen, onClose, selectedDate, onEventAd
                   <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
               </motion.div>
-              Thêm sự kiện mới
+              {editingEvent ? 'Chỉnh sửa sự kiện' : 'Thêm sự kiện mới'}
             </DialogTitle>
             <p className="text-sm text-blue-600 mt-1">
               Ngày: {format(selectedDate, 'dd/MM/yyyy')}
@@ -290,7 +322,7 @@ export default function AddEventModal({ isOpen, onClose, selectedDate, onEventAd
                 {isSubmitting ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                    Đang thêm...
+                    {editingEvent ? 'Đang cập nhật...' : 'Đang thêm...'}
                   </div>
                 ) : (
                   <>
@@ -299,7 +331,7 @@ export default function AddEventModal({ isOpen, onClose, selectedDate, onEventAd
                       <polyline points="17 21 17 13 7 13 7 21"></polyline>
                       <polyline points="7 3 7 8 15 8"></polyline>
                     </svg>
-                    Thêm sự kiện
+                    {editingEvent ? 'Cập nhật sự kiện' : 'Thêm sự kiện'}
                   </>
                 )}
               </Button>

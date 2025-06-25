@@ -21,8 +21,32 @@ import { motion } from 'framer-motion';
 import AddEventModal from './AddEventModal';
 import { useToast } from '@/components/ui/use-toast';
 import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Event {
+  id: string;
+  title: string;
+  description?: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  location?: string;
+  created_by?: string;
+  last_updated_at?: string;
+}
+
+interface EditEventData {
   id: string;
   title: string;
   description: string;
@@ -30,8 +54,6 @@ interface Event {
   start_time: string;
   end_time: string;
   location: string;
-  created_by: string;
-  last_updated_at: string;
 }
 
 type EventType = 'work' | 'meeting' | 'important' | 'normal';
@@ -109,24 +131,28 @@ export default function ScheduleCalendar() {
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'month' | 'week' | 'day'>('month');
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchEvents();
-  }, [currentDate]);
+  const [editingEvent, setEditingEvent] = useState<EditEventData | null>(null);
+  const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
 
   const fetchEvents = async () => {
     try {
       setIsLoading(true);
-      const date = format(currentDate, 'yyyy-MM-dd');
-      const response = await fetch(`/api/schedule?date=${date}`, {
+      const response = await fetch('/api/schedule', {
         credentials: 'include'
       });
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch events');
+        throw new Error('Failed to fetch events');
       }
+
       const data = await response.json();
-      setEvents(data.events);
+      console.log('Fetched events:', data); // Debug log
+      if (data && Array.isArray(data.events)) {
+        setEvents(data.events);
+      } else {
+        console.warn('Received invalid events data:', data);
+        setEvents([]);
+      }
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
@@ -134,18 +160,157 @@ export default function ScheduleCalendar() {
         description: 'Không thể tải dữ liệu sự kiện. Vui lòng thử lại sau.',
         variant: 'destructive',
       });
+      setEvents([]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
     setIsAddEventModalOpen(true);
+    setEditingEvent(null); // Reset editing state when adding new event
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setSelectedDate(parseISO(event.date));
+    setEditingEvent({
+      id: event.id,
+      title: event.title,
+      description: event.description || '',
+      date: event.date,
+      start_time: event.start_time,
+      end_time: event.end_time,
+      location: event.location || ''
+    });
+    setIsAddEventModalOpen(true);
+  };
+
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      const response = await fetch(`/api/schedule?id=${eventId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete event');
+      }
+
+      toast({
+        title: 'Thành công',
+        description: 'Đã xóa sự kiện',
+      });
+
+      await fetchEvents();
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể xóa sự kiện. Vui lòng thử lại.',
+        variant: 'destructive',
+      });
+    }
+    setDeleteEventId(null);
+  };
+
+  const getEventType = (event: Event): EventType => {
+    const eventText = (event.title + ' ' + (event.description || '')).toLowerCase();
+    if (eventText.includes('meeting') || eventText.includes('cuộc họp')) {
+      return 'meeting';
+    } else if (eventText.includes('important') || eventText.includes('quan trọng')) {
+      return 'important';
+    } else if (eventText.includes('work') || eventText.includes('công việc')) {
+      return 'work';
+    }
+    return 'normal';
+  };
+
+  const renderEventInCalendar = (event: Event, isInline: boolean = false) => {
+    const eventType = getEventType(event);
+
+    return (
+      <div
+        key={event.id}
+        className={`
+          relative group
+          text-xs p-1.5 rounded-md ${isInline ? '' : 'truncate'} shadow-sm
+          transition-all duration-200 hover:scale-105 cursor-pointer
+          ${COLOR_SCHEME.event[eventType].bg}
+          ${COLOR_SCHEME.event[eventType].text}
+          ${COLOR_SCHEME.event[eventType].hover}
+        `}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleEditEvent(event);
+        }}
+      >
+        <div className="font-medium truncate">{event.title}</div>
+        <div className="text-xs opacity-75 flex items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          {event.start_time} - {event.end_time}
+        </div>
+        {event.location && (
+          <div className="text-xs opacity-75 flex items-center gap-1 truncate">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            {event.location}
+          </div>
+        )}
+        {event.description && isInline && (
+          <div className="text-xs opacity-75 mt-1">{event.description}</div>
+        )}
+        
+        {/* Edit/Delete buttons */}
+        <div className="absolute top-1 right-1 hidden group-hover:flex gap-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditEvent(event);
+            }}
+            className="p-1 rounded-full hover:bg-blue-200 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setDeleteEventId(event.id);
+            }}
+            className="p-1 rounded-full hover:bg-red-200 transition-colors text-red-600"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    );
   };
 
   const getEventsByDate = (date: Date): Event[] => {
-    return events.filter(event => isSameDay(parseISO(event.date), date));
+    if (!events || !Array.isArray(events)) return [];
+    return events.filter(event => {
+      try {
+        return event && event.date && isSameDay(parseISO(event.date), date);
+      } catch (error) {
+        console.error('Error parsing date:', error);
+        return false;
+      }
+    });
   };
 
   const renderMonthView = () => {
@@ -222,50 +387,7 @@ export default function ScheduleCalendar() {
           </div>
 
           <div className="space-y-1">
-            {dayEvents.map((event) => {
-              // Determine event type based on title or description
-              let eventType: EventType = 'normal';
-              const eventText = (event.title + ' ' + event.description).toLowerCase();
-              if (eventText.includes('meeting') || eventText.includes('cuộc họp')) {
-                eventType = 'meeting';
-              } else if (eventText.includes('important') || eventText.includes('quan trọng')) {
-                eventType = 'important';
-              } else if (eventText.includes('work') || eventText.includes('công việc')) {
-                eventType = 'work';
-              }
-
-              return (
-                <div
-                  key={event.id}
-                  className={`
-                    text-xs p-1.5 rounded-md truncate shadow-sm
-                    transition-all duration-200 hover:scale-105 cursor-pointer
-                    ${COLOR_SCHEME.event[eventType].bg}
-                    ${COLOR_SCHEME.event[eventType].text}
-                    ${COLOR_SCHEME.event[eventType].hover}
-                  `}
-                  title={`${event.title} (${event.start_time} - ${event.end_time})`}
-                >
-                  <div className="font-medium truncate">{event.title}</div>
-                  <div className="text-xs opacity-75 flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    {event.start_time} - {event.end_time}
-                  </div>
-                  {event.location && (
-                    <div className="text-xs opacity-75 flex items-center gap-1 truncate">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                      </svg>
-                      {event.location}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            {dayEvents.map((event) => renderEventInCalendar(event))}
           </div>
         </motion.div>
       );
@@ -288,6 +410,12 @@ export default function ScheduleCalendar() {
         </div>
       </div>
     );
+  };
+
+  const handleTimeSlotClick = (date: Date, hour: number) => {
+    setSelectedDate(date);
+    setIsAddEventModalOpen(true);
+    setEditingEvent(null);
   };
 
   const renderWeekView = () => {
@@ -338,7 +466,11 @@ export default function ScheduleCalendar() {
             <div key={day.toString()} className="relative">
               <div className="absolute inset-0 divide-y divide-blue-100">
                 {[...Array(24)].map((_, i) => (
-                  <div key={i} className="h-12"></div>
+                  <div 
+                    key={i} 
+                    className="h-12 hover:bg-blue-50 transition-colors cursor-pointer"
+                    onClick={() => handleTimeSlotClick(day, i)}
+                  ></div>
                 ))}
               </div>
 
@@ -350,48 +482,15 @@ export default function ScheduleCalendar() {
                 const top = startHour * 48 + startMinute * 0.8;
                 const height = (endHour - startHour) * 48 + (endMinute - startMinute) * 0.8;
 
-                // Determine event type
-                let eventType: EventType = 'normal';
-                const eventText = (event.title + ' ' + event.description).toLowerCase();
-                if (eventText.includes('meeting') || eventText.includes('cuộc họp')) {
-                  eventType = 'meeting';
-                } else if (eventText.includes('important') || eventText.includes('quan trọng')) {
-                  eventType = 'important';
-                } else if (eventText.includes('work') || eventText.includes('công việc')) {
-                  eventType = 'work';
-                }
-
                 return (
                   <motion.div
                     key={event.id}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className={`
-                      absolute left-0 right-0 mx-1 p-1.5 rounded shadow-sm
-                      ${COLOR_SCHEME.event[eventType].bg}
-                      ${COLOR_SCHEME.event[eventType].text}
-                      transition-all duration-200 hover:scale-[1.02] cursor-pointer
-                      text-xs overflow-hidden
-                    `}
                     style={{ top: `${top}px`, height: `${height}px` }}
+                    className="absolute left-0 right-0 mx-1 z-10"
                   >
-                    <div className="font-medium truncate">{event.title}</div>
-                    <div className="text-xs opacity-75 flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                      </svg>
-                      {event.start_time} - {event.end_time}
-                    </div>
-                    {event.location && (
-                      <div className="text-xs opacity-75 flex items-center gap-1 truncate">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                          <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                        {event.location}
-                      </div>
-                    )}
+                    {renderEventInCalendar(event, true)}
                   </motion.div>
                 );
               })}
@@ -430,7 +529,11 @@ export default function ScheduleCalendar() {
           <div className="col-span-7 relative">
             <div className="absolute inset-0 divide-y divide-blue-100">
               {[...Array(24)].map((_, i) => (
-                <div key={i} className="h-12"></div>
+                <div 
+                  key={i} 
+                  className="h-12 hover:bg-blue-50 transition-colors cursor-pointer"
+                  onClick={() => handleTimeSlotClick(currentDate, i)}
+                ></div>
               ))}
             </div>
 
@@ -442,51 +545,15 @@ export default function ScheduleCalendar() {
               const top = startHour * 48 + startMinute * 0.8;
               const height = (endHour - startHour) * 48 + (endMinute - startMinute) * 0.8;
 
-              // Determine event type
-              let eventType: EventType = 'normal';
-              const eventText = (event.title + ' ' + event.description).toLowerCase();
-              if (eventText.includes('meeting') || eventText.includes('cuộc họp')) {
-                eventType = 'meeting';
-              } else if (eventText.includes('important') || eventText.includes('quan trọng')) {
-                eventType = 'important';
-              } else if (eventText.includes('work') || eventText.includes('công việc')) {
-                eventType = 'work';
-              }
-
               return (
                 <motion.div
                   key={event.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className={`
-                    absolute left-0 right-0 mx-1 p-2 rounded shadow-sm
-                    ${COLOR_SCHEME.event[eventType].bg}
-                    ${COLOR_SCHEME.event[eventType].text}
-                    transition-all duration-200 hover:scale-[1.02] cursor-pointer
-                    text-xs overflow-hidden
-                  `}
                   style={{ top: `${top}px`, height: `${height}px` }}
+                  className="absolute left-0 right-0 mx-1"
                 >
-                  <div className="font-medium text-sm">{event.title}</div>
-                  <div className="text-xs opacity-75 flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    {event.start_time} - {event.end_time}
-                  </div>
-                  {event.location && (
-                    <div className="text-xs opacity-75 flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                      </svg>
-                      {event.location}
-                    </div>
-                  )}
-                  {event.description && (
-                    <div className="text-xs opacity-75 mt-1">{event.description}</div>
-                  )}
+                  {renderEventInCalendar(event, true)}
                 </motion.div>
               );
             })}
@@ -620,18 +687,41 @@ export default function ScheduleCalendar() {
         {currentView === 'day' && renderDayView()}
       </div>
 
-      {/* Add Event Modal */}
+      {/* Add/Edit Event Modal */}
       {selectedDate && (
         <AddEventModal
           isOpen={isAddEventModalOpen}
           onClose={() => {
             setIsAddEventModalOpen(false);
             setSelectedDate(null);
+            setEditingEvent(null);
           }}
           selectedDate={selectedDate}
           onEventAdded={fetchEvents}
+          editingEvent={editingEvent}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteEventId} onOpenChange={() => setDeleteEventId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa sự kiện này? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteEventId && handleDeleteEvent(deleteEventId)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 } 
