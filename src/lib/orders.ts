@@ -22,17 +22,6 @@ const SHEETS = {
   CHI_TIET_DON_HANG: 'Đơn hàng chi tiết',
 };
 
-// Interface cho menu item
-interface MenuItem {
-  ma_mon: string;
-  ten_mon: string;
-  ma_danh_muc: string;
-  gia_ban: number;
-  mo_ta: string;
-  hinh_anh: string;
-  trang_thai: string;
-}
-
 interface OrderItem {
   ma_mon: string;
   so_luong: number;
@@ -49,14 +38,6 @@ interface NewOrder {
   danh_sach_mon: OrderItem[];
   phuong_thuc_thanh_toan?: string;
   ghi_chu?: string;
-}
-
-// Interface cho chi tiết đơn hàng dạng chuỗi
-interface OrderDetailString {
-  ma_mon: string;
-  so_luong: number;
-  don_gia: number;
-  thanh_tien: number;
 }
 
 // Interface cho đơn hàng
