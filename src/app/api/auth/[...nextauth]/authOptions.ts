@@ -9,14 +9,17 @@ import { DefaultSession } from 'next-auth';
 declare module "next-auth" {
   interface User {
     role?: string;
+    accessToken?: string;
   }
   interface Session {
     user: {
       role?: string;
+      accessToken?: string;
     } & DefaultSession["user"];
   }
   interface JWT {
     role?: string;
+    accessToken?: string;
   }
 }
 
@@ -28,6 +31,10 @@ const SHEET_NAME = 'Users';
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -84,25 +91,21 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-        console.log('JWT callback - user role:', user.role); // Debug log
+    async jwt({ token, account, profile }) {
+      if (account) {
+        token.accessToken = account.access_token;
       }
-      console.log('JWT callback - token:', token); // Debug log
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = typeof token.role === 'string' ? token.role : undefined;
-        console.log('Session callback - user role:', session.user.role); // Debug log
+        session.user.accessToken = token.accessToken as string;
       }
-      console.log('Session callback - session:', session); // Debug log
       return session;
-    }
+    },
   },
   pages: {
-    signIn: '/auth/signin',
+    signIn: '/login',
   },
   session: {
     strategy: "jwt",
