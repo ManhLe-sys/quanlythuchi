@@ -186,6 +186,7 @@ export default function ScheduleCalendar({ selectedDate: propSelectedDate, onDat
   const [isLoading, setIsLoading] = useState(true);
   const [editingEvent, setEditingEvent] = useState<EditEventData | null>(null);
   const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
+  const [showTableView, setShowTableView] = useState(false);
 
   useEffect(() => {
     setCurrentDate(propSelectedDate);
@@ -579,10 +580,80 @@ export default function ScheduleCalendar({ selectedDate: propSelectedDate, onDat
     }
   };
 
+  // Helper: Lấy tất cả task theo view hiện tại
+  const getAllTasksForCurrentView = () => {
+    if (currentView === 'month') {
+      const start = startOfMonth(currentDate);
+      const end = endOfMonth(currentDate);
+      return events.filter(event => {
+        const eventDate = parseISO(event.date);
+        return eventDate >= start && eventDate <= end;
+      });
+    } else if (currentView === 'week') {
+      const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+      const end = addDays(start, 6);
+      return events.filter(event => {
+        const eventDate = parseISO(event.date);
+        return eventDate >= start && eventDate <= end;
+      });
+    } else {
+      // day view
+      return events.filter(event => isSameDay(parseISO(event.date), currentDate));
+    }
+  };
+
+  // Helper: Tạo màu nổi bật cho tag
+  const getTagColor = (tag: string, idx: number) => {
+    const tagMap: Record<string, string> = {
+      urgent: 'bg-rose-600 text-white border-rose-700',
+      meeting: 'bg-blue-600 text-white border-blue-700',
+      work: 'bg-emerald-600 text-white border-emerald-700',
+      personal: 'bg-purple-600 text-white border-purple-700',
+      important: 'bg-yellow-500 text-white border-yellow-600',
+      done: 'bg-lime-600 text-white border-lime-700',
+      idea: 'bg-cyan-600 text-white border-cyan-700',
+      plan: 'bg-orange-500 text-white border-orange-600',
+      note: 'bg-gray-600 text-white border-gray-700',
+    };
+    const key = tag.trim().toLowerCase();
+    if (tagMap[key]) return tagMap[key];
+    // Random màu cho tag khác
+    const colorList = [
+      'bg-pink-500 text-white border-pink-600',
+      'bg-blue-500 text-white border-blue-600',
+      'bg-emerald-500 text-white border-emerald-600',
+      'bg-purple-500 text-white border-purple-600',
+      'bg-yellow-500 text-white border-yellow-600',
+      'bg-orange-500 text-white border-orange-600',
+      'bg-cyan-500 text-white border-cyan-600',
+      'bg-rose-500 text-white border-rose-600',
+      'bg-lime-500 text-white border-lime-600',
+      'bg-indigo-500 text-white border-indigo-600',
+      'bg-gray-500 text-white border-gray-600',
+    ];
+    return colorList[idx % colorList.length];
+  };
+
+  // Helper: Màu status nổi bật
+  const getStatusStyle = (status: Event['status']) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-500 text-white border-yellow-600';
+      case 'in_progress':
+        return 'bg-blue-600 text-white border-blue-700';
+      case 'completed':
+        return 'bg-emerald-600 text-white border-emerald-700';
+      case 'cancelled':
+        return 'bg-rose-600 text-white border-rose-700';
+      default:
+        return 'bg-slate-500 text-white border-slate-600';
+    }
+  };
+
   return (
     <div className="space-y-4">
-      {/* View Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      {/* View Controls + Toggle Table */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-2">
           {VIEW_OPTIONS.map(option => (
             <Button
@@ -597,55 +668,81 @@ export default function ScheduleCalendar({ selectedDate: propSelectedDate, onDat
                   : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
                 }
               `}
+              disabled={showTableView}
             >
               {option.label}
             </Button>
           ))}
         </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handlePrevious}
-            className="bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 text-slate-300"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6"/>
-            </svg>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setCurrentDate(new Date())}
-            className={`
-              transition-all duration-200 border-slate-700
-              ${isSameDay(currentDate, new Date())
-                ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
-                : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
-              }
-            `}
-          >
-            Today
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleNext}
-            className="bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 text-slate-300"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </Button>
-        </div>
+        <Button
+          variant={showTableView ? 'default' : 'outline'}
+          className={showTableView ? 'bg-blue-500 text-white' : 'bg-slate-800/50 text-blue-400 border-blue-400/30 hover:bg-blue-500/20'}
+          onClick={() => setShowTableView(v => !v)}
+        >
+          {showTableView ? 'Xem lịch' : 'Xem bảng công việc'}
+        </Button>
       </div>
 
       {/* Calendar Content */}
-      <div className="bg-slate-800/30 rounded-lg overflow-hidden border border-slate-700/50">
-        {currentView === 'month' && renderMonthView()}
-        {currentView === 'week' && renderWeekView()}
-        {currentView === 'day' && renderDayView()}
-      </div>
+      {!showTableView && (
+        <div className="bg-slate-800/30 rounded-lg overflow-hidden border border-slate-700/50 mb-8">
+          {currentView === 'month' && renderMonthView()}
+          {currentView === 'week' && renderWeekView()}
+          {currentView === 'day' && renderDayView()}
+        </div>
+      )}
+
+      {/* Task Table */}
+      {showTableView && (
+        <div className="bg-slate-800/30 rounded-lg overflow-x-auto border border-slate-700/50 p-4">
+          <h3 className="text-lg font-semibold text-emerald-400 mb-4">Danh sách công việc</h3>
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-700">
+                <th className="px-3 py-2 text-left text-slate-300 font-medium">Tên task</th>
+                <th className="px-3 py-2 text-left text-slate-300 font-medium">Ngày</th>
+                <th className="px-3 py-2 text-left text-slate-300 font-medium">Bắt đầu</th>
+                <th className="px-3 py-2 text-left text-slate-300 font-medium">Kết thúc</th>
+                <th className="px-3 py-2 text-left text-slate-300 font-medium">Trạng thái</th>
+                <th className="px-3 py-2 text-left text-slate-300 font-medium">Tag</th>
+                <th className="px-3 py-2 text-center text-slate-300 font-medium">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {getAllTasksForCurrentView().length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="text-center text-slate-400 py-6">Không có công việc nào</td>
+                </tr>
+              ) : (
+                getAllTasksForCurrentView().map((event, idx) => (
+                  <tr key={event.id} className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors">
+                    <td className="px-3 py-2 text-white font-medium">{event.title}</td>
+                    <td className="px-3 py-2 text-slate-300">{format(parseISO(event.date), 'dd/MM/yyyy')}</td>
+                    <td className="px-3 py-2 text-slate-300">{event.start_time}</td>
+                    <td className="px-3 py-2 text-slate-300">{event.end_time}</td>
+                    <td className="px-3 py-2">
+                      <span className={`px-2 py-1 rounded text-xs font-bold border-2 ${getStatusStyle(event.status)}`}>{getStatusLabel(event.status)}</span>
+                    </td>
+                    <td className="px-3 py-2">
+                      {event.tag ? event.tag.split(',').map((tag, tagIdx) => (
+                        <span key={tagIdx} className={`inline-block px-2 py-1 mr-1 mb-1 rounded-full text-xs font-semibold border ${getTagColor(tag, tagIdx)}`}>{tag}</span>
+                      )) : <span className="text-slate-400">-</span>}
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <button onClick={() => handleEditEvent(event)} className="p-1 rounded hover:bg-white/10 text-white/70 hover:text-white/90 mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                      </button>
+                      <button onClick={() => setDeleteEventId(event.id)} className="p-1 rounded hover:bg-rose-500/20 text-white/70 hover:text-rose-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Add/Edit Event Modal */}
       <AddEventModal

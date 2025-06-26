@@ -7,6 +7,7 @@ import AddExpenseModal from "@/app/components/AddExpenseModal";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import DateRangePicker from '../components/DateRangePicker';
 import { useLanguage } from "@/app/contexts/LanguageContext";
+import Loading from "../components/Loading";
 
 interface Transaction {
   id: string;
@@ -261,10 +262,7 @@ export default function TransactionsPage() {
         
         {isLoading ? (
           <div className="relative p-8">
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="mt-4 text-slate-300">{translate('dang_tai_du_lieu')}</p>
-            </div>
+            <Loading text={translate('dang_tai_du_lieu')} />
           </div>
         ) : error ? (
           <div className="relative p-8">
