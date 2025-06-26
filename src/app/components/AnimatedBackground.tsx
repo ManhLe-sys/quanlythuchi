@@ -1,6 +1,18 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 export function AnimatedBackground() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null;
+  }
+
   return (
     <div className="animated-background">
       <div className="nebula" />

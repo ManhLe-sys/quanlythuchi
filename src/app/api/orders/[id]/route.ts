@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getOrderDetails } from '@/lib/orders';
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const orderId = params.id;
-    const orderDetails = await getOrderDetails(orderId);
+    const { id } = await params;
+    const orderDetails = await getOrderDetails(id);
 
     return NextResponse.json({
       success: true,

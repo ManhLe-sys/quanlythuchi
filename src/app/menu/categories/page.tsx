@@ -41,8 +41,8 @@ export default function CategoriesPage() {
   const handleAddCategory = () => {
     if (newCategory.name) {
       const category: Category = {
-        id: Date.now().toString(),
         ...newCategory as Category,
+        id: Date.now().toString(),
       };
       setCategories([...categories, category]);
       setIsAddDialogOpen(false);
