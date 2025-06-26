@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { DropdownMenu } from './ui/dropdown-menu';
 
 export default function Header() {
   const pathname = usePathname();
@@ -34,6 +35,24 @@ export default function Header() {
     
     return true; // Default fallback
   };
+
+  // Menu items grouped by category
+  const financeMenuItems = [
+    { href: '/home', label: translate('thu_chi'), icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
+    { href: '/transactions', label: translate('giao_dich'), icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> },
+    { href: '/reports', label: translate('bao_cao'), icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg> },
+  ].filter(item => shouldShowMenuItem(item.href.replace('/', '')));
+
+  const salesMenuItems = [
+    { href: '/products', label: translate('san_pham'), icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg> },
+    { href: '/orders', label: translate('don_hang'), icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> },
+    { href: '/admin', label: translate('quan_ly'), icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg> },
+  ].filter(item => shouldShowMenuItem(item.href.replace('/', '')));
+
+  const featureMenuItems = [
+    { href: '/pomodoro', label: 'Pomodoro', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
+    { href: '/schedule', label: translate('lich_lam_viec'), icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> },
+  ].filter(item => shouldShowMenuItem(item.href.replace('/', '')));
 
   // Toggle language function
   const toggleLanguage = () => {
@@ -72,92 +91,49 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
-            {shouldShowMenuItem('home') && (
-              <Link 
-                href="/home" 
-                className={`px-4 py-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/home' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('thu_chi')}
-              </Link>
-            )}
-            
-            {shouldShowMenuItem('transactions') && (
-              <Link 
-                href="/transactions" 
-                className={`px-4 py-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/transactions' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('giao_dich')}
-              </Link>
-            )}
-            
-            {shouldShowMenuItem('reports') && (
-              <Link 
-                href="/reports" 
-                className={`px-4 py-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/reports' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('bao_cao')}
-              </Link>
-            )}
-            
-            {shouldShowMenuItem('products') && (
-              <Link 
-                href="/products" 
-                className={`px-4 py-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/products' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('san_pham')}
-              </Link>
-            )}
-            
-            {shouldShowMenuItem('orders') && (
-              <Link 
-                href="/orders" 
-                className={`px-4 py-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/orders' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('don_hang')}
-              </Link>
+            {financeMenuItems.length > 0 && (
+              <DropdownMenu
+                trigger={
+                  <span className="flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {translate('thu_chi')}
+                  </span>
+                }
+                items={financeMenuItems}
+                label={translate('thu_chi')}
+              />
             )}
 
-            {shouldShowMenuItem('admin') && (
-              <Link 
-                href="/admin" 
-                className={`px-4 py-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/admin' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('quan_ly')}
-              </Link>
+            {salesMenuItems.length > 0 && (
+              <DropdownMenu
+                trigger={
+                  <span className="flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    {translate('quan_ly_ban_hang')}
+                  </span>
+                }
+                items={salesMenuItems}
+                label={translate('quan_ly_ban_hang')}
+              />
             )}
 
-            {shouldShowMenuItem('pomodoro') && (
-              <Link 
-                href="/pomodoro" 
-                className={`px-4 py-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/pomodoro' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                Pomodoro
-              </Link>
-            )}
-
-            {shouldShowMenuItem('schedule') && (
-              <Link 
-                href="/schedule" 
-                className={`px-4 py-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/schedule' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('lich_lam_viec')}
-              </Link>
+            {featureMenuItems.length > 0 && (
+              <DropdownMenu
+                trigger={
+                  <span className="flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    {translate('chuc_nang')}
+                  </span>
+                }
+                items={featureMenuItems}
+                label={translate('chuc_nang')}
+              />
             )}
           </nav>
 
@@ -236,105 +212,65 @@ export default function Header() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-slate-700/20">
-            {/* Mobile menu items with the same styling as desktop */}
-            {shouldShowMenuItem('home') && (
-              <Link 
-                href="/home" 
-                className={`block px-4 py-2 mt-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/home' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('thu_chi')}
-              </Link>
-            )}
-            
-            {shouldShowMenuItem('transactions') && (
-              <Link 
-                href="/transactions" 
-                className={`block px-4 py-2 mt-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/transactions' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('giao_dich')}
-              </Link>
-            )}
-            
-            {shouldShowMenuItem('reports') && (
-              <Link 
-                href="/reports" 
-                className={`block px-4 py-2 mt-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/reports' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('bao_cao')}
-              </Link>
-            )}
-            
-            {shouldShowMenuItem('products') && (
-              <Link 
-                href="/products" 
-                className={`block px-4 py-2 mt-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/products' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('san_pham')}
-              </Link>
-            )}
-            
-            {shouldShowMenuItem('orders') && (
-              <Link 
-                href="/orders" 
-                className={`block px-4 py-2 mt-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/orders' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('don_hang')}
-              </Link>
-            )}
-            
-            {shouldShowMenuItem('admin') && (
-              <Link 
-                href="/admin" 
-                className={`block px-4 py-2 mt-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/admin' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('quan_ly')}
-              </Link>
+            {/* Finance Menu */}
+            {financeMenuItems.length > 0 && (
+              <div className="mt-2">
+                <div className="px-4 py-2 text-sm font-medium text-slate-400">{translate('thu_chi')}</div>
+                {financeMenuItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-2 px-4 py-2 text-slate-300 ${
+                      pathname === item.href ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
             )}
 
-            {shouldShowMenuItem('pomodoro') && (
-              <Link 
-                href="/pomodoro" 
-                className={`block px-4 py-2 mt-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/pomodoro' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                Pomodoro
-              </Link>
+            {/* Sales Menu */}
+            {salesMenuItems.length > 0 && (
+              <div className="mt-2">
+                <div className="px-4 py-2 text-sm font-medium text-slate-400">{translate('quan_ly_ban_hang')}</div>
+                {salesMenuItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-2 px-4 py-2 text-slate-300 ${
+                      pathname === item.href ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
             )}
 
-            {shouldShowMenuItem('schedule') && (
-              <Link 
-                href="/schedule" 
-                className={`block px-4 py-2 mt-2 rounded-xl text-slate-300 font-medium transition-all ${
-                  pathname === '/schedule' ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
-                }`}
-              >
-                {translate('lich_lam_viec')}
-              </Link>
+            {/* Features Menu */}
+            {featureMenuItems.length > 0 && (
+              <div className="mt-2">
+                <div className="px-4 py-2 text-sm font-medium text-slate-400">{translate('chuc_nang')}</div>
+                {featureMenuItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-2 px-4 py-2 text-slate-300 ${
+                      pathname === item.href ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-slate-800/50'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
             )}
-
-            {/* Mobile Language Switcher */}
-            <button 
-              onClick={toggleLanguage}
-              className="mt-2 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800/50 transition-all flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-              </svg>
-              <span className="font-medium">{language === 'vi' ? 'Tiếng Việt' : 'English'}</span>
-            </button>
           </nav>
         )}
       </div>

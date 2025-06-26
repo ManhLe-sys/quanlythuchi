@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '../contexts/LanguageContext';
+import { ProductGrid, ProductCard } from '../components/ProductGrid';
 
 interface Product {
   id: string;
@@ -963,11 +964,10 @@ export default function ProductsPage() {
 
       {/* Products Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+        <ProductGrid>
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-lg animate-pulse">
-              <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
-              <div className="relative">
+            <ProductCard key={i}>
+              <div className="relative animate-pulse">
                 <div className="h-40 sm:h-48 bg-white/20"></div>
                 <div className="p-4 sm:p-5 space-y-3">
                   <div className="h-6 bg-white/20 rounded-lg w-3/4"></div>
@@ -975,39 +975,33 @@ export default function ProductsPage() {
                   <div className="h-6 bg-white/20 rounded-lg w-1/4"></div>
                 </div>
               </div>
-            </div>
+            </ProductCard>
           ))}
-        </div>
+        </ProductGrid>
       ) : error ? (
-        <div className="relative overflow-hidden bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl p-8 text-center shadow-lg">
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
-          <div className="relative">
+        <ProductCard>
+          <div className="p-8 text-center">
             <svg className="w-16 h-16 text-white/80 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-white font-medium">{error}</p>
           </div>
-        </div>
+        </ProductCard>
       ) : filteredProducts.length === 0 ? (
-        <div className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 text-center shadow-lg">
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
-          <div className="relative">
+        <ProductCard>
+          <div className="p-8 text-center">
             <svg className="w-16 h-16 text-white/80 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <h3 className="text-xl font-medium text-white mb-1">{translate('khong_tim_thay_sp')}</h3>
             <p className="text-white/80">{translate('thu_tim_kiem_khac')}</p>
           </div>
-        </div>
+        </ProductCard>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+        <ProductGrid>
           {filteredProducts.map((product) => (
-            <div 
-              key={product.id} 
-              className="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl shadow-lg group h-full flex flex-col"
-            >
-              <div className="absolute inset-0 bg-white/10 backdrop-blur-xl"></div>
-              <div className="relative flex flex-col h-full">
+            <ProductCard key={product.id}>
+              <div className="relative flex flex-col h-full group">
                 <div className="h-40 sm:h-48 relative overflow-hidden rounded-t-3xl">
                   <img 
                     src={product.imageUrl || '/placeholder-product.jpg'} 
@@ -1080,9 +1074,9 @@ export default function ProductsPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </ProductCard>
           ))}
-        </div>
+        </ProductGrid>
       )}
     </div>
   );
