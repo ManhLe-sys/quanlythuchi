@@ -292,76 +292,35 @@ export async function getCategories() {
 }
 
 // Hàm lấy danh sách đơn hàng
-export async function getOrders(menuItems: MenuItem[]) {
+export async function getOrders(): Promise<Order[]> {
   try {
-    // 1. Lấy danh sách đơn hàng
-    const orderResponse = await sheets.spreadsheets.values.get({
+    const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEETS.DON_HANG}!A:O`,
+      range: `${SHEETS.DON_HANG}!A:P`,
     });
 
-    const orders = orderResponse.data.values || [];
-    if (!orders || orders.length <= 1) return [];
+    const rows = response.data.values;
+    if (!rows || rows.length <= 1) return [];
 
-    // 2. Lấy danh sách chi tiết đơn hàng
-    const detailResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEETS.CHI_TIET_DON_HANG}!A:M`,
-    });
-
-    const details = detailResponse.data.values || [];
-    const orderDetails = new Map();
-
-    // Nhóm chi tiết đơn hàng theo ID đơn hàng
-    if (details.length > 1) {
-      details.slice(1).forEach(detail => {
-        const orderId = detail[0]; // ID đơn hàng
-        if (!orderDetails.has(orderId)) {
-          orderDetails.set(orderId, []);
-        }
-        orderDetails.get(orderId).push({
-          stt: detail[2],
-          ma_mon: detail[3],
-          ten_mon: detail[4],
-          don_vi_tinh: detail[5],
-          so_luong: parseInt(detail[6]),
-          don_gia: parseFloat(detail[7]),
-          thanh_tien: parseFloat(detail[8]),
-          ghi_chu: detail[9],
-        });
-      });
-    }
-
-    // 3. Chuyển đổi dữ liệu đơn hàng
-    return orders.slice(1).map(order => {
-      const orderId = order[0];
-      const orderDetail = orderDetails.get(orderId) || [];
-
-      // Tạo chuỗi sản phẩm để hiển thị
-      const sanPham = orderDetail
-        .map((detail: any) => `${detail.ten_mon} (x${detail.so_luong})`)
-        .join(', ');
-
-      return {
-        id: order[0],
-        ma_don: order[1],
-        ten_khach: order[2],
-        so_dien_thoai: order[3],
-        dia_chi: order[4],
-        ngay_dat: order[5],
-        ngay_giao: order[6],
-        tong_tien: parseFloat(order[7]),
-        trang_thai: order[8],
-        trang_thai_thanh_toan: order[9],
-        phuong_thuc_thanh_toan: order[10],
-        ghi_chu: order[11],
-        id_nguoi_tao: order[12],
-        thoi_gian_tao: order[13],
-        thoi_gian_cap_nhat: order[14],
-        san_pham: sanPham,
-        chi_tiet: orderDetail,
-      };
-    });
+    // Bỏ qua header và chuyển đổi dữ liệu
+    return rows.slice(1).map(row => ({
+      id: row[0],
+      ma_don: row[1],
+      ten_khach: row[2],
+      so_dien_thoai: row[3],
+      dia_chi: row[4],
+      ngay_dat: row[5],
+      ngay_giao: row[6],
+      tong_tien: parseFloat(row[7]),
+      trang_thai: row[8],
+      trang_thai_thanh_toan: row[9],
+      phuong_thuc_thanh_toan: row[10],
+      ghi_chu: row[11],
+      id_nguoi_tao: row[12],
+      thoi_gian_tao: row[13],
+      thoi_gian_cap_nhat: row[14],
+      chi_tiet: row[15] || '',
+    }));
   } catch (error) {
     console.error('Lỗi khi lấy danh sách đơn hàng:', error);
     return [];
@@ -369,28 +328,24 @@ export async function getOrders(menuItems: MenuItem[]) {
 }
 
 // Hàm lấy chi tiết đơn hàng theo mã đơn
-export async function getOrderDetails(orderId: string) {
+export async function getOrderDetails(orderId: string): Promise<OrderItem[]> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: `${SHEETS.CHI_TIET_DON_HANG}!A:M`,
     });
 
-    const rows = response.data.values || [];
+    const rows = response.data.values;
     if (!rows || rows.length <= 1) return [];
 
-    // Lọc các dòng có ID đơn hàng trùng khớp
+    // Lọc các dòng có ID đơn hàng trùng khớp và chuyển đổi dữ liệu
     return rows.slice(1)
       .filter(row => row[0] === orderId)
-      .map((row, index) => ({
-        stt: row[2] || (index + 1),
+      .map(row => ({
         ma_mon: row[3],
-        ten_mon: row[4],
-        don_vi_tinh: row[5],
         so_luong: parseInt(row[6]),
         don_gia: parseFloat(row[7]),
-        thanh_tien: parseFloat(row[8]),
-        ghi_chu: row[9] || '',
+        thanh_tien: parseFloat(row[8])
       }));
   } catch (error) {
     console.error('Lỗi khi lấy chi tiết đơn hàng:', error);
