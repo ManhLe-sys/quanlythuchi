@@ -10,7 +10,7 @@ export async function GET() {
     ]);
 
     // Lấy danh sách đơn hàng
-    const orders = await getOrders(menuItems);
+    const orders = await getOrders();
 
     return NextResponse.json({
       success: true,

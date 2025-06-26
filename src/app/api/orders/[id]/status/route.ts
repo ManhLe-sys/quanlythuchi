@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { trang_thai, trang_thai_thanh_toan } = await request.json();
-    const orderId = params.id;
+    const { id } = await params;
 
     // Kiểm tra biến môi trường
     const spreadsheetId = process.env.GOOGLE_SHEETS_SHEET_ID;
@@ -56,7 +56,7 @@ export async function PUT(
     }
 
     // Tìm hàng chứa đơn hàng cần cập nhật
-    const orderRowIndex = rows.findIndex(row => row[1] === orderId);
+    const orderRowIndex = rows.findIndex(row => row[1] === id);
     if (orderRowIndex === -1) {
       return NextResponse.json(
         { success: false, message: 'Không tìm thấy đơn hàng' },
