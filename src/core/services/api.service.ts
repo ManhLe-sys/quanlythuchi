@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { InternalAxiosRequestConfig } from 'axios';
+import type { InternalAxiosRequestConfig, AxiosError } from 'axios';
 import { CONFIG } from '../config/config';
 
 const axiosInstance = axios.create({
@@ -20,7 +20,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error: any) => {
+  (error: AxiosError) => {
     return Promise.reject(error);
   }
 );
@@ -28,7 +28,7 @@ axiosInstance.interceptors.request.use(
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error: any) => {
+  (error: AxiosError) => {
     // Handle errors here
     return Promise.reject(error);
   }
