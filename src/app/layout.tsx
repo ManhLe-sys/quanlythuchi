@@ -2,6 +2,7 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { Providers } from './providers'
 import { Toaster } from '@/components/ui/toaster'
+import { AnimatedBackground } from './components/AnimatedBackground'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,24 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="animated-background">
-          <div className="nebula" />
-          <div className="dots-grid" />
-          <div className="orb orb-1" />
-          <div className="orb orb-2" />
-          <div className="orb orb-3" />
-          <div className="glow-line" />
-          <div className="glow-line" />
-          <div className="glow-line" />
-          <div className="glow-line" />
-          <div className="particle-container">
-            <div className="particle" />
-            <div className="particle" />
-            <div className="particle" />
-            <div className="particle" />
-            <div className="particle" />
-          </div>
-        </div>
+        <AnimatedBackground />
         <div className="content-wrapper">
           <Providers>
             {children}

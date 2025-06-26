@@ -36,6 +36,8 @@ const translations: Record<Language, Record<string, string>> = {
     'don_hang': 'Đơn Hàng',
     'quan_ly': 'Quản Lý',
     'lich_lam_viec': 'Lịch làm việc',
+    'quan_ly_ban_hang': 'Quản lý bán hàng',
+    'chuc_nang': 'Chức năng',
     
     // User menu
     'dang_nhap': 'Đăng Nhập',
@@ -238,6 +240,8 @@ const translations: Record<Language, Record<string, string>> = {
     'don_hang': 'Orders',
     'quan_ly': 'Admin',
     'lich_lam_viec': 'Schedule',
+    'quan_ly_ban_hang': 'Sales Management',
+    'chuc_nang': 'Features',
     
     // User menu
     'dang_nhap': 'Login',

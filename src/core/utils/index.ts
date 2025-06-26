@@ -12,7 +12,7 @@ export const storage = {
       return null;
     }
   },
-  set: (key: string, value: any) => {
+  set: <T>(key: string, value: T) => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {

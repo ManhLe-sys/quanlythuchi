@@ -21,9 +21,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  // Load user data from localStorage on mount
+  // Use useLayoutEffect to avoid hydration mismatch
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem('user');
@@ -33,9 +33,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Error loading user data:', error);
-    } finally {
-      setIsLoading(false);
     }
+    setMounted(true);
   }, []);
 
   const login = (userData: User) => {
@@ -67,11 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Error during logout:', error);
     }
   };
-
-  // Don't render children until we've checked localStorage
-  if (isLoading) {
-    return null;
-  }
 
   return (
     <AuthContext.Provider value={{ 
