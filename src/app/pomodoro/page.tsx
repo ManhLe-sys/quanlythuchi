@@ -89,41 +89,37 @@ export default function PomodoroPage() {
               settings={settings}
               setSettings={setSettings}
             />
+            {/* History Toggle Button & Section dưới đồng hồ */}
+            <div className="mt-8">
+              <Button
+                variant="outline"
+                onClick={() => setShowHistory(!showHistory)}
+                className="w-full flex items-center justify-center gap-2 bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 text-slate-300"
+              >
+                {showHistory ? (
+                  <>
+                    <ChevronUp className="h-4 w-4" />
+                    Hide History
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4" />
+                    Show History
+                  </>
+                )}
+              </Button>
+              {showHistory && (
+                <Card className="mt-4 p-6 bg-slate-800/30 backdrop-blur-xl border-slate-700/50 shadow-xl shadow-slate-900/20 hover:shadow-slate-900/30 transition-all duration-300 max-h-[300px] overflow-auto">
+                  <PomodoroLogs compact={true} />
+                </Card>
+              )}
+            </div>
           </Card>
 
           {/* Right Section */}
-          <div className="space-y-4">
-            {/* YouTube Player Section */}
-            <Card className="p-6 bg-slate-800/30 backdrop-blur-xl border-slate-700/50 shadow-xl shadow-slate-900/20 hover:shadow-slate-900/30 transition-all duration-300 min-h-[400px]">
-              <YouTubePlayer />
-            </Card>
-
-            {/* History Toggle Button */}
-            <Button
-              variant="outline"
-              onClick={() => setShowHistory(!showHistory)}
-              className="w-full flex items-center justify-center gap-2 bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 text-slate-300"
-            >
-              {showHistory ? (
-                <>
-                  <ChevronUp className="h-4 w-4" />
-                  Hide History
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="h-4 w-4" />
-                  Show History
-                </>
-              )}
-            </Button>
-
-            {/* Compact History Section */}
-            {showHistory && (
-              <Card className="p-6 bg-slate-800/30 backdrop-blur-xl border-slate-700/50 shadow-xl shadow-slate-900/20 hover:shadow-slate-900/30 transition-all duration-300 max-h-[300px] overflow-auto">
-                <PomodoroLogs compact={true} />
-              </Card>
-            )}
-          </div>
+          <Card className="p-6 bg-slate-800/30 backdrop-blur-xl border-slate-700/50 shadow-xl shadow-slate-900/20 hover:shadow-slate-900/30 transition-all duration-300 min-h-[400px]">
+            <YouTubePlayer />
+          </Card>
         </div>
       </div>
     </div>
