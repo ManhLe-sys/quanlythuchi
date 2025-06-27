@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RotateCcw, Settings2 } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
 
 interface PomodoroTimerProps {
   currentSession: {
@@ -45,7 +44,6 @@ export default function PomodoroTimer({
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [progress, setProgress] = useState(100);
   const [showSettings, setShowSettings] = useState(false);
-  const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -69,54 +67,9 @@ export default function PomodoroTimer({
     audio.play().catch(console.error);
   };
 
-  const logSession = async (type: string, startTime: Date, duration: number) => {
-    try {
-      console.log('Logging session:', {
-        type,
-        startTime: startTime.toISOString(),
-        duration
-      });
-
-      const response = await fetch('/api/pomodoro/sessions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          session_id: uuidv4(),
-          user_id: '', // Can be populated with actual user ID if available
-          type,
-          start_time: startTime.toISOString(),
-          duration,
-          note: `Cycle ${currentSession.currentCycle} of ${settings.cyclesBeforeLongBreak}`
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.details || data.error || 'Failed to log session');
-      }
-
-      toast({
-        title: 'Session Logged',
-        description: `${type} session of ${duration} minutes has been logged successfully.`,
-      });
-
-    } catch (error) {
-      console.error('Error logging session:', error);
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to log session',
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleStart = () => {
     if (!currentSession.isActive) {
       setShowSettings(false);
-      setSessionStartTime(new Date());
       setCurrentSession(prev => ({ ...prev, isActive: true }));
       const totalDuration = getSessionDuration(currentSession.type);
       
@@ -128,12 +81,6 @@ export default function PomodoroTimer({
           if (newTimeLeft <= 0) {
             clearInterval(id);
             playNotificationSound();
-            
-            // Log completed session
-            if (sessionStartTime) {
-              const duration = Math.round((new Date().getTime() - sessionStartTime.getTime()) / 1000 / 60);
-              logSession(prev.type, sessionStartTime, duration);
-            }
             
             let nextType: 'work' | 'shortBreak' | 'longBreak';
             let nextCycle = prev.currentCycle;
@@ -180,13 +127,6 @@ export default function PomodoroTimer({
       clearInterval(intervalId);
       setIntervalId(null);
       setCurrentSession(prev => ({ ...prev, isActive: false }));
-      
-      // Log partial session
-      if (sessionStartTime) {
-        const duration = Math.round((new Date().getTime() - sessionStartTime.getTime()) / 1000 / 60);
-        logSession(currentSession.type + '_paused', sessionStartTime, duration);
-        setSessionStartTime(null);
-      }
     }
   };
 
@@ -195,14 +135,6 @@ export default function PomodoroTimer({
       clearInterval(intervalId);
       setIntervalId(null);
     }
-    
-    // Log reset session if it was active
-    if (sessionStartTime && currentSession.isActive) {
-      const duration = Math.round((new Date().getTime() - sessionStartTime.getTime()) / 1000 / 60);
-      logSession(currentSession.type + '_reset', sessionStartTime, duration);
-      setSessionStartTime(null);
-    }
-    
     const resetTimeLeft = getSessionDuration('work');
     setProgress(100);
     setCurrentSession(prev => ({
