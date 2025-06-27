@@ -8,8 +8,8 @@ import RouteChangeLoading from "./components/RouteChangeLoading";
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Quản lý thu chi',
-  description: 'Quản lý thu chi',
+  title: 'Orbit Ken',
+  description: 'Orbit Ken - Modern Finance Management System',
 }
 
 export default function RootLayout({

@@ -26,7 +26,7 @@ export const useLanguage = () => useContext(LanguageContext);
 const translations: Record<Language, Record<string, string>> = {
   vi: {
     // App name
-    'app_name': 'Quản Lý Thu Chi',
+    'app_name': 'Orbit Ken',
     
     // Header navigation
     'thu_chi': 'Thu Chi',
@@ -116,8 +116,8 @@ const translations: Record<Language, Record<string, string>> = {
     'vui_long_thu_lai': 'Vui lòng thử lại sau',
     
     // Thu Chi page
-    'quan_ly_thu_chi': 'Quản Lý Thu Chi',
-    'theo_doi_thu_chi': 'Theo dõi và quản lý thu chi của bạn một cách hiệu quả',
+    'quan_ly_thu_chi': 'Orbit Ken',
+    'theo_doi_thu_chi': 'Quản lý tài chính thông minh',
     'ngay': 'Ngày',
     'tuan': 'Tuần',
     'thang': 'Tháng',
@@ -230,15 +230,15 @@ const translations: Record<Language, Record<string, string>> = {
   },
   en: {
     // App name
-    'app_name': 'Finance Manager',
+    'app_name': 'Orbit Ken',
     
     // Header navigation
-    'thu_chi': 'Income/Expense',
+    'thu_chi': 'Finance',
     'giao_dich': 'Transactions',
     'bao_cao': 'Reports',
     'san_pham': 'Products',
     'don_hang': 'Orders',
-    'quan_ly': 'Admin',
+    'quan_ly': 'Management',
     'lich_lam_viec': 'Schedule',
     'quan_ly_ban_hang': 'Sales Management',
     'chuc_nang': 'Features',
@@ -320,8 +320,8 @@ const translations: Record<Language, Record<string, string>> = {
     'vui_long_thu_lai': 'Please try again later',
     
     // Thu Chi page
-    'quan_ly_thu_chi': 'Income & Expense Management',
-    'theo_doi_thu_chi': 'Track and manage your finances effectively',
+    'quan_ly_thu_chi': 'Orbit Ken',
+    'theo_doi_thu_chi': 'Smart Financial Management',
     'ngay': 'Day',
     'tuan': 'Week',
     'thang': 'Month',
